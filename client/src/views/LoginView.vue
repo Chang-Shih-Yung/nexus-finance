@@ -5,8 +5,9 @@
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-sm text-gray-400 mb-1">帳號</label>
+          <label for="username" class="block text-sm text-gray-400 mb-1">帳號</label>
           <input
+            id="username"
             v-model="username"
             type="text"
             autocomplete="username"
@@ -16,8 +17,9 @@
         </div>
 
         <div>
-          <label class="block text-sm text-gray-400 mb-1">密碼</label>
+          <label for="password" class="block text-sm text-gray-400 mb-1">密碼</label>
           <input
+            id="password"
             v-model="password"
             type="password"
             autocomplete="current-password"
@@ -59,8 +61,14 @@ async function handleLogin() {
   try {
     await login(username.value, password.value)
     router.push('/dashboard')
-  } catch {
-    errorMsg.value = '帳號或密碼錯誤'
+  } catch (e: any) {
+    if (e.response?.status === 401) {
+      errorMsg.value = '帳號或密碼錯誤'
+    } else if (e.code === 'ERR_NETWORK' || e.message?.includes('CORS') || !e.response) {
+      errorMsg.value = '無法連線到伺服器（網路或 CORS 問題），請稍後再試'
+    } else {
+      errorMsg.value = `登入失敗：${e.response?.data?.error ?? e.message}`
+    }
   } finally {
     loading.value = false
   }
