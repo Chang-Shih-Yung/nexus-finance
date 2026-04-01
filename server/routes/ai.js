@@ -1,9 +1,9 @@
 /**
  * AI Query Route — POST /api/ai/query
- * 接收自然語言問題，透過 Copilot SDK 代理查詢資料庫
+ * 接收自然語言問題，透過 Groq 代理查詢資料庫
  */
 const { Router } = require('express');
-const { query } = require('../services/geminiAgent');
+const { query } = require('../services/groqAgent');
 
 const router = Router();
 
