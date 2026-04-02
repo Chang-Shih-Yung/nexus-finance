@@ -18,8 +18,13 @@ supabase.auth.onAuthStateChange((event, s) => {
 })
 
 // ── Axios instance for Edge Functions ───────────────────────────
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+
 export const api = axios.create({
   baseURL: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`,
+  headers: {
+    apikey: SUPABASE_ANON_KEY,
+  },
 })
 
 api.interceptors.request.use(async (config) => {
