@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-async function invokeEdgeFunction<T>(name: string, options?: { body?: unknown; query?: Record<string, string> }): Promise<T> {
+async function invokeEdgeFunction<T>(name: string, options?: { body?: Record<string, unknown>; query?: Record<string, string> }): Promise<T> {
     const supabase = createClient()
     let path = name
     if (options?.query) {
@@ -32,5 +32,5 @@ export const api = {
         invokeEdgeFunction('stats-failed-transactions', { query: { limit: String(limit) } }),
     getApiHealth: (minutes = 60) =>
         invokeEdgeFunction('stats-api-health', { query: { minutes: String(minutes) } }),
-    aiQuery: (query: string) => invokeEdgeFunction('ai-query', { body: { query } }),
+    aiQuery: (query: string) => invokeEdgeFunction('ai-query', { body: { query } as Record<string, unknown> }),
 }
