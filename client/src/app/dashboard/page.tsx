@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement,
   LineElement, Title, Tooltip, Legend, Filler,
@@ -32,20 +32,20 @@ export default function DashboardPage() {
   })
   const [trendData, setTrendData] = useState<TrendRow[]>([])
 
-  const loadData = useCallback(async () => {
-    const [ov, trend] = await Promise.allSettled([
-      api.getOverview() as Promise<Overview>,
-      api.getTrend(7) as Promise<TrendRow[]>,
-    ])
-    if (ov.status === 'fulfilled') setOverview(ov.value)
-    if (trend.status === 'fulfilled') setTrendData(trend.value)
-  }, [])
-
   useEffect(() => {
-    loadData()
-    const t = setInterval(loadData, 30000)
+    const load = () => {
+      Promise.allSettled([
+        api.getOverview() as Promise<Overview>,
+        api.getTrend(7) as Promise<TrendRow[]>,
+      ]).then(([ov, trend]) => {
+        if (ov.status === 'fulfilled') setOverview(ov.value)
+        if (trend.status === 'fulfilled') setTrendData(trend.value)
+      })
+    }
+    load()
+    const t = setInterval(load, 30000)
     return () => clearInterval(t)
-  }, [loadData])
+  }, [])
 
   const labels = trendData.map(d => {
     const dt = new Date(d.date)

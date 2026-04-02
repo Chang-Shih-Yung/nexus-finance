@@ -4,9 +4,9 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
   BarElement, ArcElement, Title, Tooltip, Legend, Filler,
+  type ChartData, type ChartOptions,
 } from 'chart.js'
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
-import AppShell from '@/components/AppShell'
 import { api } from '@/lib/api'
 
 ChartJS.register(
@@ -14,12 +14,24 @@ ChartJS.register(
   BarElement, ArcElement, Title, Tooltip, Legend, Filler,
 )
 
+interface ChartConfig {
+  type: 'line' | 'bar' | 'pie' | 'doughnut'
+  data: ChartData
+  options?: ChartOptions
+}
+
+interface AiQueryResponse {
+  answer: string
+  sql?: string
+  chartConfig?: ChartConfig
+}
+
 interface Message {
   role: 'user' | 'assistant'
   content: string
   sql?: string
   showSql?: boolean
-  chartConfig?: any
+  chartConfig?: ChartConfig
 }
 
 const sampleQueries = [
@@ -31,14 +43,13 @@ const sampleQueries = [
   '哪些客戶超過 7 天沒有登入了？',
 ]
 
-function ChartRenderer({ config }: { config: any }) {
-  const props = { data: config.data, options: config.options ?? {} }
+function ChartRenderer({ config }: Readonly<{ config: ChartConfig }>) {
   switch (config.type) {
-    case 'line': return <Line {...props} />
-    case 'bar': return <Bar {...props} />
-    case 'pie': return <Pie {...props} />
-    case 'doughnut': return <Doughnut {...props} />
-    default: return <Bar {...props} />
+    case 'line': return <Line data={config.data as ChartData<'line'>} options={config.options as ChartOptions<'line'>} />
+    case 'bar': return <Bar data={config.data as ChartData<'bar'>} options={config.options as ChartOptions<'bar'>} />
+    case 'pie': return <Pie data={config.data as ChartData<'pie'>} options={config.options as ChartOptions<'pie'>} />
+    case 'doughnut': return <Doughnut data={config.data as ChartData<'doughnut'>} options={config.options as ChartOptions<'doughnut'>} />
+    default: return <Bar data={config.data as ChartData<'bar'>} options={config.options as ChartOptions<'bar'>} />
   }
 }
 
@@ -59,7 +70,7 @@ export default function AiQueryPage() {
     setMessages(prev => [...prev, { role: 'user', content: query }])
     setLoading(true)
     try {
-      const data = await api.aiQuery(query) as any
+      const data = await api.aiQuery(query) as AiQueryResponse
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: data.answer,
@@ -67,10 +78,10 @@ export default function AiQueryPage() {
         showSql: false,
         chartConfig: data.chartConfig,
       }])
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: err.message || '查詢失敗，請稍後再試。',
+        content: err instanceof Error ? err.message : '查詢失敗，請稍後再試。',
       }])
     } finally {
       setLoading(false)
@@ -85,7 +96,7 @@ export default function AiQueryPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="space-y-4 mb-6 min-h-[400px]" ref={chatRef}>
+      <div className="space-y-4 mb-6 min-h-100" ref={chatRef}>
         {messages.length === 0 && (
           <div className="text-center py-16">
             <p className="text-4xl mb-4">🤖</p>

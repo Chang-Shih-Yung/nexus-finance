@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement,
   LineElement, Title, Tooltip, Legend, Filler,
@@ -23,16 +23,14 @@ interface HealthRow {
 export default function MonitorPage() {
   const [healthData, setHealthData] = useState<HealthRow[]>([])
 
-  const loadData = useCallback(async () => {
-    const data = await api.getApiHealth(60) as HealthRow[]
-    setHealthData(data)
-  }, [])
-
   useEffect(() => {
-    loadData()
-    const t = setInterval(loadData, 15000)
+    const load = () => {
+      (api.getApiHealth(60) as Promise<HealthRow[]>).then((data) => setHealthData(data))
+    }
+    load()
+    const t = setInterval(load, 15000)
     return () => clearInterval(t)
-  }, [loadData])
+  }, [])
 
   const avgLatency = healthData.length
     ? Math.round(healthData.reduce((a, d) => a + Number(d.avg_latency), 0) / healthData.length)
