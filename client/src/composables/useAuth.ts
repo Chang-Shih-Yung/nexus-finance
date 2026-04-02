@@ -10,8 +10,11 @@ supabase.auth.getSession().then(({ data }) => {
   session.value = data.session
 })
 
-supabase.auth.onAuthStateChange((_event, s) => {
-  session.value = s
+supabase.auth.onAuthStateChange((event, s) => {
+  // INITIAL_SESSION 在 getSession() 已處理，避免重複覆蓋造成閃爍
+  if (event !== 'INITIAL_SESSION') {
+    session.value = s
+  }
 })
 
 // ── Axios instance for Edge Functions ───────────────────────────
