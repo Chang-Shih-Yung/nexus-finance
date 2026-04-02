@@ -4,6 +4,11 @@ import { createClient } from '@/lib/supabase/client'
 
 async function invokeEdgeFunction<T>(name: string, options?: { body?: Record<string, unknown>; query?: Record<string, string> }): Promise<T> {
     const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+        throw new Error('尚未登入或登入已過期，請重新登入後再試')
+    }
+
     let path = name
     if (options?.query) {
         const params = new URLSearchParams(options.query).toString()
@@ -12,6 +17,9 @@ async function invokeEdgeFunction<T>(name: string, options?: { body?: Record<str
     const { data, error } = await supabase.functions.invoke<T>(path, {
         method: options?.body ? 'POST' : 'GET',
         body: options?.body,
+        headers: {
+            Authorization: `Bearer ${session.access_token}`,
+        },
     })
     if (error) throw new Error(error.message)
     return data as T
