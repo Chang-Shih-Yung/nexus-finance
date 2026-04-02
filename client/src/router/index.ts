@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { supabase } from '../lib/supabase'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -42,9 +43,9 @@ const router = createRouter({
 })
 
 // 全域 guard：未登入一律導向 /login
-router.beforeEach((to) => {
-    const token = localStorage.getItem('nexus_token')
-    if (!to.meta.public && !token) {
+router.beforeEach(async (to) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!to.meta.public && !session) {
         return { name: 'login' }
     }
 })
