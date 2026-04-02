@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev:server": "pnpm --filter server dev",
-    "dev:client": "pnpm --filter client dev",
+    "dev": "pnpm --filter client dev",
     "build": "pnpm --filter client build",
-    "start": "pnpm --filter server start"
+    "preview": "pnpm --filter client preview"
   }
 }

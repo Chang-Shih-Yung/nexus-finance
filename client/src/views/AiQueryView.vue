@@ -135,7 +135,7 @@ async function sendMessage(text?: string) {
   chatContainer.value?.scrollTo({ top: chatContainer.value.scrollHeight })
 
   try {
-    const { data } = await api.post('/ai/query', { query })
+    const { data } = await api.post('/ai-query', { query })
     messages.value.push({
       role: 'assistant',
       content: data.answer,

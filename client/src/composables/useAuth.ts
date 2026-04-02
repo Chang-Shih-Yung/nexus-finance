@@ -1,52 +1,56 @@
 import axios from 'axios'
 import { ref, computed } from 'vue'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 
-const TOKEN_KEY = 'nexus_token'
+// ── Supabase session state ───────────────────────────────────────
+const session = ref<Session | null>(null)
 
-const token = ref<string | null>(localStorage.getItem(TOKEN_KEY))
+supabase.auth.getSession().then(({ data }) => {
+  session.value = data.session
+})
 
+supabase.auth.onAuthStateChange((_event, s) => {
+  session.value = s
+})
+
+// ── Axios instance for Edge Functions ───────────────────────────
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL ?? '/api',
+  baseURL: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`,
 })
 
-// 自動在每個請求加上 Authorization header
-api.interceptors.request.use((config) => {
-    if (token.value) {
-        config.headers.Authorization = `Bearer ${token.value}`
-    }
-    return config
+api.interceptors.request.use(async (config) => {
+  const { data } = await supabase.auth.getSession()
+  if (data.session?.access_token) {
+    config.headers.Authorization = `Bearer ${data.session.access_token}`
+  }
+  return config
 })
 
-// 401 → 清除 token，強制回登入頁
 api.interceptors.response.use(
-    (res) => res,
-    (err) => {
-        if (err.response?.status === 401) {
-            token.value = null
-            localStorage.removeItem(TOKEN_KEY)
-            window.location.href = '/login'
-        }
-        return Promise.reject(err)
+  (res) => res,
+  async (err) => {
+    if (err.response?.status === 401) {
+      await supabase.auth.signOut()
+      window.location.href = '/login'
     }
+    return Promise.reject(err)
+  },
 )
 
+// ── useAuth composable ───────────────────────────────────────────
 export function useAuth() {
-    const isLoggedIn = computed(() => !!token.value)
+  const isLoggedIn = computed(() => !!session.value)
 
-    async function login(username: string, password: string) {
-        const { data } = await axios.post(
-            `${import.meta.env.VITE_API_URL ?? '/api'}/auth/login`,
-            { username, password }
-        )
-        token.value = data.token
-        localStorage.setItem(TOKEN_KEY, data.token)
-    }
+  async function login(email: string, password: string) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+  }
 
-    function logout() {
-        token.value = null
-        localStorage.removeItem(TOKEN_KEY)
-        window.location.href = '/login'
-    }
+  async function logout() {
+    await supabase.auth.signOut()
+    window.location.href = '/login'
+  }
 
-    return { isLoggedIn, login, logout }
+  return { isLoggedIn, login, logout }
 }

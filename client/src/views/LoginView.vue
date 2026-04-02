@@ -5,12 +5,12 @@
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label for="username" class="block text-sm text-gray-400 mb-1">帳號</label>
+          <label for="email" class="block text-sm text-gray-400 mb-1">Email</label>
           <input
-            id="username"
-            v-model="username"
-            type="text"
-            autocomplete="username"
+            id="email"
+            v-model="email"
+            type="email"
+            autocomplete="email"
             class="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
           />
@@ -50,7 +50,7 @@ import { useAuth } from '../composables/useAuth'
 const { login } = useAuth()
 const router = useRouter()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
@@ -59,15 +59,15 @@ async function handleLogin() {
   loading.value = true
   errorMsg.value = ''
   try {
-    await login(username.value, password.value)
+    await login(email.value, password.value)
     router.push('/dashboard')
   } catch (e: any) {
-    if (e.response?.status === 401) {
+    if (e.message?.includes('Invalid login credentials')) {
       errorMsg.value = '帳號或密碼錯誤'
-    } else if (e.code === 'ERR_NETWORK' || e.message?.includes('CORS') || !e.response) {
-      errorMsg.value = '無法連線到伺服器（網路或 CORS 問題），請稍後再試'
+    } else if (e.message?.includes('network') || e.code === 'ERR_NETWORK') {
+      errorMsg.value = '無法連線，請稍後再試'
     } else {
-      errorMsg.value = `登入失敗：${e.response?.data?.error ?? e.message}`
+      errorMsg.value = `登入失敗：${e.message}`
     }
   } finally {
     loading.value = false
