@@ -3,7 +3,8 @@
 import { createClient } from '@/lib/supabase/client'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+// Gateway requires JWT-format anon key (eyJh...), not publishable key (sb_publishable_...)
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
     const supabase = createClient()
