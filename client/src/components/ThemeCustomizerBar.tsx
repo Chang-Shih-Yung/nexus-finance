@@ -131,8 +131,8 @@ export default function ThemeCustomizerBar() {
         />
       )}
 
-      {/* Bar — relative z-[30] sits above the backdrop */}
-      <div className="lg:hidden relative z-[30] bg-[oklch(0.18_0_0)] border-t border-white/8 shadow-[0_-8px_24px_oklch(0_0_0/40%)] shrink-0">
+      {/* Bar — standalone dark card on mobile */}
+      <div className="lg:hidden relative z-[30] bg-[oklch(0.18_0_0)] border border-white/10 rounded-2xl shrink-0 overflow-hidden shadow-xl">
         <div className="flex gap-2 overflow-x-auto scrollbar-none px-3 py-2.5">
 
           {/* Style */}

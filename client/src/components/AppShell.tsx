@@ -64,10 +64,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        {/* ── Main content — card on mobile, full-width on desktop */}
-        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden bg-background
-                        rounded-2xl border border-border shadow-lg
-                        lg:rounded-none lg:border-0 lg:shadow-none">
+        {/* ── Main column (content card + bar card stacked) ───── */}
+        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden gap-3 lg:gap-0">
+
+          {/* Content card — white rounded card on mobile, full-width on desktop */}
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background
+                          rounded-2xl border border-border shadow-sm
+                          lg:rounded-none lg:border-0 lg:shadow-none">
 
           {/* Header */}
           <header className="z-20 bg-background border-b border-border px-4 md:px-8 py-3 flex items-center justify-between gap-4 shrink-0">
@@ -147,9 +150,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </main>
 
-          {/* ── Mobile bottom bar (<1024px) — in-flow, not overlapping */}
+          </div>{/* end content card */}
+
+          {/* ── Customizer bar — separate card on mobile */}
           <ThemeCustomizerBar />
-        </div>
+
+        </div>{/* end main column */}
 
       </div>
     </ThemeCustomizerProvider>
