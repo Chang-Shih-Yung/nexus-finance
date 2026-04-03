@@ -8,9 +8,9 @@ interface Props {
 
 export default function ChartCard({ title, height = 280, children }: Props) {
   return (
-    <Card className="border-slate-200/80 bg-white/90 shadow-sm">
+    <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="text-sm tracking-wide text-slate-700">{title}</CardTitle>
+        <CardTitle className="text-sm tracking-wide text-muted-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="relative" style={{ height }}>

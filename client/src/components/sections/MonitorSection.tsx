@@ -22,10 +22,9 @@ interface HealthRow {
   total_requests: number
 }
 
-export default function MonitorPage() {
+export default function MonitorSection() {
   const colors = useChartColors()
   const [healthData, setHealthData] = useState<HealthRow[]>([])
-
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -52,7 +51,6 @@ export default function MonitorPage() {
 
   const totalRequests = healthData.reduce((a, d) => a + Number(d.total_requests), 0)
   const hasAlert = avgLatency > 500 || errorRate > 5
-
   const alertMessage = [
     avgLatency > 500 && `平均延遲 ${avgLatency}ms 超過 500ms 閾值`,
     errorRate > 5 && `錯誤率 ${errorRate}% 超過 5% 閾值`,
@@ -70,7 +68,9 @@ export default function MonitorPage() {
   }
 
   return (
-    <div>
+    <section id="monitor" className="scroll-mt-28 py-8 border-t border-border">
+      <h2 className="text-base font-semibold text-foreground mb-4">API 監控</h2>
+
       {error && (
         <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
@@ -98,7 +98,7 @@ export default function MonitorPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="API 平均延遲 (每分鐘)" height={280}>
+        <ChartCard title="API 平均延遲 (每分鐘)" height={240}>
           {healthData.length > 0 && (
             <Line data={{
               labels,
@@ -107,13 +107,12 @@ export default function MonitorPage() {
                 data: healthData.map(d => Number(d.avg_latency)),
                 borderColor: colors.chart3,
                 backgroundColor: `${colors.chart3}1a`,
-                fill: true,
-                tension: 0.3,
+                fill: true, tension: 0.3,
               }],
             }} options={baseOptions} />
           )}
         </ChartCard>
-        <ChartCard title="Error Rate % (每分鐘)" height={280}>
+        <ChartCard title="Error Rate % (每分鐘)" height={240}>
           {healthData.length > 0 && (
             <Line data={{
               labels,
@@ -122,13 +121,12 @@ export default function MonitorPage() {
                 data: healthData.map(d => Number(d.error_rate)),
                 borderColor: colors.chart4,
                 backgroundColor: `${colors.chart4}1a`,
-                fill: true,
-                tension: 0.3,
+                fill: true, tension: 0.3,
               }],
             }} options={{ ...baseOptions, scales: { y: { min: 0 } } }} />
           )}
         </ChartCard>
       </div>
-    </div>
+    </section>
   )
 }

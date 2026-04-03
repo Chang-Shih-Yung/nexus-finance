@@ -31,7 +31,7 @@ function formatTime(iso: string) {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export default function ErrorsPage() {
+export default function ErrorsSection() {
   const colors = useChartColors()
   const [errorData, setErrorData] = useState<ErrorRow[]>([])
   const [failedTx, setFailedTx] = useState<TxRow[]>([])
@@ -57,8 +57,9 @@ export default function ErrorsPage() {
   }
 
   return (
-    <div>
-      <ChartCard title="錯誤代碼分佈" height={300}>
+    <section id="errors" className="scroll-mt-28 py-8 border-t border-border">
+      <h2 className="text-base font-semibold text-foreground mb-4">錯誤監控</h2>
+      <ChartCard title="錯誤代碼分佈" height={260}>
         {errorData.length > 0 && (
           <Bar data={chartData} options={{
             responsive: true,
@@ -105,6 +106,6 @@ export default function ErrorsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </section>
   )
 }

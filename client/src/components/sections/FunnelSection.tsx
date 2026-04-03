@@ -25,7 +25,7 @@ const stepLabels: Record<string, string> = {
   transfer_success: '轉帳成功',
 }
 
-export default function FunnelPage() {
+export default function FunnelSection() {
   const colors = useChartColors()
   const [funnelData, setFunnelData] = useState<FunnelRow[]>([])
 
@@ -44,8 +44,9 @@ export default function FunnelPage() {
   }
 
   return (
-    <div>
-      <ChartCard title="使用者漏斗：登入 → 發起轉帳 → 轉帳成功" height={320}>
+    <section id="funnel" className="scroll-mt-28 py-8 border-t border-border">
+      <h2 className="text-base font-semibold text-foreground mb-4">使用者漏斗</h2>
+      <ChartCard title="登入 → 發起轉帳 → 轉帳成功" height={280}>
         {funnelData.length > 0 && (
           <Bar data={chartData} options={{
             responsive: true,
@@ -75,6 +76,6 @@ export default function FunnelPage() {
           ))}
         </div>
       )}
-    </div>
+    </section>
   )
 }

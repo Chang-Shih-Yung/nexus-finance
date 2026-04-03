@@ -58,7 +58,7 @@ function ChartRenderer({ config }: Readonly<{ config: ChartConfig }>) {
   }
 }
 
-export default function AiQueryPage() {
+export default function AiQuerySection() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -102,100 +102,100 @@ export default function AiQueryPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-4">
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            AI 數據查詢助手
-          </CardTitle>
-          <CardDescription>輸入自然語言後，系統會回傳指標摘要、SQL 與圖表建議</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Chat thread */}
-          <div
-            ref={chatRef}
-            className="space-y-4 min-h-64 max-h-[50vh] overflow-y-auto pr-1"
-          >
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="rounded-full bg-accent p-4 mb-4">
-                  <Bot className="h-8 w-8 text-primary" />
+    <section id="ai-query" className="scroll-mt-28 py-8 border-t border-border">
+      <h2 className="text-base font-semibold text-foreground mb-4">AI 查詢</h2>
+      <div className="max-w-4xl flex flex-col gap-4">
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" />
+              AI 數據查詢助手
+            </CardTitle>
+            <CardDescription>輸入自然語言後，系統會回傳指標摘要、SQL 與圖表建議</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div
+              ref={chatRef}
+              className="space-y-4 min-h-64 max-h-[50vh] overflow-y-auto pr-1"
+            >
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="rounded-full bg-accent p-4 mb-4">
+                    <Bot className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">你可以直接問業務問題</h3>
+                  <p className="text-sm text-muted-foreground">點擊下方提示，或在輸入框輸入問題</p>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-1">你可以直接問業務問題</h3>
-                <p className="text-sm text-muted-foreground">點擊下方提示，或在輸入框輸入問題</p>
-              </div>
-            )}
+              )}
 
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3 max-w-lg shadow-sm'
-                  : 'bg-muted border border-border rounded-2xl rounded-bl-md px-4 py-3 max-w-2xl'}>
-                  <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={msg.role === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3 max-w-lg shadow-sm'
+                    : 'bg-muted border border-border rounded-2xl rounded-bl-md px-4 py-3 max-w-2xl'}>
+                    <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
 
-                  {msg.sql && (
-                    <div className="mt-3">
-                      <button
-                        onClick={() => toggleSql(msg.id)}
-                        className="text-xs text-primary hover:underline"
-                      >
-                        {msg.showSql ? '隱藏 SQL' : '顯示 SQL'}
-                      </button>
-                      {msg.showSql && (
-                        <pre className="mt-2 bg-background text-foreground text-xs p-3 rounded-lg overflow-x-auto border border-border font-mono">
-                          {msg.sql}
-                        </pre>
-                      )}
-                    </div>
-                  )}
+                    {msg.sql && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => toggleSql(msg.id)}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          {msg.showSql ? '隱藏 SQL' : '顯示 SQL'}
+                        </button>
+                        {msg.showSql && (
+                          <pre className="mt-2 bg-background text-foreground text-xs p-3 rounded-lg overflow-x-auto border border-border font-mono">
+                            {msg.sql}
+                          </pre>
+                        )}
+                      </div>
+                    )}
 
-                  {msg.chartConfig && (
-                    <div className="mt-3 h-64">
-                      <ChartRenderer config={msg.chartConfig} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-muted border border-border rounded-2xl px-4 py-3">
-                  <div className="flex gap-1">
-                    {[0, 150, 300].map(delay => (
-                      <span
-                        key={delay}
-                        className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                        style={{ animationDelay: `${delay}ms` }}
-                      />
-                    ))}
+                    {msg.chartConfig && (
+                      <div className="mt-3 h-64">
+                        <ChartRenderer config={msg.chartConfig} />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
 
-      {/* Persistent prompt suggestions — always visible regardless of message count */}
-      <div className="flex flex-wrap gap-2">
-        {sampleQueries.map(q => (
-          <Button
-            key={q}
-            variant="outline"
-            size="sm"
-            onClick={() => sendMessage(q)}
-            disabled={loading}
-            className="text-xs h-8"
-          >
-            {q}
-          </Button>
-        ))}
-      </div>
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted border border-border rounded-2xl px-4 py-3">
+                    <div className="flex gap-1">
+                      {[0, 150, 300].map(delay => (
+                        <span
+                          key={delay}
+                          className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                          style={{ animationDelay: `${delay}ms` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Sticky input bar */}
-      <div className="sticky bottom-0 bg-background/90 backdrop-blur pt-2 pb-2">
+        {/* 快速提示 */}
+        <div className="flex flex-wrap gap-2">
+          {sampleQueries.map(q => (
+            <Button
+              key={q}
+              variant="outline"
+              size="sm"
+              onClick={() => sendMessage(q)}
+              disabled={loading}
+              className="text-xs h-8"
+            >
+              {q}
+            </Button>
+          ))}
+        </div>
+
+        {/* 輸入欄 */}
         <div className="flex gap-3">
           <Input
             value={input}
@@ -216,6 +216,6 @@ export default function AiQueryPage() {
           </Button>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
