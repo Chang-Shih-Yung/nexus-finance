@@ -16,3 +16,24 @@ Key routing rules:
 - Design system, brand → invoke design-consultation
 - Visual audit, design polish → invoke design-review
 - Architecture review → invoke plan-eng-review
+
+## Backend Workflow (RPC-First)
+
+This repository is now RPC-first and does not use Supabase Edge Functions in production flow.
+
+Required workflow for backend/data changes:
+- Write SQL changes as migrations under [supabase/migrations](supabase/migrations)
+- Prefer `SECURITY DEFINER` Postgres functions for aggregated/statistical endpoints
+- Expose data to frontend through `supabase.rpc(...)` in [client/src/lib/api.ts](client/src/lib/api.ts)
+- Keep function naming under `nf_*` to match existing conventions
+
+Do not do these in this repo:
+- Do not add new files under [supabase/functions](supabase/functions)
+- Do not run `supabase functions deploy`
+- Do not re-introduce edge function invoke paths in frontend
+
+Migration guardrails:
+- All schema and RPC changes must be versioned migration files
+- Apply with `supabase db push`
+- If remote baseline exists but migration history mismatches, repair history first:
+	`supabase migration repair <version> --status applied`
