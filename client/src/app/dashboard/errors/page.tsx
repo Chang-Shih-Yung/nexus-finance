@@ -7,6 +7,9 @@ import {
 import { Bar } from 'react-chartjs-2'
 import ChartCard from '@/components/ChartCard'
 import { api } from '@/lib/api'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -63,45 +66,41 @@ export default function ErrorsPage() {
         )}
       </ChartCard>
 
-      <div className="bg-white rounded-xl border border-gray-200 mt-6 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h3 className="text-sm font-medium text-gray-600">最近失敗交易明細</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-left">
-              <tr>
-                <th className="px-4 py-3 font-medium">時間</th>
-                <th className="px-4 py-3 font-medium">客戶</th>
-                <th className="px-4 py-3 font-medium">等級</th>
-                <th className="px-4 py-3 font-medium">金額</th>
-                <th className="px-4 py-3 font-medium">管道</th>
-                <th className="px-4 py-3 font-medium">錯誤代碼</th>
-                <th className="px-4 py-3 font-medium">錯誤訊息</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+      <Card className="mt-6 border-slate-200/80 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-slate-700">最近失敗交易明細</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>時間</TableHead>
+                <TableHead>客戶</TableHead>
+                <TableHead>等級</TableHead>
+                <TableHead className="text-right">金額</TableHead>
+                <TableHead>管道</TableHead>
+                <TableHead>錯誤代碼</TableHead>
+                <TableHead>錯誤訊息</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {failedTx.map(tx => (
-                <tr key={tx.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-600">{formatTime(tx.created_at)}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{tx.user_name}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${tierClass[tx.tier] ?? tierClass.general}`}>
-                      {tx.tier}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">{Number(tx.amount).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-gray-500">{tx.channel}</td>
-                  <td className="px-4 py-3">
-                    <span className="text-red-600 font-mono text-xs">{tx.error_code}</span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{tx.error_message}</td>
-                </tr>
+                <TableRow key={tx.id}>
+                  <TableCell className="text-slate-600">{formatTime(tx.created_at)}</TableCell>
+                  <TableCell className="font-medium text-slate-900">{tx.user_name}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={tierClass[tx.tier] ?? tierClass.general}>{tx.tier}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-mono">{Number(tx.amount).toLocaleString()}</TableCell>
+                  <TableCell className="text-slate-500">{tx.channel}</TableCell>
+                  <TableCell><span className="text-rose-600 font-mono text-xs">{tx.error_code}</span></TableCell>
+                  <TableCell className="text-slate-500 text-xs">{tx.error_message}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

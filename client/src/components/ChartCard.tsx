@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 interface Props {
   title: string
   height?: number
@@ -6,11 +8,15 @@ interface Props {
 
 export default function ChartCard({ title, height = 280, children }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <h3 className="text-sm font-medium text-gray-600 mb-4">{title}</h3>
-      <div className="relative" style={{ height }}>
-        {children}
-      </div>
-    </div>
+    <Card className="border-slate-200/80 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-sm tracking-wide text-slate-700">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative" style={{ height }}>
+          {children}
+        </div>
+      </CardContent>
+    </Card>
   )
 }

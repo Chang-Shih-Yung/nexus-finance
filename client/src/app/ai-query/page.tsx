@@ -8,6 +8,9 @@ import {
 } from 'chart.js'
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
 import { api } from '@/lib/api'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -96,18 +99,23 @@ export default function AiQueryPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="space-y-4 mb-6 min-h-100" ref={chatRef}>
+      <Card className="border-slate-200/80 bg-white/90 shadow-sm mb-6">
+        <CardHeader>
+          <CardTitle>AI 數據查詢助手</CardTitle>
+          <CardDescription>輸入自然語言後，系統會回傳指標摘要、SQL 與圖表建議</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4 min-h-100" ref={chatRef}>
         {messages.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-10">
             <p className="text-4xl mb-4">🤖</p>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">AI 數據查詢助手</h3>
-            <p className="text-gray-500 mb-6">用自然語言查詢銀行數據，自動產生 SQL 與圖表</p>
+            <h3 className="text-xl font-semibold text-slate-800 mb-2">你可以直接問業務問題</h3>
+            <p className="text-slate-500 mb-6">例如「上個月轉帳金額最高前 10 名」或「最近 30 天錯誤代碼分佈」</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {sampleQueries.map(q => (
-                <button key={q} onClick={() => sendMessage(q)}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-emerald-50 hover:border-emerald-300 transition">
+                <Button key={q} variant="outline" size="sm" onClick={() => sendMessage(q)}>
                   {q}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -116,8 +124,8 @@ export default function AiQueryPage() {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={msg.role === 'user'
-              ? 'bg-emerald-600 text-white rounded-2xl rounded-br-md px-4 py-3 max-w-lg'
-              : 'bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-3 max-w-2xl'}>
+              ? 'bg-emerald-600 text-white rounded-2xl rounded-br-md px-4 py-3 max-w-lg shadow-sm'
+              : 'bg-slate-50 border border-slate-200 rounded-2xl rounded-bl-md px-4 py-3 max-w-2xl'}>
               <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
 
               {msg.sql && (
@@ -145,7 +153,7 @@ export default function AiQueryPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
               <div className="flex gap-1">
                 {[0, 150, 300].map(delay => (
                   <span key={delay} className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
@@ -155,24 +163,26 @@ export default function AiQueryPage() {
             </div>
           </div>
         )}
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="sticky bottom-0 bg-gray-50 pt-4">
+      <div className="sticky bottom-0 bg-white/85 backdrop-blur pt-4">
         <div className="flex gap-3">
-          <input
+          <Input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !loading && sendMessage()}
             type="text"
             placeholder="輸入查詢，例如：這個月 VIP 客戶的轉帳成功率多少？"
             disabled={loading}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="flex-1 h-11"
           />
-          <button onClick={() => sendMessage()}
+          <Button onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
-            className="px-6 py-3 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            className="h-11 px-6 bg-emerald-600 text-white hover:bg-emerald-700">
             送出
-          </button>
+          </Button>
         </div>
       </div>
     </div>
