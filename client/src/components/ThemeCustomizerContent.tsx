@@ -70,7 +70,7 @@ function OptionItem({
       <button
         type="button"
         onClick={onClick}
-        className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 rounded-md text-[15px] text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
       >
         <span>{label}</span>
         {active && <Check className="h-3.5 w-3.5 text-sidebar-primary shrink-0" />}

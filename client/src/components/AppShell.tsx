@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Menu } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
@@ -20,7 +22,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     month: 'long',
     day: 'numeric',
   })
-  const tabBarRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -47,10 +48,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCustomizerProvider>
-      <div className="min-h-screen bg-background flex">
+      <div className="h-screen bg-background flex overflow-hidden">
 
         {/* ── Desktop sidebar (≥1024px) ────────────────────────── */}
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border sticky top-0 h-screen overflow-hidden bg-sidebar">
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border h-screen overflow-hidden bg-sidebar">
           <div className="p-5 border-b border-sidebar-border shrink-0">
             <h1 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
               <span className="text-sidebar-primary">Nexus</span> Finance
@@ -63,22 +64,59 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* ── Main content ─────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 flex flex-col">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
 
           {/* Header */}
-          <header className="sticky top-0 z-20 backdrop-blur bg-background/80 border-b border-border px-4 md:px-8 py-3 flex items-center justify-between gap-4 shrink-0">
-            <h2 className="text-base font-semibold text-foreground truncate">
-              Nexus Finance
-            </h2>
-            <div className="hidden sm:block rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
+          <header className="z-20 bg-background border-b border-border px-4 md:px-8 py-3 flex items-center justify-between gap-4 shrink-0">
+            {/* Mobile: hamburger nav */}
+            <div className="flex items-center gap-3">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    aria-label="導航選單"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  side="bottom"
+                  align="start"
+                  sideOffset={8}
+                  className="p-1 w-44"
+                >
+                  {sections.map(({ id, label }) => (
+                    <PopoverClose key={id} asChild>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection(id)}
+                        className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
+                          activeSection === id
+                            ? 'bg-accent text-accent-foreground font-medium'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    </PopoverClose>
+                  ))}
+                </PopoverContent>
+              </Popover>
+
+              <h2 className="text-base font-semibold text-foreground truncate">
+                Nexus Finance
+              </h2>
+            </div>
+
+            <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
               {today}
             </div>
           </header>
 
-          {/* Tab nav */}
+          {/* Tab nav — desktop only */}
           <nav
-            ref={tabBarRef}
-            className="sticky top-[57px] z-10 bg-background/95 backdrop-blur border-b border-border shrink-0"
+            className="hidden lg:block bg-background/95 border-b border-border shrink-0"
             aria-label="頁面區塊導航"
           >
             <div className="flex overflow-x-auto scrollbar-none px-4 md:px-8">
@@ -99,16 +137,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
 
-          {/* Page content — pb-24 on mobile to clear the bottom bar */}
+          {/* Page content */}
           <main className="flex-1 overflow-auto">
-            <div className="px-4 md:px-8 pb-24 lg:pb-8">
+            <div className="px-4 md:px-8 py-6">
               {children}
             </div>
           </main>
-        </div>
 
-        {/* ── Mobile bottom bar (<1024px) ──────────────────────── */}
-        <ThemeCustomizerBar />
+          {/* ── Mobile bottom bar (<1024px) — in-flow, not overlapping */}
+          <ThemeCustomizerBar />
+        </div>
 
       </div>
     </ThemeCustomizerProvider>
