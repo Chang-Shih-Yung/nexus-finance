@@ -24,7 +24,7 @@ export default function ThemeCustomizer({ open, onOpenChange }: Props) {
       >
         <SheetHeader className="px-4 pt-2 pb-0">
           <SheetTitle>自訂主題</SheetTitle>
-          <SheetDescription>調整色彩、圓角和圖表配色</SheetDescription>
+          <SheetDescription>調整色彩、字型、樣式與圖表配色</SheetDescription>
         </SheetHeader>
         <ThemeCustomizerContent />
       </SheetContent>
