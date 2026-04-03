@@ -23,37 +23,15 @@ export const baseColors = [
   { name: 'Warm', hue: 30, chroma: 0.015 },
 ] as const
 
-export const chartPalettes = [
-  {
-    name: '經典',
-    colors: [
-      { l: 0.48, c: 0.19, h: 255 },
-      { l: 0.62, c: 0.15, h: 150 },
-      { l: 0.72, c: 0.17, h: 70 },
-      { l: 0.62, c: 0.22, h: 25 },
-      { l: 0.58, c: 0.18, h: 290 },
-    ],
-  },
-  {
-    name: '翡翠',
-    colors: [
-      { l: 0.55, c: 0.17, h: 160 },
-      { l: 0.62, c: 0.15, h: 140 },
-      { l: 0.68, c: 0.13, h: 180 },
-      { l: 0.50, c: 0.19, h: 200 },
-      { l: 0.72, c: 0.10, h: 120 },
-    ],
-  },
-  {
-    name: '暖色',
-    colors: [
-      { l: 0.62, c: 0.22, h: 25 },
-      { l: 0.72, c: 0.17, h: 50 },
-      { l: 0.58, c: 0.20, h: 350 },
-      { l: 0.65, c: 0.15, h: 75 },
-      { l: 0.55, c: 0.18, h: 10 },
-    ],
-  },
+export const chartColors = [
+  { name: 'Blue',    hue: 255, chroma: 0.19 },
+  { name: 'Indigo',  hue: 270, chroma: 0.18 },
+  { name: 'Amber',   hue: 50,  chroma: 0.22 },
+  { name: 'Emerald', hue: 150, chroma: 0.17 },
+  { name: 'Rose',    hue: 350, chroma: 0.20 },
+  { name: 'Orange',  hue: 30,  chroma: 0.22 },
+  { name: 'Cyan',    hue: 195, chroma: 0.15 },
+  { name: 'Purple',  hue: 290, chroma: 0.18 },
 ] as const
 
 export const stylePresets = [
@@ -81,7 +59,7 @@ export interface ThemeConfig {
   baseHue: number
   baseChroma: number
   radius: number
-  chartPalette: number
+  chartColor: number
   style: StylePreset
   font: FontOption
   headingFont: FontOption
@@ -93,7 +71,7 @@ const DEFAULTS: ThemeConfig = {
   baseHue: 0,
   baseChroma: 0,
   radius: 0.625,
-  chartPalette: 0,
+  chartColor: 0,
   style: 'default',
   font: 'geist',
   headingFont: 'geist',
@@ -118,7 +96,7 @@ function saveConfig(config: ThemeConfig) {
 
 function applyThemeVars(config: ThemeConfig, isDark: boolean) {
   const root = document.documentElement
-  const { primaryHue, primaryChroma, baseHue, baseChroma, radius, chartPalette } = config
+  const { primaryHue, primaryChroma, baseHue, baseChroma, radius, chartColor } = config
 
   const primaryL = isDark ? 0.58 : 0.38
   root.style.setProperty('--primary', `oklch(${primaryL} ${primaryChroma} ${primaryHue})`)
@@ -170,13 +148,17 @@ function applyThemeVars(config: ThemeConfig, isDark: boolean) {
 
   root.style.setProperty('--radius', `${radius}rem`)
 
-  const palette = chartPalettes[chartPalette] ?? chartPalettes[0]
-  const lightnessBump = isDark ? 0.17 : 0
-  palette.colors.forEach((color, i) => {
-    root.style.setProperty(
-      `--chart-${i + 1}`,
-      `oklch(${color.l + lightnessBump} ${color.c} ${color.h})`
-    )
+  const base = chartColors[chartColor] ?? chartColors[0]
+  const lb = isDark ? 0.17 : 0
+  const derived = [
+    { l: 0.52 + lb, c: base.chroma,        h: base.hue },
+    { l: 0.65 + lb, c: base.chroma * 0.85, h: (base.hue + 35) % 360 },
+    { l: 0.72 + lb, c: base.chroma * 0.70, h: (base.hue + 75) % 360 },
+    { l: 0.58 + lb, c: base.chroma * 0.90, h: (base.hue - 40 + 360) % 360 },
+    { l: 0.68 + lb, c: base.chroma * 0.75, h: (base.hue + 150) % 360 },
+  ]
+  derived.forEach((color, i) => {
+    root.style.setProperty(`--chart-${i + 1}`, `oklch(${color.l} ${color.c} ${color.h})`)
   })
 
   const fontOpt = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]

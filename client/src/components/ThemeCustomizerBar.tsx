@@ -7,7 +7,7 @@ import {
   useThemeCustomizer,
   themeColors,
   baseColors,
-  chartPalettes,
+  chartColors,
   stylePresets,
   fontOptions,
   radiusPresets,
@@ -95,10 +95,10 @@ export default function ThemeCustomizerBar() {
     baseColors[0]
   const currentStyle = stylePresets.find(s => s.value === config.style) ?? stylePresets[0]
   const currentFont = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
-  const currentChartPalette = chartPalettes[config.chartPalette] ?? chartPalettes[0]
+  const currentChartColor = chartColors[config.chartColor] ?? chartColors[0]
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-sidebar border-t border-sidebar-border">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-sidebar border-t border-sidebar-border shadow-[0_-8px_24px_oklch(0_0_0/35%)]">
       <div className="flex gap-2 overflow-x-auto scrollbar-none px-3 py-2.5">
 
         {/* Style */}
@@ -240,28 +240,23 @@ export default function ThemeCustomizerBar() {
           ))}
         </Tile>
 
-        {/* Chart palette */}
+        {/* Chart color */}
         <Tile
           label="圖表配色"
-          displayValue={currentChartPalette.name}
+          displayValue={currentChartColor.name}
           icon={
-            <div className="flex gap-0.5 rounded overflow-hidden shrink-0">
-              {currentChartPalette.colors.slice(0, 3).map((c, i) => (
-                <div
-                  key={i}
-                  className="h-4 w-2"
-                  style={{ backgroundColor: `oklch(${c.l} ${c.c} ${c.h})` }}
-                />
-              ))}
-            </div>
+            <div
+              className="h-5 w-5 rounded-full shrink-0"
+              style={{ backgroundColor: `oklch(0.55 ${currentChartColor.chroma} ${currentChartColor.hue})` }}
+            />
           }
         >
-          {chartPalettes.map((palette, idx) => (
+          {chartColors.map((color, idx) => (
             <TileItem
-              key={palette.name}
-              label={palette.name}
-              active={config.chartPalette === idx}
-              onClick={() => updateConfig({ chartPalette: idx })}
+              key={color.name}
+              label={color.name}
+              active={config.chartColor === idx}
+              onClick={() => updateConfig({ chartColor: idx })}
             />
           ))}
         </Tile>

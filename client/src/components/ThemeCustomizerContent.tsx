@@ -7,7 +7,7 @@ import {
   useThemeCustomizer,
   themeColors,
   baseColors,
-  chartPalettes,
+  chartColors,
   stylePresets,
   fontOptions,
   radiusPresets,
@@ -104,7 +104,7 @@ export default function ThemeCustomizerContent() {
   const currentFont = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
   const currentHeadingFont =
     fontOptions.find(f => f.value === config.headingFont) ?? fontOptions[0]
-  const currentChartPalette = chartPalettes[config.chartPalette] ?? chartPalettes[0]
+  const currentChartColor = chartColors[config.chartColor] ?? chartColors[0]
 
   return (
     <div className="px-3 py-4 space-y-2">
@@ -250,28 +250,23 @@ export default function ThemeCustomizerContent() {
         ))}
       </OptionRow>
 
-      {/* Chart palette */}
+      {/* Chart color */}
       <OptionRow
         label="圖表配色"
-        displayValue={currentChartPalette.name}
+        displayValue={currentChartColor.name}
         icon={
-          <div className="flex gap-0.5 overflow-hidden rounded shrink-0">
-            {currentChartPalette.colors.slice(0, 4).map((c, i) => (
-              <div
-                key={i}
-                className="h-4 w-2.5"
-                style={{ backgroundColor: `oklch(${c.l} ${c.c} ${c.h})` }}
-              />
-            ))}
-          </div>
+          <div
+            className="h-5 w-5 rounded-full shrink-0"
+            style={{ backgroundColor: `oklch(0.55 ${currentChartColor.chroma} ${currentChartColor.hue})` }}
+          />
         }
       >
-        {chartPalettes.map((palette, idx) => (
+        {chartColors.map((color, idx) => (
           <OptionItem
-            key={palette.name}
-            label={palette.name}
-            active={config.chartPalette === idx}
-            onClick={() => updateConfig({ chartPalette: idx })}
+            key={color.name}
+            label={color.name}
+            active={config.chartColor === idx}
+            onClick={() => updateConfig({ chartColor: idx })}
           />
         ))}
       </OptionRow>
