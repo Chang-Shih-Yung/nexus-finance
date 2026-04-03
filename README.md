@@ -5,12 +5,12 @@ Nexus Finance 是以 Supabase 為核心的 Next.js 儀表板專案。
 
 ## 架構總覽
 
-| 層級 | 技術 |
-| --- | --- |
-| 前端 | Next.js 16 + React 19 + Tailwind + Chart.js |
-| 資料存取 | Supabase JS (`rpc`) |
-| 資料庫 | Supabase Postgres |
-| 認證 | Supabase Auth |
+| 層級     | 技術                                        |
+| -------- | ------------------------------------------- |
+| 前端     | Next.js 16 + React 19 + Tailwind + Chart.js |
+| 資料存取 | Supabase JS (`rpc`)                         |
+| 資料庫   | Supabase Postgres                           |
+| 認證     | Supabase Auth                               |
 
 ## 目前資料流
 
