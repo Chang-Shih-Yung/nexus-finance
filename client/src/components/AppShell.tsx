@@ -48,10 +48,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCustomizerProvider>
-      <div className="h-screen bg-background flex overflow-hidden">
+      {/* Outer page — muted bg on mobile to show card, plain bg on desktop */}
+      <div className="h-dvh bg-muted/60 lg:bg-background flex overflow-hidden p-3 lg:p-0">
 
         {/* ── Desktop sidebar (≥1024px) ────────────────────────── */}
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border h-screen overflow-hidden bg-sidebar">
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border h-full overflow-hidden bg-sidebar">
           <div className="p-5 border-b border-sidebar-border shrink-0">
             <h1 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
               <span className="text-sidebar-primary">Nexus</span> Finance
@@ -63,8 +64,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        {/* ── Main content ─────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+        {/* ── Main content — card on mobile, full-width on desktop */}
+        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden bg-background
+                        rounded-2xl border border-border shadow-lg
+                        lg:rounded-none lg:border-0 lg:shadow-none">
 
           {/* Header */}
           <header className="z-20 bg-background border-b border-border px-4 md:px-8 py-3 flex items-center justify-between gap-4 shrink-0">
