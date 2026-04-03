@@ -56,11 +56,19 @@ function ThemeToggle() {
 function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const router = useRouter()
 
+  const [logoutError, setLogoutError] = useState(false)
+
   async function logout() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      router.push('/login')
+      router.refresh()
+    } catch {
+      setLogoutError(true)
+      setTimeout(() => setLogoutError(false), 3000)
+    }
   }
 
   return (
@@ -96,7 +104,7 @@ function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: (
           className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-border/30 min-h-11"
         >
           <LogOut className="h-4 w-4" />
-          登出
+          {logoutError ? '登出失敗，請重試' : '登出'}
         </Button>
       </div>
     </div>

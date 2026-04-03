@@ -1,31 +1,31 @@
 # TODOS
 
-## Security
+## Operations
 
-### CopilotClient singleton 並發不安全
+### pg_cron 清理 api_logs
 
-**What:** 加入 initPromise singleton，讓並行呼叫等待同一個初始化 Promise。
+**What:** 在 Supabase dashboard 啟用 pg_cron extension，設定每天凌晨 3 點清除 7 天前的 api_logs。
 
-**Why:** client.start() 沒有 mutex，兩個同時進入的請求若同時發現 clientReady === false，會各自呼叫 start() 並覆寫同一個實例，導致未定義行為。
+**Why:** api_logs 表沒有自動清理機制，生產環境資料會無限增長，影響查詢效能。
 
-**Context:** server/services/copilotAgent.js 的 getClient() 函式。修正：加入 `let initPromise = null`，在 start() 前 `if (!initPromise) initPromise = clientInstance.start()`，所有呼叫者 await 同一個 promise。
+**Context:** schema.sql 底部已有註解的 cron.schedule() 語句。在 Supabase dashboard > Database > Extensions 啟用 pg_cron 後，手動執行該 SQL 即可。
 
 **Effort:** S
 **Priority:** P2
-**Depends on:** None
+**Depends on:** 生產環境部署
 
 ---
 
-### CopilotClient 沒有重連邏輯
+### Rate limiting 策略
 
-**What:** 加入 Copilot CLI 連線錯誤偵測，自動重設 clientReady 並重連。
+**What:** 前端自動刷新（dashboard 30s、monitor 15s）+ AI 查詢無 debounce，需要評估限速方案。
 
-**Why:** 若 Copilot CLI 崩潰或斷線，clientReady 永遠不會重設為 false，後續所有 AI 查詢會持續失敗直到伺服器手動重啟。
+**Why:** 開多 tab 或用戶數增加時，RPC 呼叫率會很高。目前每個 tab 每分鐘最多 6 次 RPC（overview + trend 各 2 次/分鐘），10 個 tab = 60 RPC/min。
 
-**Context:** server/services/copilotAgent.js。應監聽 SDK 的 disconnect/error 事件，在錯誤時將 clientInstance = null、clientReady = false，讓下一次呼叫觸發重新初始化。
+**Context:** 可考慮：1) 前端 tab visibility API 暫停背景 tab 的刷新；2) Supabase rate limiting（需 Pro plan）；3) 前端 debounce AI 查詢輸入。
 
 **Effort:** M
-**Priority:** P2
+**Priority:** P3
 **Depends on:** None
 
 ## Completed

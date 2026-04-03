@@ -26,9 +26,13 @@ export default function MonitorPage() {
   const colors = useChartColors()
   const [healthData, setHealthData] = useState<HealthRow[]>([])
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     const load = () => {
-      (api.getApiHealth(60) as Promise<HealthRow[]>).then((data) => setHealthData(data))
+      (api.getApiHealth(60) as Promise<HealthRow[]>)
+        .then((data) => { setHealthData(data); setError(null) })
+        .catch((err: unknown) => setError(err instanceof Error ? err.message : '載入 API 健康資料失敗'))
     }
     load()
     const t = setInterval(load, 15000)
@@ -67,6 +71,16 @@ export default function MonitorPage() {
 
   return (
     <div>
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+          <div>
+            <p className="text-destructive font-semibold text-sm">資料載入失敗</p>
+            <p className="text-destructive/80 text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
       {hasAlert && (
         <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />

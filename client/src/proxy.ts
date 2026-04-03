@@ -3,8 +3,10 @@ import { updateSession } from '@/lib/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY) {
-    console.error('[proxy] Missing Supabase env vars — skipping auth check')
-    return NextResponse.next({ request })
+    console.error('[proxy] Missing Supabase env vars — blocking request (fail-close)')
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
   return await updateSession(request)
 }

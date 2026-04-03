@@ -1,0 +1,8 @@
+-- This migration is intentionally empty.
+-- It documents that demo seed data has been moved to supabase/seed.sql.
+-- The prior migration 20260403000200_seed_demo_data.sql is safe to keep
+-- (it has WHERE NOT EXISTS guards), but new environments should use
+-- `supabase db reset` which applies seed.sql automatically.
+--
+-- For production: run `supabase migration repair 20260403000200 --status applied`
+-- to skip the seed migration without re-executing it.
