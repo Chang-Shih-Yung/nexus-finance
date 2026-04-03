@@ -2,10 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from 'next-themes'
-import { RotateCcw, Sun, Moon } from 'lucide-react'
+import { Check, Moon, RotateCcw, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { Separator } from '@/components/ui/separator'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 // ── Theme presets ──────────────────────────────────────────────
 const themeColors = [
@@ -59,6 +68,27 @@ const chartPalettes = [
   },
 ] as const
 
+// ── Style presets ──────────────────────────────────────────────
+const stylePresets = [
+  { value: 'default', label: 'Default', defaultRadius: 0.625 },
+  { value: 'new-york', label: 'New York', defaultRadius: 0.5 },
+] as const
+
+type StylePreset = (typeof stylePresets)[number]['value']
+
+// ── Font options ──────────────────────────────────────────────
+const fontOptions = [
+  { value: 'geist', label: 'Geist Sans', variable: '--font-geist-sans' },
+  { value: 'inter', label: 'Inter', variable: '--font-inter' },
+  { value: 'jakarta', label: 'Plus Jakarta Sans', variable: '--font-plus-jakarta-sans' },
+] as const
+
+type FontOption = (typeof fontOptions)[number]['value']
+
+// ── Radius presets ────────────────────────────────────────────
+const radiusPresets = [0, 0.3, 0.5, 0.75, 1.0] as const
+
+// ── Defaults ─────────────────────────────────────────────────
 const DEFAULTS = {
   primaryHue: 255,
   primaryChroma: 0.19,
@@ -66,6 +96,8 @@ const DEFAULTS = {
   baseChroma: 0,
   radius: 0.625,
   chartPalette: 0,
+  style: 'default' as StylePreset,
+  font: 'geist' as FontOption,
 }
 
 const STORAGE_KEY = 'nexus-theme-config'
@@ -77,6 +109,8 @@ interface ThemeConfig {
   baseChroma: number
   radius: number
   chartPalette: number
+  style: StylePreset
+  font: FontOption
 }
 
 function loadConfig(): ThemeConfig {
@@ -156,6 +190,10 @@ function applyThemeVars(config: ThemeConfig, isDark: boolean) {
       `oklch(${color.l + lightnessBump} ${color.c} ${color.h})`
     )
   })
+
+  // Font switching
+  const fontOpt = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
+  root.style.setProperty('--font-sans', `var(${fontOpt.variable})`)
 }
 
 export default function ThemeCustomizerContent() {
@@ -178,6 +216,11 @@ export default function ThemeCustomizerContent() {
     setConfig(prev => ({ ...prev, ...patch }))
   }, [])
 
+  function handleStyleChange(style: StylePreset) {
+    const preset = stylePresets.find(s => s.value === style)
+    updateConfig({ style, radius: preset?.defaultRadius ?? 0.625 })
+  }
+
   function resetToDefaults() {
     setConfig(DEFAULTS)
     setTheme('light')
@@ -193,7 +236,7 @@ export default function ThemeCustomizerContent() {
       '--border', '--input',
       '--sidebar', '--sidebar-primary', '--sidebar-primary-foreground',
       '--sidebar-accent', '--sidebar-accent-foreground', '--sidebar-ring',
-      '--radius',
+      '--radius', '--font-sans',
       '--chart-1', '--chart-2', '--chart-3', '--chart-4', '--chart-5',
     ]
     props.forEach(p => root.style.removeProperty(p))
@@ -205,58 +248,78 @@ export default function ThemeCustomizerContent() {
   const isDark = theme === 'dark'
 
   return (
-    <div className="space-y-6 p-4">
-      {/* 模式 */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">模式</Label>
-        <div className="flex gap-2">
-          <Button
-            variant={!isDark ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setTheme('light')}
-            className="flex-1"
-          >
-            <Sun className="h-4 w-4 mr-1" /> 淺色
-          </Button>
-          <Button
-            variant={isDark ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setTheme('dark')}
-            className="flex-1"
-          >
-            <Moon className="h-4 w-4 mr-1" /> 深色
-          </Button>
-        </div>
-      </div>
+    <div className="px-4 pb-8">
 
-      {/* 主題色 */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">主題色</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {themeColors.map(color => {
-            const isActive = config.primaryHue === color.hue && config.primaryChroma === color.chroma
+      {/* ── 樣式預設 ─────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">樣式</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {stylePresets.map(preset => {
+            const isActive = config.style === preset.value
             return (
               <button
-                key={color.name}
-                onClick={() => updateConfig({ primaryHue: color.hue, primaryChroma: color.chroma })}
-                className={`flex flex-col items-center gap-1.5 rounded-lg border p-2 text-xs transition-colors ${
-                  isActive ? 'border-primary bg-accent' : 'border-border hover:border-primary/50'
-                }`}
+                key={preset.value}
+                onClick={() => handleStyleChange(preset.value)}
+                className={cn(
+                  'relative flex flex-col items-center gap-2 rounded-md border-2 p-3 text-xs transition-colors hover:bg-accent',
+                  isActive ? 'border-primary' : 'border-border',
+                )}
               >
+                {/* Mini card preview */}
                 <div
-                  className="h-6 w-6 rounded-full ring-1 ring-border"
-                  style={{ backgroundColor: `oklch(0.55 ${color.chroma} ${color.hue})` }}
-                />
-                <span className="text-muted-foreground leading-none">{color.name}</span>
+                  className="h-12 w-full overflow-hidden bg-muted"
+                  style={{ borderRadius: `${preset.defaultRadius * 0.6}rem` }}
+                >
+                  <div className="flex gap-1 p-1.5">
+                    <div className="h-5 flex-1 bg-background" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
+                    <div className="h-5 w-5 shrink-0 bg-primary" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
+                  </div>
+                  <div className="mx-1.5 h-1.5 bg-background/60" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
+                </div>
+                <span className="font-medium text-foreground">{preset.label}</span>
+                {isActive && (
+                  <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Check className="h-2.5 w-2.5" />
+                  </span>
+                )}
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* 基底灰調 */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">基底灰調</Label>
+      <Separator />
+
+      {/* ── 主題色 ────────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">顏色</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {themeColors.map(color => {
+            const isActive = config.primaryHue === color.hue && config.primaryChroma === color.chroma
+            return (
+              <button
+                key={color.name}
+                title={color.name}
+                onClick={() => updateConfig({ primaryHue: color.hue, primaryChroma: color.chroma })}
+                className={cn(
+                  'flex h-8 w-8 items-center justify-center rounded-full border-2 transition-transform hover:scale-110',
+                  isActive ? 'border-foreground' : 'border-transparent',
+                )}
+                style={{ backgroundColor: `oklch(0.55 ${color.chroma} ${color.hue})` }}
+              >
+                {isActive && <Check className="h-3.5 w-3.5 text-white drop-shadow" />}
+                <span className="sr-only">{color.name}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* ── 基底灰調 ────────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">基底灰調</Label>
         <div className="grid grid-cols-5 gap-1.5">
           {baseColors.map(base => {
             const isActive = config.baseHue === base.hue && config.baseChroma === base.chroma
@@ -264,26 +327,45 @@ export default function ThemeCustomizerContent() {
               <button
                 key={base.name}
                 onClick={() => updateConfig({ baseHue: base.hue, baseChroma: base.chroma })}
-                className={`flex flex-col items-center gap-1.5 rounded-lg border p-1.5 text-xs transition-colors ${
-                  isActive ? 'border-primary bg-accent' : 'border-border hover:border-primary/50'
-                }`}
+                className={cn(
+                  'flex flex-col items-center gap-1 rounded-md border p-1.5 text-[10px] transition-colors',
+                  isActive ? 'border-primary bg-accent text-foreground' : 'border-border text-muted-foreground hover:border-primary/50',
+                )}
               >
                 <div
                   className="h-5 w-5 rounded-full ring-1 ring-border"
                   style={{ backgroundColor: `oklch(0.5 ${base.chroma} ${base.hue})` }}
                 />
-                <span className="text-muted-foreground leading-none">{base.name}</span>
+                <span className="leading-none">{base.name}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* 圓角 */}
-      <div className="space-y-3">
+      <Separator />
+
+      {/* ── 圓角 ─────────────────────────── */}
+      <div className="py-4 space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">圓角</Label>
-          <span className="text-xs text-muted-foreground font-mono">{config.radius.toFixed(2)}rem</span>
+          <Label className="text-xs text-muted-foreground">圓角</Label>
+          <span className="font-mono text-xs text-muted-foreground">{config.radius.toFixed(2)}rem</span>
+        </div>
+        <div className="flex items-center justify-between gap-1">
+          {radiusPresets.map(r => (
+            <button
+              key={r}
+              onClick={() => updateConfig({ radius: r })}
+              title={`${r}rem`}
+              className={cn(
+                'flex h-10 flex-1 items-center justify-center border text-xs text-muted-foreground transition-colors',
+                Math.abs(config.radius - r) < 0.01 ? 'border-primary bg-accent text-foreground' : 'border-border hover:border-primary/50',
+              )}
+              style={{ borderRadius: `${r}rem` }}
+            >
+              {r}
+            </button>
+          ))}
         </div>
         <Slider
           value={[config.radius]}
@@ -292,25 +374,35 @@ export default function ThemeCustomizerContent() {
           max={1.5}
           step={0.05}
         />
-        <div className="flex gap-2 justify-center">
-          {[0, 0.3, 0.625, 1.0, 1.5].map(r => (
-            <button
-              key={r}
-              onClick={() => updateConfig({ radius: r })}
-              className={`h-10 w-10 border transition-colors ${
-                Math.abs(config.radius - r) < 0.01 ? 'border-primary bg-accent' : 'border-border hover:border-primary/50'
-              }`}
-              style={{ borderRadius: `${r}rem` }}
-            >
-              <span className="sr-only">{r}rem</span>
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* 圖表配色 */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">圖表配色</Label>
+      <Separator />
+
+      {/* ── 字型 ─────────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">字型</Label>
+        <Select
+          value={config.font}
+          onValueChange={(v) => updateConfig({ font: v as FontOption })}
+        >
+          <SelectTrigger size="sm" className="w-full">
+            <SelectValue placeholder="選擇字型" />
+          </SelectTrigger>
+          <SelectContent>
+            {fontOptions.map(f => (
+              <SelectItem key={f.value} value={f.value}>
+                {f.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator />
+
+      {/* ── 圖表配色 ─────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">圖表配色</Label>
         <div className="grid grid-cols-3 gap-2">
           {chartPalettes.map((palette, idx) => {
             const isActive = config.chartPalette === idx
@@ -318,31 +410,63 @@ export default function ThemeCustomizerContent() {
               <button
                 key={palette.name}
                 onClick={() => updateConfig({ chartPalette: idx })}
-                className={`flex flex-col items-center gap-1.5 rounded-lg border p-2 text-xs transition-colors ${
-                  isActive ? 'border-primary bg-accent' : 'border-border hover:border-primary/50'
-                }`}
+                className={cn(
+                  'flex flex-col items-center gap-1.5 rounded-md border p-2 text-xs transition-colors',
+                  isActive ? 'border-primary bg-accent text-foreground' : 'border-border text-muted-foreground hover:border-primary/50',
+                )}
               >
-                <div className="flex gap-0.5">
+                <div className="flex gap-0.5 overflow-hidden rounded-sm">
                   {palette.colors.map((c, i) => (
                     <div
                       key={i}
-                      className="h-4 w-3 first:rounded-l-sm last:rounded-r-sm"
+                      className="h-4 w-3"
                       style={{ backgroundColor: `oklch(${c.l} ${c.c} ${c.h})` }}
                     />
                   ))}
                 </div>
-                <span className="text-muted-foreground">{palette.name}</span>
+                <span>{palette.name}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* 重置 */}
-      <Button variant="outline" onClick={resetToDefaults} className="w-full" size="sm">
-        <RotateCcw className="h-3.5 w-3.5 mr-2" />
-        重置為預設值
-      </Button>
+      <Separator />
+
+      {/* ── 外觀模式 ─────────────────────── */}
+      <div className="py-4 space-y-2">
+        <Label className="text-xs text-muted-foreground">外觀模式</Label>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant={!isDark ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTheme('light')}
+            className="w-full"
+          >
+            <Sun className="h-4 w-4" />
+            淺色
+          </Button>
+          <Button
+            variant={isDark ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTheme('dark')}
+            className="w-full"
+          >
+            <Moon className="h-4 w-4" />
+            深色
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* ── 重置 ─────────────────────────── */}
+      <div className="pt-4">
+        <Button variant="outline" onClick={resetToDefaults} className="w-full" size="sm">
+          <RotateCcw className="h-3.5 w-3.5" />
+          重置為預設值
+        </Button>
+      </div>
     </div>
   )
 }
