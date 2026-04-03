@@ -9,6 +9,7 @@ import { Line } from 'react-chartjs-2'
 import StatCard from '@/components/StatCard'
 import ChartCard from '@/components/ChartCard'
 import { api } from '@/lib/api'
+import { useChartColors } from '@/hooks/useChartColors'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
@@ -26,6 +27,7 @@ interface TrendRow {
 }
 
 export default function DashboardPage() {
+  const colors = useChartColors()
   const [overview, setOverview] = useState<Overview>({
     today_logins: 0, today_transactions: 0,
     today_success_rate: 0, today_active_users: 0,
@@ -57,8 +59,8 @@ export default function DashboardPage() {
     datasets: [{
       label: '登入人數',
       data: trendData.map(d => Number(d.logins)),
-      borderColor: '#10b981',
-      backgroundColor: 'rgba(16,185,129,0.1)',
+      borderColor: colors.chart1,
+      backgroundColor: `${colors.chart1}1a`,
       fill: true,
       tension: 0.3,
     }],
@@ -69,8 +71,8 @@ export default function DashboardPage() {
     datasets: [{
       label: '成功率 %',
       data: trendData.map(d => Number(d.success_rate)),
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.1)',
+      borderColor: colors.chart2,
+      backgroundColor: `${colors.chart2}1a`,
       fill: true,
       tension: 0.3,
     }],

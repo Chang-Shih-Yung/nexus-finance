@@ -10,6 +10,7 @@ import { api } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useChartColors } from '@/hooks/useChartColors'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -19,10 +20,10 @@ interface TxRow {
   amount: number; channel: string; error_code: string; error_message: string
 }
 
-const tierClass: Record<string, string> = {
-  premium: 'bg-purple-100 text-purple-700',
-  vip: 'bg-amber-100 text-amber-700',
-  general: 'bg-gray-100 text-gray-600',
+const tierVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
+  premium: 'default',
+  vip: 'secondary',
+  general: 'outline',
 }
 
 function formatTime(iso: string) {
@@ -31,6 +32,7 @@ function formatTime(iso: string) {
 }
 
 export default function ErrorsPage() {
+  const colors = useChartColors()
   const [errorData, setErrorData] = useState<ErrorRow[]>([])
   const [failedTx, setFailedTx] = useState<TxRow[]>([])
 
@@ -49,7 +51,7 @@ export default function ErrorsPage() {
     datasets: [{
       label: '次數',
       data: errorData.map(d => Number(d.count)),
-      backgroundColor: '#ef4444',
+      backgroundColor: colors.chart4,
       borderRadius: 6,
     }],
   }
@@ -66,39 +68,41 @@ export default function ErrorsPage() {
         )}
       </ChartCard>
 
-      <Card className="mt-6 border-slate-200/80 bg-white/90 shadow-sm">
+      <Card className="mt-6 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-slate-700">最近失敗交易明細</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">最近失敗交易明細</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>時間</TableHead>
-                <TableHead>客戶</TableHead>
-                <TableHead>等級</TableHead>
-                <TableHead className="text-right">金額</TableHead>
-                <TableHead>管道</TableHead>
-                <TableHead>錯誤代碼</TableHead>
-                <TableHead>錯誤訊息</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {failedTx.map(tx => (
-                <TableRow key={tx.id}>
-                  <TableCell className="text-slate-600">{formatTime(tx.created_at)}</TableCell>
-                  <TableCell className="font-medium text-slate-900">{tx.user_name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={tierClass[tx.tier] ?? tierClass.general}>{tx.tier}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-mono">{Number(tx.amount).toLocaleString()}</TableCell>
-                  <TableCell className="text-slate-500">{tx.channel}</TableCell>
-                  <TableCell><span className="text-rose-600 font-mono text-xs">{tx.error_code}</span></TableCell>
-                  <TableCell className="text-slate-500 text-xs">{tx.error_message}</TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>時間</TableHead>
+                  <TableHead>客戶</TableHead>
+                  <TableHead>等級</TableHead>
+                  <TableHead className="text-right">金額</TableHead>
+                  <TableHead>管道</TableHead>
+                  <TableHead>錯誤代碼</TableHead>
+                  <TableHead>錯誤訊息</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {failedTx.map(tx => (
+                  <TableRow key={tx.id}>
+                    <TableCell className="text-muted-foreground">{formatTime(tx.created_at)}</TableCell>
+                    <TableCell className="font-medium">{tx.user_name}</TableCell>
+                    <TableCell>
+                      <Badge variant={tierVariant[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-mono">{Number(tx.amount).toLocaleString()}</TableCell>
+                    <TableCell className="text-muted-foreground">{tx.channel}</TableCell>
+                    <TableCell><span className="text-destructive font-mono text-xs">{tx.error_code}</span></TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{tx.error_message}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

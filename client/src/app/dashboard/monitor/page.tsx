@@ -6,9 +6,11 @@ import {
   LineElement, Title, Tooltip, Legend, Filler,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
+import { AlertTriangle } from 'lucide-react'
 import StatCard from '@/components/StatCard'
 import ChartCard from '@/components/ChartCard'
 import { api } from '@/lib/api'
+import { useChartColors } from '@/hooks/useChartColors'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
@@ -21,6 +23,7 @@ interface HealthRow {
 }
 
 export default function MonitorPage() {
+  const colors = useChartColors()
   const [healthData, setHealthData] = useState<HealthRow[]>([])
 
   useEffect(() => {
@@ -65,11 +68,11 @@ export default function MonitorPage() {
   return (
     <div>
       {hasAlert && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <span className="text-2xl">🚨</span>
+        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
           <div>
-            <p className="text-red-800 font-semibold text-sm">異常警示</p>
-            <p className="text-red-600 text-sm">{alertMessage}</p>
+            <p className="text-destructive font-semibold text-sm">異常警示</p>
+            <p className="text-destructive/80 text-sm">{alertMessage}</p>
           </div>
         </div>
       )}
@@ -88,8 +91,8 @@ export default function MonitorPage() {
               datasets: [{
                 label: '延遲 (ms)',
                 data: healthData.map(d => Number(d.avg_latency)),
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245,158,11,0.1)',
+                borderColor: colors.chart3,
+                backgroundColor: `${colors.chart3}1a`,
                 fill: true,
                 tension: 0.3,
               }],
@@ -103,8 +106,8 @@ export default function MonitorPage() {
               datasets: [{
                 label: 'Error Rate %',
                 data: healthData.map(d => Number(d.error_rate)),
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239,68,68,0.1)',
+                borderColor: colors.chart4,
+                backgroundColor: `${colors.chart4}1a`,
                 fill: true,
                 tension: 0.3,
               }],

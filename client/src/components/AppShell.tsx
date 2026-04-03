@@ -1,10 +1,23 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Bot, Gauge, LogOut, ShieldAlert, Waypoints } from 'lucide-react'
+import {
+  BarChart3,
+  Bot,
+  Gauge,
+  LogOut,
+  Menu,
+  Moon,
+  ShieldAlert,
+  Sun,
+  Waypoints,
+  X,
+} from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', icon: BarChart3, label: '即時總覽' },
@@ -22,10 +35,26 @@ const titles: Record<string, string> = {
   '/ai-query': 'AI 查詢',
 }
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <div className="w-9 h-9" />
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      aria-label={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'}
+      className="h-9 w-9"
+    >
+      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </Button>
+  )
+}
+
+function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   const router = useRouter()
-  const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
 
   async function logout() {
     const supabase = createClient()
@@ -35,52 +64,124 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#f5fff8_0%,_#f7f9ff_45%,_#ffffff_100%)] flex">
-      <aside className="w-72 bg-slate-950 text-slate-100 flex flex-col shrink-0 border-r border-slate-800/70">
-        <div className="p-6 border-b border-slate-800/70">
-          <h1 className="text-xl font-semibold tracking-tight">
-            <span className="text-emerald-400">Nexus</span> Finance
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">RPC-first Banking Intelligence</p>
-        </div>
-        <nav className="flex-1 p-4 space-y-1.5">
-          {navItems.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                pathname === item.href
-                  ? 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/30'
-                  : 'text-slate-300 hover:bg-slate-900 hover:text-white'
-              }`}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-slate-800/70">
-          <Button
-            onClick={logout}
-            variant="ghost"
-            className="w-full justify-start text-slate-300 hover:text-white"
+    <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
+      <div className="p-6 border-b border-sidebar-border">
+        <h1 className="text-xl font-semibold tracking-tight">
+          <span className="text-sidebar-primary">Nexus</span> Finance
+        </h1>
+        <p className="text-xs text-sidebar-foreground/50 mt-1">RPC-first Banking Intelligence</p>
+      </div>
+      <nav className="flex-1 p-4 space-y-1" aria-label="主要導航">
+        {navItems.map(item => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            aria-current={pathname === item.href ? 'page' : undefined}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all min-h-11 ${
+              pathname === item.href
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-1 ring-sidebar-primary/40'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-border/30 hover:text-sidebar-foreground'
+            }`}
           >
-            <LogOut className="h-4 w-4" />
-            登出
-          </Button>
-        </div>
+            <item.icon className="h-4 w-4 shrink-0" />
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+      <div className="p-4 border-t border-sidebar-border">
+        <Button
+          onClick={logout}
+          variant="ghost"
+          className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-border/30 min-h-11"
+        >
+          <LogOut className="h-4 w-4" />
+          登出
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
+
+  // Close drawer on ESC
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setDrawerOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // Close drawer on route change
+  useEffect(() => setDrawerOpen(false), [pathname])
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop sidebar — visible ≥1024px */}
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border">
+        <SidebarNav pathname={pathname} />
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <header className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-slate-200 px-8 py-5 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">
+      {/* Mobile drawer backdrop */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <aside
+        className={`fixed top-0 left-0 z-50 h-full w-72 flex flex-col transition-transform duration-300 lg:hidden ${
+          drawerOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        aria-modal={drawerOpen ? true : undefined}
+        aria-label="主要導航"
+      >
+        <div className="flex items-center justify-end p-3 bg-sidebar border-b border-sidebar-border">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDrawerOpen(false)}
+            aria-label="關閉選單"
+            className="h-9 w-9 text-sidebar-foreground hover:bg-sidebar-border/30"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <SidebarNav pathname={pathname} onNavigate={() => setDrawerOpen(false)} />
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0 overflow-auto">
+        <header className="sticky top-0 z-10 backdrop-blur bg-background/80 border-b border-border px-4 md:px-8 py-4 flex items-center justify-between gap-4">
+          {/* Mobile hamburger */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDrawerOpen(true)}
+            className="lg:hidden h-9 w-9 shrink-0"
+            aria-label="開啟選單"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h2 className="text-base font-semibold text-foreground flex-1 truncate">
             {titles[pathname] ?? 'Nexus Finance'}
           </h2>
-          <div className="rounded-full bg-slate-900 text-slate-100 px-3 py-1 text-xs tracking-wide">
-            {today}
+          <div className="flex items-center gap-2 shrink-0">
+            <ThemeToggle />
+            <div className="hidden sm:block rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">
+              {today}
+            </div>
           </div>
         </header>
-        <div className="p-8">{children}</div>
+        <div className="p-4 md:p-8">{children}</div>
       </main>
     </div>
   )

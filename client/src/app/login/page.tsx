@@ -34,16 +34,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#dcfce7_0%,_#ecfeff_35%,_#ffffff_80%)] flex items-center justify-center p-6">
-      <Card className="w-full max-w-md border-slate-200/70 bg-white/90 shadow-xl backdrop-blur">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-slate-900">Nexus Finance</CardTitle>
-          <CardDescription>登入你的分析工作台，直接存取 Supabase RPC 指標</CardDescription>
+          <CardTitle className="text-2xl text-foreground">
+            <span className="text-primary">Nexus</span> Finance
+          </CardTitle>
+          <CardDescription>存取 Supabase RPC 指標</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1">
-              <label htmlFor="email" className="block text-sm text-slate-600">Email</label>
+              <label htmlFor="email" className="block text-sm text-muted-foreground">Email</label>
               <Input
                 id="email"
                 type="email"
@@ -55,7 +57,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="password" className="block text-sm text-slate-600">密碼</label>
+              <label htmlFor="password" className="block text-sm text-muted-foreground">密碼</label>
               <Input
                 id="password"
                 type="password"
@@ -66,11 +68,11 @@ export default function LoginPage() {
                 className="h-10"
               />
             </div>
-            {error && <p className="text-rose-600 text-sm">{error}</p>}
+            {error && <p className="text-destructive text-sm">{error}</p>}
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-10 bg-emerald-600 hover:bg-emerald-500 text-white"
+              className="w-full h-10"
             >
               {loading ? '登入中...' : '登入'}
             </Button>

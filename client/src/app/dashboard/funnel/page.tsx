@@ -6,7 +6,9 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import ChartCard from '@/components/ChartCard'
+import { Card, CardContent } from '@/components/ui/card'
 import { api } from '@/lib/api'
+import { useChartColors } from '@/hooks/useChartColors'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -24,6 +26,7 @@ const stepLabels: Record<string, string> = {
 }
 
 export default function FunnelPage() {
+  const colors = useChartColors()
   const [funnelData, setFunnelData] = useState<FunnelRow[]>([])
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export default function FunnelPage() {
     datasets: [{
       label: '不重複使用者數',
       data: funnelData.map(d => d.users),
-      backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+      backgroundColor: [colors.chart1, colors.chart3, colors.chart2],
       borderRadius: 8,
     }],
   }
@@ -57,17 +60,18 @@ export default function FunnelPage() {
       {funnelData.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
           {funnelData.map((step, i) => (
-            <div key={step.step} className="bg-white rounded-xl border border-gray-200 p-4">
-              <p className="text-sm text-gray-500">{stepLabels[step.step] || step.step}</p>
-              <p className="text-2xl font-bold text-gray-900">{step.users.toLocaleString()}</p>
-              {i > 0 && (
-                <div className="mt-2 text-sm">
-                  <span className="text-emerald-600">轉換率 {step.conversion_rate}%</span>
-                  <span className="mx-2 text-gray-300">|</span>
-                  <span className="text-red-500">流失率 {step.drop_off_rate}%</span>
-                </div>
-              )}
-            </div>
+            <Card key={step.step}>
+              <CardContent className="pt-5">
+                <p className="text-sm text-muted-foreground">{stepLabels[step.step] || step.step}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{step.users.toLocaleString()}</p>
+                {i > 0 && (
+                  <div className="mt-2 text-sm flex gap-3">
+                    <span className="text-chart-2">轉換率 {step.conversion_rate}%</span>
+                    <span className="text-destructive">流失率 {step.drop_off_rate}%</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
