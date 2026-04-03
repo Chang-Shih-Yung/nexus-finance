@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from 'next-themes'
-import { Check, Moon, RotateCcw, Sun } from 'lucide-react'
+import { Check, ChevronDown, Moon, RotateCcw, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -68,7 +67,6 @@ const chartPalettes = [
   },
 ] as const
 
-// ── Style presets ──────────────────────────────────────────────
 const stylePresets = [
   { value: 'default', label: 'Default', defaultRadius: 0.625 },
   { value: 'new-york', label: 'New York', defaultRadius: 0.5 },
@@ -76,7 +74,6 @@ const stylePresets = [
 
 type StylePreset = (typeof stylePresets)[number]['value']
 
-// ── Font options ──────────────────────────────────────────────
 const fontOptions = [
   { value: 'geist', label: 'Geist Sans', variable: '--font-geist-sans' },
   { value: 'inter', label: 'Inter', variable: '--font-inter' },
@@ -85,10 +82,8 @@ const fontOptions = [
 
 type FontOption = (typeof fontOptions)[number]['value']
 
-// ── Radius presets ────────────────────────────────────────────
 const radiusPresets = [0, 0.3, 0.5, 0.75, 1.0] as const
 
-// ── Defaults ─────────────────────────────────────────────────
 const DEFAULTS = {
   primaryHue: 255,
   primaryChroma: 0.19,
@@ -191,15 +186,61 @@ function applyThemeVars(config: ThemeConfig, isDark: boolean) {
     )
   })
 
-  // Font switching
   const fontOpt = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
   root.style.setProperty('--font-sans', `var(${fontOpt.variable})`)
+}
+
+// ── Accordion section component ────────────────────────────────
+type SectionId = 'style' | 'color' | 'base' | 'radius' | 'font' | 'chart' | 'mode'
+
+function Section({
+  id,
+  label,
+  open,
+  onToggle,
+  children,
+}: {
+  id: SectionId
+  label: string
+  open: boolean
+  onToggle: (id: SectionId) => void
+  children: React.ReactNode
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        className="flex w-full items-center justify-between py-3 text-left text-sm font-medium text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors"
+      >
+        {label}
+        <ChevronDown
+          className={cn(
+            'h-4 w-4 shrink-0 text-sidebar-foreground/40 transition-transform duration-200',
+            open && 'rotate-180',
+          )}
+        />
+      </button>
+      <div
+        className={cn(
+          'grid transition-all duration-200 ease-in-out',
+          open ? 'grid-rows-[1fr] pb-3' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="overflow-hidden">
+          {children}
+        </div>
+      </div>
+      <Separator className="opacity-20" />
+    </div>
+  )
 }
 
 export default function ThemeCustomizerContent() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [config, setConfig] = useState<ThemeConfig>(DEFAULTS)
+  const [openSections, setOpenSections] = useState<Set<SectionId>>(new Set(['color']))
 
   useEffect(() => {
     setMounted(true)
@@ -219,6 +260,15 @@ export default function ThemeCustomizerContent() {
   function handleStyleChange(style: StylePreset) {
     const preset = stylePresets.find(s => s.value === style)
     updateConfig({ style, radius: preset?.defaultRadius ?? 0.625 })
+  }
+
+  function toggleSection(id: SectionId) {
+    setOpenSections(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
   function resetToDefaults() {
@@ -248,11 +298,10 @@ export default function ThemeCustomizerContent() {
   const isDark = theme === 'dark'
 
   return (
-    <div className="px-4 pb-8">
+    <div className="px-4 pb-6">
 
       {/* ── 樣式預設 ─────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">樣式</Label>
+      <Section id="style" label="樣式" open={openSections.has('style')} onToggle={toggleSection}>
         <div className="grid grid-cols-2 gap-2">
           {stylePresets.map(preset => {
             const isActive = config.style === preset.value
@@ -261,24 +310,22 @@ export default function ThemeCustomizerContent() {
                 key={preset.value}
                 onClick={() => handleStyleChange(preset.value)}
                 className={cn(
-                  'relative flex flex-col items-center gap-2 rounded-md border-2 p-3 text-xs transition-colors hover:bg-accent',
-                  isActive ? 'border-primary' : 'border-border',
+                  'relative flex flex-col items-center gap-2 rounded-md border-2 p-3 text-xs transition-colors hover:bg-sidebar-accent',
+                  isActive ? 'border-sidebar-primary' : 'border-sidebar-border',
                 )}
               >
-                {/* Mini card preview */}
                 <div
-                  className="h-12 w-full overflow-hidden bg-muted"
+                  className="h-10 w-full overflow-hidden bg-background/20"
                   style={{ borderRadius: `${preset.defaultRadius * 0.6}rem` }}
                 >
                   <div className="flex gap-1 p-1.5">
-                    <div className="h-5 flex-1 bg-background" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
-                    <div className="h-5 w-5 shrink-0 bg-primary" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
+                    <div className="h-4 flex-1 bg-background/40" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
+                    <div className="h-4 w-4 shrink-0 bg-sidebar-primary" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
                   </div>
-                  <div className="mx-1.5 h-1.5 bg-background/60" style={{ borderRadius: `${preset.defaultRadius * 0.4}rem` }} />
                 </div>
-                <span className="font-medium text-foreground">{preset.label}</span>
+                <span className="font-medium text-sidebar-foreground">{preset.label}</span>
                 {isActive && (
-                  <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                  <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
                     <Check className="h-2.5 w-2.5" />
                   </span>
                 )}
@@ -286,14 +333,11 @@ export default function ThemeCustomizerContent() {
             )
           })}
         </div>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 主題色 ────────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">顏色</Label>
-        <div className="flex flex-wrap gap-1.5">
+      <Section id="color" label="顏色" open={openSections.has('color')} onToggle={toggleSection}>
+        <div className="flex flex-wrap gap-2">
           {themeColors.map(color => {
             const isActive = config.primaryHue === color.hue && config.primaryChroma === color.chroma
             return (
@@ -303,7 +347,7 @@ export default function ThemeCustomizerContent() {
                 onClick={() => updateConfig({ primaryHue: color.hue, primaryChroma: color.chroma })}
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full border-2 transition-transform hover:scale-110',
-                  isActive ? 'border-foreground' : 'border-transparent',
+                  isActive ? 'border-sidebar-foreground' : 'border-transparent',
                 )}
                 style={{ backgroundColor: `oklch(0.55 ${color.chroma} ${color.hue})` }}
               >
@@ -313,13 +357,10 @@ export default function ThemeCustomizerContent() {
             )
           })}
         </div>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 基底灰調 ────────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">基底灰調</Label>
+      <Section id="base" label="基底灰調" open={openSections.has('base')} onToggle={toggleSection}>
         <div className="grid grid-cols-5 gap-1.5">
           {baseColors.map(base => {
             const isActive = config.baseHue === base.hue && config.baseChroma === base.chroma
@@ -329,11 +370,13 @@ export default function ThemeCustomizerContent() {
                 onClick={() => updateConfig({ baseHue: base.hue, baseChroma: base.chroma })}
                 className={cn(
                   'flex flex-col items-center gap-1 rounded-md border p-1.5 text-[10px] transition-colors',
-                  isActive ? 'border-primary bg-accent text-foreground' : 'border-border text-muted-foreground hover:border-primary/50',
+                  isActive
+                    ? 'border-sidebar-primary bg-sidebar-accent text-sidebar-foreground'
+                    : 'border-sidebar-border text-sidebar-foreground/50 hover:border-sidebar-primary/50',
                 )}
               >
                 <div
-                  className="h-5 w-5 rounded-full ring-1 ring-border"
+                  className="h-5 w-5 rounded-full"
                   style={{ backgroundColor: `oklch(0.5 ${base.chroma} ${base.hue})` }}
                 />
                 <span className="leading-none">{base.name}</span>
@@ -341,51 +384,50 @@ export default function ThemeCustomizerContent() {
             )
           })}
         </div>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 圓角 ─────────────────────────── */}
-      <div className="py-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs text-muted-foreground">圓角</Label>
-          <span className="font-mono text-xs text-muted-foreground">{config.radius.toFixed(2)}rem</span>
+      <Section id="radius" label="圓角" open={openSections.has('radius')} onToggle={toggleSection}>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-1">
+            {radiusPresets.map(r => (
+              <button
+                key={r}
+                onClick={() => updateConfig({ radius: r })}
+                title={`${r}rem`}
+                className={cn(
+                  'flex h-9 flex-1 items-center justify-center border text-xs text-sidebar-foreground/60 transition-colors',
+                  Math.abs(config.radius - r) < 0.01
+                    ? 'border-sidebar-primary bg-sidebar-accent text-sidebar-foreground'
+                    : 'border-sidebar-border hover:border-sidebar-primary/50',
+                )}
+                style={{ borderRadius: `${r}rem` }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+          <Slider
+            value={[config.radius]}
+            onValueChange={([v]) => updateConfig({ radius: v })}
+            min={0}
+            max={1.5}
+            step={0.05}
+          />
+          <p className="text-right font-mono text-[10px] text-sidebar-foreground/40">{config.radius.toFixed(2)}rem</p>
         </div>
-        <div className="flex items-center justify-between gap-1">
-          {radiusPresets.map(r => (
-            <button
-              key={r}
-              onClick={() => updateConfig({ radius: r })}
-              title={`${r}rem`}
-              className={cn(
-                'flex h-10 flex-1 items-center justify-center border text-xs text-muted-foreground transition-colors',
-                Math.abs(config.radius - r) < 0.01 ? 'border-primary bg-accent text-foreground' : 'border-border hover:border-primary/50',
-              )}
-              style={{ borderRadius: `${r}rem` }}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-        <Slider
-          value={[config.radius]}
-          onValueChange={([v]) => updateConfig({ radius: v })}
-          min={0}
-          max={1.5}
-          step={0.05}
-        />
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 字型 ─────────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">字型</Label>
+      <Section id="font" label="字型" open={openSections.has('font')} onToggle={toggleSection}>
         <Select
           value={config.font}
           onValueChange={(v) => updateConfig({ font: v as FontOption })}
         >
-          <SelectTrigger size="sm" className="w-full">
+          <SelectTrigger
+            size="sm"
+            className="w-full border-sidebar-border bg-sidebar-accent text-sidebar-foreground [&_svg]:text-sidebar-foreground/50"
+          >
             <SelectValue placeholder="選擇字型" />
           </SelectTrigger>
           <SelectContent>
@@ -396,13 +438,10 @@ export default function ThemeCustomizerContent() {
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 圖表配色 ─────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">圖表配色</Label>
+      <Section id="chart" label="圖表配色" open={openSections.has('chart')} onToggle={toggleSection}>
         <div className="grid grid-cols-3 gap-2">
           {chartPalettes.map((palette, idx) => {
             const isActive = config.chartPalette === idx
@@ -412,7 +451,9 @@ export default function ThemeCustomizerContent() {
                 onClick={() => updateConfig({ chartPalette: idx })}
                 className={cn(
                   'flex flex-col items-center gap-1.5 rounded-md border p-2 text-xs transition-colors',
-                  isActive ? 'border-primary bg-accent text-foreground' : 'border-border text-muted-foreground hover:border-primary/50',
+                  isActive
+                    ? 'border-sidebar-primary bg-sidebar-accent text-sidebar-foreground'
+                    : 'border-sidebar-border text-sidebar-foreground/50 hover:border-sidebar-primary/50',
                 )}
               >
                 <div className="flex gap-0.5 overflow-hidden rounded-sm">
@@ -429,40 +470,44 @@ export default function ThemeCustomizerContent() {
             )
           })}
         </div>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 外觀模式 ─────────────────────── */}
-      <div className="py-4 space-y-2">
-        <Label className="text-xs text-muted-foreground">外觀模式</Label>
+      <Section id="mode" label="外觀模式" open={openSections.has('mode')} onToggle={toggleSection}>
         <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant={!isDark ? 'default' : 'outline'}
-            size="sm"
+          <button
             onClick={() => setTheme('light')}
-            className="w-full"
+            className={cn(
+              'flex items-center justify-center gap-2 rounded-md border py-2 text-xs transition-colors',
+              !isDark
+                ? 'border-sidebar-primary bg-sidebar-accent text-sidebar-foreground'
+                : 'border-sidebar-border text-sidebar-foreground/50 hover:border-sidebar-primary/50',
+            )}
           >
-            <Sun className="h-4 w-4" />
-            淺色
-          </Button>
-          <Button
-            variant={isDark ? 'default' : 'outline'}
-            size="sm"
+            <Sun className="h-3.5 w-3.5" /> 淺色
+          </button>
+          <button
             onClick={() => setTheme('dark')}
-            className="w-full"
+            className={cn(
+              'flex items-center justify-center gap-2 rounded-md border py-2 text-xs transition-colors',
+              isDark
+                ? 'border-sidebar-primary bg-sidebar-accent text-sidebar-foreground'
+                : 'border-sidebar-border text-sidebar-foreground/50 hover:border-sidebar-primary/50',
+            )}
           >
-            <Moon className="h-4 w-4" />
-            深色
-          </Button>
+            <Moon className="h-3.5 w-3.5" /> 深色
+          </button>
         </div>
-      </div>
-
-      <Separator />
+      </Section>
 
       {/* ── 重置 ─────────────────────────── */}
       <div className="pt-4">
-        <Button variant="outline" onClick={resetToDefaults} className="w-full" size="sm">
+        <Button
+          variant="ghost"
+          onClick={resetToDefaults}
+          className="w-full text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          size="sm"
+        >
           <RotateCcw className="h-3.5 w-3.5" />
           重置為預設值
         </Button>
