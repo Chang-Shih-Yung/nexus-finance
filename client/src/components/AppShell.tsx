@@ -64,16 +64,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        {/* ── Main column (content card + bar card stacked) ───── */}
+        {/* ── Main column ──────────────────────────────────────── */}
         <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden gap-3 lg:gap-0">
 
-          {/* Content card — white rounded card on mobile, full-width on desktop */}
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background
-                          rounded-2xl border border-border shadow-sm
-                          lg:rounded-none lg:border-0 lg:shadow-none">
-
-          {/* Header */}
-          <header className="z-20 bg-background border-b border-border px-4 md:px-8 py-3 flex items-center justify-between gap-4 shrink-0">
+          {/* Header — outside cards on mobile, inside column on desktop */}
+          <header className="shrink-0 lg:hidden px-1 flex items-center justify-between gap-4">
             {/* Mobile: hamburger nav */}
             <div className="flex items-center gap-3">
               <Popover>
@@ -118,6 +113,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
               {today}
             </div>
+          </header>
+
+          {/* Content card — white rounded card on mobile, full-width on desktop */}
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background
+                          rounded-2xl border border-border shadow-sm
+                          lg:rounded-none lg:border-0 lg:shadow-none">
+
+          {/* Desktop header — inside card on desktop */}
+          <header className="hidden lg:flex z-20 bg-background border-b border-border px-4 md:px-8 py-3 items-center justify-between gap-4 shrink-0">
+            <h2 className="text-base font-semibold text-foreground truncate">Nexus Finance</h2>
+            <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">{today}</div>
           </header>
 
           {/* Tab nav — desktop only */}
