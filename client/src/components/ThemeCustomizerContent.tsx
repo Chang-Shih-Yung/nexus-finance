@@ -5,9 +5,8 @@ import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/compone
 import { cn } from '@/lib/utils'
 import {
   useThemeCustomizer,
-  themeColors,
-  baseColors,
-  chartColors,
+  colorThemes,
+  baseThemes,
   stylePresets,
   fontOptions,
   radiusPresets,
@@ -85,7 +84,6 @@ export default function ThemeCustomizerContent() {
   const {
     config,
     updateConfig,
-    handleStyleChange,
     resetToDefaults,
     isDark,
     setTheme,
@@ -94,17 +92,15 @@ export default function ThemeCustomizerContent() {
 
   if (!mounted) return <div className="h-8" />
 
-  const currentThemeColor =
-    themeColors.find(c => c.hue === config.primaryHue && c.chroma === config.primaryChroma) ??
-    themeColors[0]
-  const currentBaseColor =
-    baseColors.find(b => b.hue === config.baseHue && b.chroma === config.baseChroma) ??
-    baseColors[0]
-  const currentStyle = stylePresets.find(s => s.value === config.style) ?? stylePresets[0]
-  const currentFont = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
-  const currentHeadingFont =
-    fontOptions.find(f => f.value === config.headingFont) ?? fontOptions[0]
-  const currentChartColor = chartColors[config.chartColor] ?? chartColors[0]
+  const currentStyle = stylePresets.find(s => s.name === config.style) ?? stylePresets[0]
+  const currentThemeColor = colorThemes.find(c => c.name === config.themeColor) ?? colorThemes[0]
+  const currentBaseColor = baseThemes.find(b => b.name === config.baseColor) ?? baseThemes[2]
+  const currentFont = fontOptions.find(f => f.name === config.font) ?? fontOptions[0]
+  const currentHeadingFont = config.headingFont === 'inherit'
+    ? { label: '繼承內文' }
+    : (fontOptions.find(f => f.name === config.headingFont) ?? fontOptions[0])
+  const currentChartColor = colorThemes.find(c => c.name === config.chartColor) ?? colorThemes[0]
+  const currentRadius = radiusPresets[config.radius] ?? radiusPresets[2]
 
   return (
     <div className="px-3 py-4 space-y-2">
@@ -114,18 +110,15 @@ export default function ThemeCustomizerContent() {
         label="樣式"
         displayValue={currentStyle.label}
         icon={
-          <div
-            className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0"
-            style={{ borderRadius: `${currentStyle.defaultRadius * 0.5}rem` }}
-          />
+          <div className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0 rounded" />
         }
       >
         {stylePresets.map(s => (
           <OptionItem
-            key={s.value}
+            key={s.name}
             label={s.label}
-            active={config.style === s.value}
-            onClick={() => handleStyleChange(s.value)}
+            active={config.style === s.name}
+            onClick={() => updateConfig({ style: s.name })}
           />
         ))}
       </OptionRow>
@@ -133,33 +126,30 @@ export default function ThemeCustomizerContent() {
       {/* Theme color */}
       <OptionRow
         label="主題色"
-        displayValue={currentThemeColor.name}
+        displayValue={currentThemeColor.label}
         icon={
           <div
             className="h-5 w-5 rounded-full shrink-0"
             style={{
-              backgroundColor: `oklch(0.55 ${currentThemeColor.chroma} ${currentThemeColor.hue})`,
+              backgroundColor: currentThemeColor.light.primary,
             }}
           />
         }
       >
         <div className="p-2 grid grid-cols-4 gap-1.5">
-          {themeColors.map(color => {
-            const isActive =
-              config.primaryHue === color.hue && config.primaryChroma === color.chroma
+          {colorThemes.map(color => {
+            const isActive = config.themeColor === color.name
             return (
               <PopoverClose key={color.name} asChild>
                 <button
-                  title={color.name}
-                  onClick={() =>
-                    updateConfig({ primaryHue: color.hue, primaryChroma: color.chroma })
-                  }
+                  title={color.label}
+                  onClick={() => updateConfig({ themeColor: color.name })}
                   className={cn(
                     'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110',
                     isActive ? 'border-white' : 'border-transparent',
                   )}
                   style={{
-                    backgroundColor: `oklch(0.55 ${color.chroma} ${color.hue})`,
+                    backgroundColor: color.light.primary,
                   }}
                 >
                   {isActive && <Check className="h-3.5 w-3.5 text-white drop-shadow" />}
@@ -173,22 +163,22 @@ export default function ThemeCustomizerContent() {
       {/* Base color */}
       <OptionRow
         label="基底灰調"
-        displayValue={currentBaseColor.name}
+        displayValue={currentBaseColor.label}
         icon={
           <div
             className="h-5 w-5 rounded-full shrink-0"
             style={{
-              backgroundColor: `oklch(0.5 ${currentBaseColor.chroma} ${currentBaseColor.hue})`,
+              backgroundColor: currentBaseColor.light.muted,
             }}
           />
         }
       >
-        {baseColors.map(base => (
+        {baseThemes.map(base => (
           <OptionItem
             key={base.name}
-            label={base.name}
-            active={config.baseHue === base.hue && config.baseChroma === base.chroma}
-            onClick={() => updateConfig({ baseHue: base.hue, baseChroma: base.chroma })}
+            label={base.label}
+            active={config.baseColor === base.name}
+            onClick={() => updateConfig({ baseColor: base.name })}
           />
         ))}
       </OptionRow>
@@ -196,20 +186,20 @@ export default function ThemeCustomizerContent() {
       {/* Radius */}
       <OptionRow
         label="圓角"
-        displayValue={`${config.radius}rem`}
+        displayValue={currentRadius.label}
         icon={
           <div
             className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0"
-            style={{ borderRadius: `${Math.min(config.radius * 0.8, 0.5)}rem` }}
+            style={{ borderRadius: currentRadius.value }}
           />
         }
       >
-        {radiusPresets.map(r => (
+        {radiusPresets.map((r, idx) => (
           <OptionItem
-            key={r}
-            label={`${r}rem`}
-            active={Math.abs(config.radius - r) < 0.01}
-            onClick={() => updateConfig({ radius: r })}
+            key={r.label}
+            label={r.label}
+            active={config.radius === idx}
+            onClick={() => updateConfig({ radius: idx })}
           />
         ))}
       </OptionRow>
@@ -222,12 +212,17 @@ export default function ThemeCustomizerContent() {
           <span className="text-sm font-semibold text-sidebar-foreground/50 shrink-0">Aa</span>
         }
       >
+        <OptionItem
+          label="繼承內文"
+          active={config.headingFont === 'inherit'}
+          onClick={() => updateConfig({ headingFont: 'inherit' })}
+        />
         {fontOptions.map(f => (
           <OptionItem
-            key={f.value}
+            key={f.name}
             label={f.label}
-            active={config.headingFont === f.value}
-            onClick={() => updateConfig({ headingFont: f.value })}
+            active={config.headingFont === f.name}
+            onClick={() => updateConfig({ headingFont: f.name })}
           />
         ))}
       </OptionRow>
@@ -242,10 +237,10 @@ export default function ThemeCustomizerContent() {
       >
         {fontOptions.map(f => (
           <OptionItem
-            key={f.value}
+            key={f.name}
             label={f.label}
-            active={config.font === f.value}
-            onClick={() => updateConfig({ font: f.value })}
+            active={config.font === f.name}
+            onClick={() => updateConfig({ font: f.name })}
           />
         ))}
       </OptionRow>
@@ -253,22 +248,36 @@ export default function ThemeCustomizerContent() {
       {/* Chart color */}
       <OptionRow
         label="圖表配色"
-        displayValue={currentChartColor.name}
+        displayValue={currentChartColor.label}
         icon={
           <div
             className="h-5 w-5 rounded-full shrink-0"
-            style={{ backgroundColor: `oklch(0.55 ${currentChartColor.chroma} ${currentChartColor.hue})` }}
+            style={{ backgroundColor: currentChartColor.light.primary }}
           />
         }
       >
-        {chartColors.map((color, idx) => (
-          <OptionItem
-            key={color.name}
-            label={color.name}
-            active={config.chartColor === idx}
-            onClick={() => updateConfig({ chartColor: idx })}
-          />
-        ))}
+        <div className="p-2 grid grid-cols-4 gap-1.5">
+          {colorThemes.map(color => {
+            const isActive = config.chartColor === color.name
+            return (
+              <PopoverClose key={color.name} asChild>
+                <button
+                  title={color.label}
+                  onClick={() => updateConfig({ chartColor: color.name })}
+                  className={cn(
+                    'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110',
+                    isActive ? 'border-white' : 'border-transparent',
+                  )}
+                  style={{
+                    backgroundColor: color.light.primary,
+                  }}
+                >
+                  {isActive && <Check className="h-3.5 w-3.5 text-white drop-shadow" />}
+                </button>
+              </PopoverClose>
+            )
+          })}
+        </div>
       </OptionRow>
 
       {/* Mode */}

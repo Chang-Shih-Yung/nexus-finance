@@ -6,9 +6,8 @@ import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/compone
 import { cn } from '@/lib/utils'
 import {
   useThemeCustomizer,
-  themeColors,
-  baseColors,
-  chartColors,
+  colorThemes,
+  baseThemes,
   stylePresets,
   fontOptions,
   radiusPresets,
@@ -99,7 +98,7 @@ function TileItem({
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function ThemeCustomizerBar() {
-  const { config, updateConfig, handleStyleChange, isDark, setTheme, mounted } =
+  const { config, updateConfig, isDark, setTheme, mounted } =
     useThemeCustomizer()
   const [openId, setOpenId] = useState<TileId | null>(null)
 
@@ -109,17 +108,15 @@ export default function ThemeCustomizerBar() {
 
   if (!mounted) return null
 
-  const currentThemeColor =
-    themeColors.find(c => c.hue === config.primaryHue && c.chroma === config.primaryChroma) ??
-    themeColors[0]
-  const currentBaseColor =
-    baseColors.find(b => b.hue === config.baseHue && b.chroma === config.baseChroma) ??
-    baseColors[0]
-  const currentStyle = stylePresets.find(s => s.value === config.style) ?? stylePresets[0]
-  const currentFont = fontOptions.find(f => f.value === config.font) ?? fontOptions[0]
-  const currentHeadingFont =
-    fontOptions.find(f => f.value === config.headingFont) ?? fontOptions[0]
-  const currentChartColor = chartColors[config.chartColor] ?? chartColors[0]
+  const currentStyle = stylePresets.find(s => s.name === config.style) ?? stylePresets[0]
+  const currentThemeColor = colorThemes.find(c => c.name === config.themeColor) ?? colorThemes[0]
+  const currentBaseColor = baseThemes.find(b => b.name === config.baseColor) ?? baseThemes[2]
+  const currentFont = fontOptions.find(f => f.name === config.font) ?? fontOptions[0]
+  const currentHeadingFont = config.headingFont === 'inherit'
+    ? { label: '繼承內文' }
+    : (fontOptions.find(f => f.name === config.headingFont) ?? fontOptions[0])
+  const currentChartColor = colorThemes.find(c => c.name === config.chartColor) ?? colorThemes[0]
+  const currentRadius = radiusPresets[config.radius] ?? radiusPresets[2]
 
   return (
     <>
@@ -143,18 +140,15 @@ export default function ThemeCustomizerBar() {
             label="樣式"
             displayValue={currentStyle.label}
             icon={
-              <div
-                className="h-4 w-6 border border-white/30 bg-white/20 shrink-0"
-                style={{ borderRadius: `${currentStyle.defaultRadius * 0.5}rem` }}
-              />
+              <div className="h-4 w-6 border border-white/30 bg-white/20 shrink-0 rounded" />
             }
           >
             {stylePresets.map(s => (
               <TileItem
-                key={s.value}
+                key={s.name}
                 label={s.label}
-                active={config.style === s.value}
-                onClick={() => handleStyleChange(s.value)}
+                active={config.style === s.name}
+                onClick={() => updateConfig({ style: s.name })}
               />
             ))}
           </Tile>
@@ -165,34 +159,27 @@ export default function ThemeCustomizerBar() {
             openId={openId}
             onOpenChange={(o) => handleOpen('theme', o)}
             label="主題色"
-            displayValue={currentThemeColor.name}
+            displayValue={currentThemeColor.label}
             icon={
               <div
                 className="h-5 w-5 rounded-full shrink-0"
-                style={{
-                  backgroundColor: `oklch(0.55 ${currentThemeColor.chroma} ${currentThemeColor.hue})`,
-                }}
+                style={{ backgroundColor: currentThemeColor.light.primary }}
               />
             }
           >
             <div className="p-2 grid grid-cols-4 gap-1.5">
-              {themeColors.map(color => {
-                const isActive =
-                  config.primaryHue === color.hue && config.primaryChroma === color.chroma
+              {colorThemes.map(color => {
+                const isActive = config.themeColor === color.name
                 return (
                   <PopoverClose key={color.name} asChild>
                     <button
-                      title={color.name}
-                      onClick={() =>
-                        updateConfig({ primaryHue: color.hue, primaryChroma: color.chroma })
-                      }
+                      title={color.label}
+                      onClick={() => updateConfig({ themeColor: color.name })}
                       className={cn(
                         'h-7 w-7 rounded-full border-2 flex items-center justify-center hover:scale-110 transition-transform',
                         isActive ? 'border-white' : 'border-transparent',
                       )}
-                      style={{
-                        backgroundColor: `oklch(0.55 ${color.chroma} ${color.hue})`,
-                      }}
+                      style={{ backgroundColor: color.light.primary }}
                     >
                       {isActive && <Check className="h-3 w-3 text-white drop-shadow" />}
                     </button>
@@ -208,22 +195,20 @@ export default function ThemeCustomizerBar() {
             openId={openId}
             onOpenChange={(o) => handleOpen('base', o)}
             label="基底灰調"
-            displayValue={currentBaseColor.name}
+            displayValue={currentBaseColor.label}
             icon={
               <div
                 className="h-5 w-5 rounded-full shrink-0"
-                style={{
-                  backgroundColor: `oklch(0.5 ${currentBaseColor.chroma} ${currentBaseColor.hue})`,
-                }}
+                style={{ backgroundColor: currentBaseColor.light.muted }}
               />
             }
           >
-            {baseColors.map(base => (
+            {baseThemes.map(base => (
               <TileItem
                 key={base.name}
-                label={base.name}
-                active={config.baseHue === base.hue && config.baseChroma === base.chroma}
-                onClick={() => updateConfig({ baseHue: base.hue, baseChroma: base.chroma })}
+                label={base.label}
+                active={config.baseColor === base.name}
+                onClick={() => updateConfig({ baseColor: base.name })}
               />
             ))}
           </Tile>
@@ -234,20 +219,20 @@ export default function ThemeCustomizerBar() {
             openId={openId}
             onOpenChange={(o) => handleOpen('radius', o)}
             label="圓角"
-            displayValue={`${config.radius}rem`}
+            displayValue={currentRadius.label}
             icon={
               <div
                 className="h-4 w-6 border border-white/30 bg-white/20 shrink-0"
-                style={{ borderRadius: `${Math.min(config.radius * 0.8, 0.5)}rem` }}
+                style={{ borderRadius: currentRadius.value }}
               />
             }
           >
-            {radiusPresets.map(r => (
+            {radiusPresets.map((r, idx) => (
               <TileItem
-                key={r}
-                label={`${r}rem`}
-                active={Math.abs(config.radius - r) < 0.01}
-                onClick={() => updateConfig({ radius: r })}
+                key={r.label}
+                label={r.label}
+                active={config.radius === idx}
+                onClick={() => updateConfig({ radius: idx })}
               />
             ))}
           </Tile>
@@ -261,12 +246,17 @@ export default function ThemeCustomizerBar() {
             displayValue={currentHeadingFont.label}
             icon={<span className="text-xs font-bold text-white/60 shrink-0">Aa</span>}
           >
+            <TileItem
+              label="繼承內文"
+              active={config.headingFont === 'inherit'}
+              onClick={() => updateConfig({ headingFont: 'inherit' })}
+            />
             {fontOptions.map(f => (
               <TileItem
-                key={f.value}
+                key={f.name}
                 label={f.label}
-                active={config.headingFont === f.value}
-                onClick={() => updateConfig({ headingFont: f.value })}
+                active={config.headingFont === f.name}
+                onClick={() => updateConfig({ headingFont: f.name })}
               />
             ))}
           </Tile>
@@ -282,10 +272,10 @@ export default function ThemeCustomizerBar() {
           >
             {fontOptions.map(f => (
               <TileItem
-                key={f.value}
+                key={f.name}
                 label={f.label}
-                active={config.font === f.value}
-                onClick={() => updateConfig({ font: f.value })}
+                active={config.font === f.name}
+                onClick={() => updateConfig({ font: f.name })}
               />
             ))}
           </Tile>
@@ -296,24 +286,34 @@ export default function ThemeCustomizerBar() {
             openId={openId}
             onOpenChange={(o) => handleOpen('chart', o)}
             label="圖表配色"
-            displayValue={currentChartColor.name}
+            displayValue={currentChartColor.label}
             icon={
               <div
                 className="h-5 w-5 rounded-full shrink-0"
-                style={{
-                  backgroundColor: `oklch(0.55 ${currentChartColor.chroma} ${currentChartColor.hue})`,
-                }}
+                style={{ backgroundColor: currentChartColor.light.primary }}
               />
             }
           >
-            {chartColors.map((color, idx) => (
-              <TileItem
-                key={color.name}
-                label={color.name}
-                active={config.chartColor === idx}
-                onClick={() => updateConfig({ chartColor: idx })}
-              />
-            ))}
+            <div className="p-2 grid grid-cols-4 gap-1.5">
+              {colorThemes.map(color => {
+                const isActive = config.chartColor === color.name
+                return (
+                  <PopoverClose key={color.name} asChild>
+                    <button
+                      title={color.label}
+                      onClick={() => updateConfig({ chartColor: color.name })}
+                      className={cn(
+                        'h-7 w-7 rounded-full border-2 flex items-center justify-center hover:scale-110 transition-transform',
+                        isActive ? 'border-white' : 'border-transparent',
+                      )}
+                      style={{ backgroundColor: color.light.primary }}
+                    >
+                      {isActive && <Check className="h-3 w-3 text-white drop-shadow" />}
+                    </button>
+                  </PopoverClose>
+                )
+              })}
+            </div>
           </Tile>
 
           {/* Mode */}
