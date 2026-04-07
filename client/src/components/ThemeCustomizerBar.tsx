@@ -47,7 +47,7 @@ function Tile({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left min-w-[118px]"
+          className="shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-xl ring-1 ring-white/10 hover:bg-white/5 transition-colors text-left min-w-[118px]"
         >
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-medium text-white/50 uppercase tracking-wider leading-none mb-0.5">
@@ -64,7 +64,7 @@ function Tile({
         side="top"
         align="start"
         sideOffset={10}
-        className="p-1 bg-[oklch(0.22_0_0)] border-white/10 min-w-[200px] w-auto shadow-2xl"
+        className="p-1 bg-neutral-900/90 backdrop-blur-xl ring-1 ring-neutral-800/50 border-0 min-w-[200px] w-auto shadow-2xl rounded-xl"
       >
         {children}
       </PopoverContent>
@@ -98,7 +98,7 @@ function TileItem({
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function ThemeCustomizerBar() {
-  const { config, updateConfig, isDark, setTheme, mounted, shuffle, getShareUrl } =
+  const { config, updateConfig, isDark, setTheme, mounted, shuffle } =
     useThemeCustomizer()
   const [openId, setOpenId] = useState<TileId | null>(null)
   const [copied, setCopied] = useState(false)
@@ -130,7 +130,7 @@ export default function ThemeCustomizerBar() {
       )}
 
       {/* Bar — mobile only (sidebar handles desktop) */}
-      <div className="relative z-[30] lg:hidden bg-[oklch(0.18_0_0)] border border-white/10 rounded-2xl shrink-0 overflow-hidden shadow-xl">
+      <div className="relative z-[30] lg:hidden bg-neutral-950/90 backdrop-blur-xl ring-1 ring-neutral-800/50 rounded-2xl shrink-0 overflow-hidden shadow-xl">
         <div className="flex gap-2 overflow-x-auto scrollbar-none px-3 py-2.5">
 
           {/* Style */}
@@ -326,7 +326,7 @@ export default function ThemeCustomizerBar() {
           <button
             type="button"
             onClick={() => {
-              copyToClipboard(getShareUrl())
+              copyToClipboard(window.location.href)
               setCopied(true)
               setTimeout(() => setCopied(false), 2000)
             }}

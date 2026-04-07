@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Menu } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
-import ThemeCustomizerContent from '@/components/ThemeCustomizerContent'
+import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 
 const sections = [
@@ -59,6 +59,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <Suspense>
     <ThemeCustomizerProvider>
       {/* Outer page — muted bg + padding on all sizes */}
       <div className="h-dvh bg-muted/60 flex flex-col overflow-hidden p-3 gap-3">
@@ -132,10 +133,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
 
           {/* Desktop sidebar — dark card with customizer options */}
-          <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden bg-[oklch(0.18_0_0)] rounded-2xl border border-white/10 shadow-xl">
-            <div className="flex-1 overflow-y-auto">
+          <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden bg-neutral-950/90 backdrop-blur-xl rounded-2xl ring-1 ring-neutral-800/50 shadow-xl">
+            <div className="flex-1 overflow-y-auto scrollbar-none">
               <ThemeCustomizerContent />
             </div>
+            <ThemeCustomizerFooter />
           </aside>
 
           {/* Content card — white */}
@@ -153,5 +155,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       </div>
     </ThemeCustomizerProvider>
+    </Suspense>
   )
 }

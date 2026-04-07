@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, Link, Lock, Moon, RotateCcw, Save, Shuffle, Sun, Trash2, Unlock } from 'lucide-react'
+import { Check, LockKeyhole, Moon, Sun, UnlockKeyhole } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   useThemeCustomizer,
   copyToClipboard,
-  encodeThemeUrl,
   colorThemes,
   baseThemes,
   stylePresets,
@@ -15,7 +14,7 @@ import {
   type ThemeConfigKey,
 } from '@/components/ThemeCustomizerProvider'
 
-// ── Shared primitives ─────────────────────────────────────────────────────────
+// ── Shared primitives (matching official shadcn /create customizer) ───────────
 
 function OptionRow({
   label,
@@ -33,43 +32,47 @@ function OptionRow({
   children: React.ReactNode
 }) {
   return (
-    <div className="group relative">
+    <div className="group/picker relative">
       <Popover>
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-left"
+            className="relative w-full rounded-lg px-2.5 py-2 ring-1 ring-white/10 hover:bg-white/5 transition-colors text-left"
           >
-            <div className="min-w-0">
-              <p className="text-[11px] text-white/40 leading-none mb-1">
-                {label}
-              </p>
-              <p className="text-[13px] font-medium text-white leading-none truncate">
-                {displayValue}
-              </p>
+            {/* Label on top, value below — stacked vertically like official */}
+            <div className="flex flex-col justify-start">
+              <div className="text-xs text-white/40">{label}</div>
+              <div className="text-sm font-medium text-white">{displayValue}</div>
             </div>
-            {preview && <div className="shrink-0 ml-2">{preview}</div>}
+            {/* Preview circle — absolute right like official */}
+            {preview && (
+              <div className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 select-none">
+                {preview}
+              </div>
+            )}
           </button>
         </PopoverTrigger>
         <PopoverContent
           side="right"
           align="start"
-          sideOffset={8}
-          className="p-1.5 min-w-[140px] w-auto shadow-lg"
+          sideOffset={20}
+          className="p-1.5 min-w-[200px] w-auto shadow-2xl bg-neutral-900/90 backdrop-blur-xl ring-1 ring-neutral-800/50 border-0 rounded-xl"
         >
           {children}
         </PopoverContent>
       </Popover>
+      {/* Lock button — absolute right, hidden until hover, like official */}
       {onToggleLock && (
         <button
           type="button"
           onClick={onToggleLock}
-          className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded hover:bg-white/10"
+          data-locked={locked}
+          className="absolute top-1/2 right-10 -translate-y-1/2 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity group-hover/picker:opacity-100 group-focus-within/picker:opacity-100 focus:opacity-100 data-[locked=true]:opacity-100"
           title={locked ? '解鎖' : '鎖定'}
         >
           {locked
-            ? <Lock className="h-2.5 w-2.5 text-white/60" />
-            : <Unlock className="h-2.5 w-2.5 text-white/15" />
+            ? <LockKeyhole className="h-3.5 w-3.5 text-white" />
+            : <UnlockKeyhole className="h-3.5 w-3.5 text-white/30 hover:text-white" />
           }
         </button>
       )}
@@ -91,10 +94,10 @@ function OptionItem({
       <button
         type="button"
         onClick={onClick}
-        className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm hover:bg-accent transition-colors"
+        className="w-full flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-neutral-100 hover:bg-neutral-600 transition-colors"
       >
         <span>{label}</span>
-        {active && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+        {active && <Check className="h-4 w-4 text-neutral-100 shrink-0" />}
       </button>
     </PopoverClose>
   )
@@ -106,22 +109,12 @@ export default function ThemeCustomizerContent() {
   const {
     config,
     updateConfig,
-    resetToDefaults,
     isDark,
     setTheme,
     mounted,
     locks,
     toggleLock,
-    shuffle,
-    presets,
-    savePreset,
-    loadPreset,
-    deletePreset,
-    getShareUrl,
   } = useThemeCustomizer()
-
-  const [presetName, setPresetName] = useState('')
-  const [copied, setCopied] = useState(false)
 
   if (!mounted) return <div className="h-8" />
 
@@ -135,35 +128,19 @@ export default function ThemeCustomizerContent() {
   const currentChartColor = colorThemes.find(c => c.name === config.chartColor) ?? colorThemes[0]
   const currentRadius = radiusPresets[config.radius] ?? radiusPresets[2]
 
-  function handleCopyUrl() {
-    copyToClipboard(getShareUrl())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  function handleSavePreset() {
-    const name = presetName.trim()
-    if (!name) return
-    savePreset(name)
-    setPresetName('')
-  }
-
   const lockable = (key: ThemeConfigKey) => ({
     locked: locks[key],
     onToggleLock: () => toggleLock(key),
   })
 
-  // Compact preset string for display
-  const presetString = `--preset ${config.style}-${config.themeColor}`
-
   return (
-    <div className="px-1 py-3">
+    <div className="flex flex-col gap-3 px-2 py-3">
 
       {/* Style */}
       <OptionRow
         label="Style"
         displayValue={currentStyle.label}
-        preview={<div className="h-4 w-6 border border-white/20 bg-white/10 rounded" />}
+        preview={<div className="h-3.5 w-5 border border-white rounded-sm" />}
         {...lockable('style')}
       >
         {stylePresets.map(s => (
@@ -171,11 +148,14 @@ export default function ThemeCustomizerContent() {
         ))}
       </OptionRow>
 
+      {/* Separator */}
+      <div className="h-px bg-white/5 -mx-2" />
+
       {/* Base Color */}
       <OptionRow
         label="Base Color"
         displayValue={currentBaseColor.label}
-        preview={<div className="h-4 w-4 rounded-full border border-white/10" style={{ backgroundColor: currentBaseColor.light['muted-foreground'] }} />}
+        preview={<div className="h-4 w-4 rounded-full" style={{ backgroundColor: currentBaseColor.light['muted-foreground'] }} />}
         {...lockable('baseColor')}
       >
         {baseThemes.map(base => (
@@ -207,11 +187,14 @@ export default function ThemeCustomizerContent() {
         ))}
       </OptionRow>
 
+      {/* Separator */}
+      <div className="h-px bg-white/5 -mx-2" />
+
       {/* Heading */}
       <OptionRow
         label="Heading"
         displayValue={currentHeadingFont.label}
-        preview={<span className="text-sm font-semibold text-white/40">Aa</span>}
+        preview={<span className="text-sm font-bold text-white">Aa</span>}
         {...lockable('headingFont')}
       >
         <OptionItem label="繼承內文" active={config.headingFont === 'inherit'} onClick={() => updateConfig({ headingFont: 'inherit' })} />
@@ -224,7 +207,7 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="Font"
         displayValue={currentFont.label}
-        preview={<span className="text-sm font-semibold text-white/40">Aa</span>}
+        preview={<span className="text-sm font-bold text-white">Aa</span>}
         {...lockable('font')}
       >
         {fontOptions.map(f => (
@@ -232,11 +215,28 @@ export default function ThemeCustomizerContent() {
         ))}
       </OptionRow>
 
+      {/* Separator */}
+      <div className="h-px bg-white/5 -mx-2" />
+
       {/* Radius */}
       <OptionRow
         label="Radius"
         displayValue={currentRadius.label}
-        preview={<div className="h-4 w-6 border border-white/20 bg-white/10" style={{ borderRadius: currentRadius.value }} />}
+        preview={(() => {
+          // Map radius index to curve amount (0=none, 4=full)
+          const r = [0, 2, 4, 7, 10][config.radius] ?? 4
+          return (
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white">
+              <path
+                d={`M1 1 L${10 - r} 1 Q10 1 10 ${1 + r} L10 11`}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+          )
+        })()}
         {...lockable('radius')}
       >
         {radiusPresets.map((r, idx) => (
@@ -248,104 +248,59 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="Mode"
         displayValue={isDark ? 'Dark' : 'Light'}
-        preview={isDark ? <Moon className="h-4 w-4 text-white/40" /> : <Sun className="h-4 w-4 text-white/40" />}
+        preview={isDark ? <Moon className="h-4 w-4 text-white" /> : <Sun className="h-4 w-4 text-white" />}
       >
         <OptionItem label="Light" active={!isDark} onClick={() => setTheme('light')} />
         <OptionItem label="Dark" active={isDark} onClick={() => setTheme('dark')} />
       </OptionRow>
 
-      {/* ── Bottom actions ── */}
-      <div className="px-3 pt-3 mt-2 border-t border-white/5 space-y-2">
+    </div>
+  )
+}
 
-        {/* Preset string (like --preset b0) */}
-        <div className="flex gap-1.5">
-          <div
-            className="flex-1 min-w-0 px-2.5 py-2 rounded-lg bg-white/5 text-[11px] text-white/50 font-mono truncate cursor-text select-all"
-            onClick={handleCopyUrl}
-            title={getShareUrl()}
-          >
-            {presetString}
-          </div>
-          <button
-            onClick={handleCopyUrl}
-            className="shrink-0 p-2 rounded-lg hover:bg-white/5 transition-colors"
-            title="複製分享連結"
-          >
-            {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Link className="h-3.5 w-3.5 text-white/30" />}
-          </button>
-        </div>
+export function ThemeCustomizerFooter() {
+  const { resetToDefaults, mounted, shuffle, presetString } = useThemeCustomizer()
+  const [copied, setCopied] = useState(false)
 
-        {/* Shuffle */}
-        <button
-          onClick={shuffle}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-[13px] font-medium text-white/70 hover:text-white transition-colors"
-        >
-          Shuffle
-        </button>
+  if (!mounted) return null
 
-        {/* Save preset */}
-        <div className="flex gap-1">
-          <input
-            type="text"
-            value={presetName}
-            onChange={e => setPresetName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSavePreset()}
-            placeholder="儲存預設組合…"
-            className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white/5 text-[11px] text-white/70 placeholder:text-white/20 focus:outline-none focus:bg-white/10 border-none"
-          />
-          <button
-            onClick={handleSavePreset}
-            disabled={!presetName.trim()}
-            className="shrink-0 px-2 py-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors disabled:opacity-20"
-          >
-            <Save className="h-3 w-3" />
-          </button>
-        </div>
+  function handleCopyUrl() {
+    copyToClipboard(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
-        {/* Preset list */}
-        {presets.length > 0 && (
-          <div className="space-y-0.5">
-            {presets.map(p => (
-              <div key={p.name} className="flex items-center gap-0.5">
-                <button
-                  onClick={() => loadPreset(p)}
-                  className="flex-1 min-w-0 text-left px-2.5 py-1.5 rounded-lg text-[11px] text-white/50 hover:text-white/80 hover:bg-white/5 transition-colors truncate"
-                >
-                  {p.name}
-                </button>
-                <button
-                  onClick={() => {
-                    copyToClipboard(
-                      window.location.origin + window.location.pathname +
-                      encodeThemeUrl(p.config, p.mode === 'dark')
-                    )
-                  }}
-                  className="shrink-0 p-1 rounded text-white/20 hover:text-white/50 transition-colors"
-                  title="複製連結"
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                </button>
-                <button
-                  onClick={() => deletePreset(p.name)}
-                  className="shrink-0 p-1 rounded text-white/20 hover:text-red-400 transition-colors"
-                  title="刪除"
-                >
-                  <Trash2 className="h-2.5 w-2.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+  return (
+    <div className="shrink-0 px-2 pb-3 space-y-2">
+      {/* Separator */}
+      <div className="h-px bg-white/5" />
 
-        {/* Reset */}
-        <button
-          onClick={resetToDefaults}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
-        >
-          <RotateCcw className="h-3 w-3" />
-          重置
-        </button>
-      </div>
+      {/* Preset — click to copy */}
+      <button
+        type="button"
+        onClick={handleCopyUrl}
+        className="w-full px-2 py-2 rounded-lg ring-1 ring-white/10 hover:bg-white/5 text-sm text-white/50 font-mono text-center transition-colors cursor-pointer"
+      >
+        {copied ? 'Copied' : presetString}
+      </button>
+
+      {/* Shuffle */}
+      <button
+        type="button"
+        onClick={shuffle}
+        className="w-full px-3 py-2 rounded-lg ring-1 ring-white/10 hover:bg-white/5 text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+      >
+        Shuffle
+      </button>
+
+      {/* Reset */}
+      <button
+        type="button"
+        onClick={resetToDefaults}
+        className="w-full px-3 py-2 rounded-lg ring-1 ring-white/10 hover:bg-white/5 text-sm font-medium text-white/70 hover:text-white transition-colors cursor-pointer"
+      >
+        Reset
+      </button>
     </div>
   )
 }
