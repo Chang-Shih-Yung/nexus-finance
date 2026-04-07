@@ -217,10 +217,10 @@ export default function DashboardBento() {
       <div id="overview" className="-mb-4 scroll-mt-28" aria-hidden="true" />
 
       {/* ── 三欄主體：items-start 讓每欄自己長高 ── */}
-      <div className="grid grid-cols-3 items-start gap-4">
+      <div className="grid grid-cols-3 items-start gap-6">
 
         {/* ── 欄 1 ── */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           <ChartCard title="每日登入人數 (最近 7 天)" height={280}>
             {trendData.length > 0 && (
               <Line data={{
@@ -325,7 +325,7 @@ export default function DashboardBento() {
         </div>
 
         {/* ── 欄 2 ── */}
-        <div id="funnel" className="flex flex-col gap-4 scroll-mt-28">
+        <div id="funnel" className="flex flex-col gap-6 scroll-mt-28">
 
           {/* 今日成功率 + 今日活躍用戶 — 雙欄圖示卡 */}
           <Card className="shadow-sm">
@@ -420,7 +420,7 @@ export default function DashboardBento() {
         </div>
 
         {/* ── 欄 3 ── */}
-        <div id="monitor" className="flex flex-col gap-4 scroll-mt-28">
+        <div id="monitor" className="flex flex-col gap-6 scroll-mt-28">
 
           {/* API 健康 — 三欄圖示卡 */}
           <Card className="shadow-sm">
@@ -576,10 +576,12 @@ export default function DashboardBento() {
 
       </div>
 
-      {/* AI Query — full width */}
-      <div id="ai-query" className="scroll-mt-28 [&>section]:border-t-0 [&>section]:py-0">
-        <AiQuerySection />
-      </div>
+      {/* AI Query — full width, wrapped in a Card */}
+      <Card className="shadow-sm overflow-hidden">
+        <CardContent className="p-0 [&>section]:border-t-0 [&>section]:px-6 [&>section]:pt-5 [&>section]:pb-6">
+          <AiQuerySection />
+        </CardContent>
+      </Card>
 
     </div>
   )
