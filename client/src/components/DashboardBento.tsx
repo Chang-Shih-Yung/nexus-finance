@@ -128,7 +128,7 @@ export default function DashboardBento() {
   }
 
   return (
-    <div className="flex flex-col gap-4 **:data-[slot=card]:bg-muted **:data-[slot=card]:ring-0 **:data-[slot=card]:shadow-none">
+    <div className="flex flex-col gap-4 -mx-4 md:-mx-8 -mt-6 -mb-6 px-4 md:px-8 pt-6 pb-6 bg-muted/60 min-h-full">
 
       {/* Alert — full width, conditional */}
       {(monitorError || hasAlert) && (
