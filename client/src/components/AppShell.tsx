@@ -133,10 +133,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
 
           {/* Desktop sidebar — dark card with customizer options */}
-          <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden bg-neutral-950/90 backdrop-blur-xl rounded-2xl ring-1 ring-neutral-800/50 shadow-xl">
-            <div className="flex-1 overflow-y-auto scrollbar-none">
-              <ThemeCustomizerContent />
-            </div>
+          <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-auto scrollbar-none bg-neutral-950/90 backdrop-blur-xl rounded-2xl ring-1 ring-neutral-800/50 shadow-xl">
+            <ThemeCustomizerContent />
             <ThemeCustomizerFooter />
           </aside>
 
