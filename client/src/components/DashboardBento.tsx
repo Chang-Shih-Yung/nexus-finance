@@ -146,14 +146,13 @@ export default function DashboardBento() {
       {/* Scroll anchors */}
       <div id="overview" className="-mb-4 scroll-mt-28" aria-hidden="true" />
 
-      {/* ── 三欄主體：items-start 讓每欄自己長高，不互相對齊 ── */}
+      {/* ── 三欄主體：items-start 讓每欄自己長高 ── */}
       <div className="grid grid-cols-3 items-start gap-4">
 
-        {/* ── 欄 1 ── */}
+        {/* ── 欄 1：大圖開頭，讓第一條切線就歪掉 ── */}
         <div className="flex flex-col gap-4">
-          <StatCard title="今日登入人數" value={overview.today_logins} format="number" />
-          <StatCard title="今日交易筆數" value={overview.today_transactions} format="number" />
-          <ChartCard title="每日登入人數 (最近 7 天)" height={220}>
+          {/* 高圖表開頭 → col2/col3 此時還在 StatCard，高度立刻錯開 */}
+          <ChartCard title="每日登入人數 (最近 7 天)" height={280}>
             {trendData.length > 0 && (
               <Line data={{
                 labels: trendLabels,
@@ -167,15 +166,19 @@ export default function DashboardBento() {
               }} options={baseOptions} />
             )}
           </ChartCard>
+          <StatCard title="今日登入人數" value={overview.today_logins} format="number"
+            subtitle="與昨日相比" />
+          <StatCard title="今日交易筆數" value={overview.today_transactions} format="number" />
           {funnelData.length > 0 && (
             <Card className="shadow-sm">
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[0]?.step] ?? funnelData[0]?.step}</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[0]?.users.toLocaleString()}</p>
+              <CardContent className="pt-5 pb-5">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">漏斗 — {stepLabels[funnelData[0]?.step] ?? funnelData[0]?.step}</p>
+                <p className="text-3xl font-bold text-foreground">{funnelData[0]?.users.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground mt-2">本週不重複使用者</p>
               </CardContent>
             </Card>
           )}
-          <ChartCard title="Error Rate % (每分鐘)" height={200}>
+          <ChartCard title="Error Rate % (每分鐘)" height={160}>
             {healthData.length > 0 && (
               <Line data={{
                 labels: healthLabels,
@@ -191,12 +194,12 @@ export default function DashboardBento() {
           </ChartCard>
         </div>
 
-        {/* ── 欄 2 ── */}
+        {/* ── 欄 2：兩個 StatCard 開頭（短），再接中型圖 ── */}
         <div id="funnel" className="flex flex-col gap-4 scroll-mt-28">
           <StatCard title="今日成功率" value={overview.today_success_rate} format="percent"
             warn={overview.today_success_rate < 80} />
           <StatCard title="今日活躍用戶" value={overview.today_active_users} format="number" />
-          <ChartCard title="登入 → 發起轉帳 → 轉帳成功" height={220}>
+          <ChartCard title="登入 → 發起轉帳 → 轉帳成功" height={200}>
             {funnelData.length > 0 && (
               <Bar data={{
                 labels: funnelData.map(d => stepLabels[d.step] || d.step),
@@ -213,6 +216,18 @@ export default function DashboardBento() {
               }} />
             )}
           </ChartCard>
+          {funnelData.length > 1 && (
+            <Card className="shadow-sm">
+              <CardContent className="pt-5">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">漏斗 — {stepLabels[funnelData[1]?.step] ?? funnelData[1]?.step}</p>
+                <p className="text-3xl font-bold text-foreground">{funnelData[1]?.users.toLocaleString()}</p>
+                <div className="mt-3 flex gap-4 text-sm">
+                  <span className="text-chart-2">轉換率 {funnelData[1]?.conversion_rate}%</span>
+                  <span className="text-destructive">流失率 {funnelData[1]?.drop_off_rate}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           <div id="errors" className="scroll-mt-28">
             <Card className="shadow-sm">
               <CardHeader>
@@ -250,9 +265,13 @@ export default function DashboardBento() {
           </div>
         </div>
 
-        {/* ── 欄 3 ── */}
+        {/* ── 欄 3：三個 StatCard 開頭（很短），再接長圖 ── */}
         <div id="monitor" className="flex flex-col gap-4 scroll-mt-28">
-          <ChartCard title="交易成功率趨勢 (最近 7 天)" height={220}>
+          <StatCard title="平均延遲 (ms)" value={avgLatency} format="number" warn={avgLatency > 500} />
+          <StatCard title="Error Rate" value={errorRate} format="percent" warn={errorRate > 5} />
+          <StatCard title="請求總數 (1hr)" value={totalRequests} format="number"
+            subtitle="過去 60 分鐘累計" />
+          <ChartCard title="交易成功率趨勢 (最近 7 天)" height={240}>
             {trendData.length > 0 && (
               <Line data={{
                 labels: trendLabels,
@@ -266,31 +285,19 @@ export default function DashboardBento() {
               }} options={{ ...baseOptions, scales: { y: { min: 0, max: 100 } } }} />
             )}
           </ChartCard>
-          {funnelData.length > 1 && (
-            <Card className="shadow-sm">
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[1]?.step] ?? funnelData[1]?.step}</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[1]?.users.toLocaleString()}</p>
-                <div className="mt-2 text-sm flex gap-3">
-                  <span className="text-chart-2">轉換率 {funnelData[1]?.conversion_rate}%</span>
-                  <span className="text-destructive">流失率 {funnelData[1]?.drop_off_rate}%</span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
           {funnelData.length > 2 && (
             <Card className="shadow-sm">
               <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[2]?.step] ?? funnelData[2]?.step}</p>
-                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[2]?.users.toLocaleString()}</p>
-                <div className="mt-2 text-sm flex gap-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">漏斗 — {stepLabels[funnelData[2]?.step] ?? funnelData[2]?.step}</p>
+                <p className="text-3xl font-bold text-foreground">{funnelData[2]?.users.toLocaleString()}</p>
+                <div className="mt-3 flex gap-4 text-sm">
                   <span className="text-chart-2">轉換率 {funnelData[2]?.conversion_rate}%</span>
                   <span className="text-destructive">流失率 {funnelData[2]?.drop_off_rate}%</span>
                 </div>
               </CardContent>
             </Card>
           )}
-          <ChartCard title="錯誤代碼分佈" height={220}>
+          <ChartCard title="錯誤代碼分佈" height={190}>
             {errorData.length > 0 && (
               <Bar data={{
                 labels: errorData.map(d => d.error_code),
@@ -303,10 +310,7 @@ export default function DashboardBento() {
               }} options={baseOptions} />
             )}
           </ChartCard>
-          <StatCard title="平均延遲 (ms)" value={avgLatency} format="number" warn={avgLatency > 500} />
-          <StatCard title="Error Rate" value={errorRate} format="percent" warn={errorRate > 5} />
-          <StatCard title="請求總數 (1hr)" value={totalRequests} format="number" />
-          <ChartCard title="API 平均延遲 (每分鐘)" height={200}>
+          <ChartCard title="API 平均延遲 (每分鐘)" height={190}>
             {healthData.length > 0 && (
               <Line data={{
                 labels: healthLabels,
