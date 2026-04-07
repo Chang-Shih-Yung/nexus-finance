@@ -140,7 +140,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Content card — white */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-background rounded-2xl border border-border shadow-sm">
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto scrollbar-none">
               <div className="px-4 md:px-8 py-6">
                 {children}
               </div>

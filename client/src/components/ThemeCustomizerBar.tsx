@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Check, Moon, Sun } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import {
   useThemeCustomizer,
   colorThemes,
@@ -167,26 +166,14 @@ export default function ThemeCustomizerBar() {
               />
             }
           >
-            <div className="p-2 grid grid-cols-4 gap-1.5">
-              {colorThemes.map(color => {
-                const isActive = config.themeColor === color.name
-                return (
-                  <PopoverClose key={color.name} asChild>
-                    <button
-                      title={color.label}
-                      onClick={() => updateConfig({ themeColor: color.name })}
-                      className={cn(
-                        'h-7 w-7 rounded-full border-2 flex items-center justify-center hover:scale-110 transition-transform',
-                        isActive ? 'border-white' : 'border-transparent',
-                      )}
-                      style={{ backgroundColor: color.light.primary }}
-                    >
-                      {isActive && <Check className="h-3 w-3 text-white drop-shadow" />}
-                    </button>
-                  </PopoverClose>
-                )
-              })}
-            </div>
+            {colorThemes.map(color => (
+              <TileItem
+                key={color.name}
+                label={color.label}
+                active={config.themeColor === color.name}
+                onClick={() => updateConfig({ themeColor: color.name })}
+              />
+            ))}
           </Tile>
 
           {/* Base color */}
@@ -294,26 +281,14 @@ export default function ThemeCustomizerBar() {
               />
             }
           >
-            <div className="p-2 grid grid-cols-4 gap-1.5">
-              {colorThemes.map(color => {
-                const isActive = config.chartColor === color.name
-                return (
-                  <PopoverClose key={color.name} asChild>
-                    <button
-                      title={color.label}
-                      onClick={() => updateConfig({ chartColor: color.name })}
-                      className={cn(
-                        'h-7 w-7 rounded-full border-2 flex items-center justify-center hover:scale-110 transition-transform',
-                        isActive ? 'border-white' : 'border-transparent',
-                      )}
-                      style={{ backgroundColor: color.light.primary }}
-                    >
-                      {isActive && <Check className="h-3 w-3 text-white drop-shadow" />}
-                    </button>
-                  </PopoverClose>
-                )
-              })}
-            </div>
+            {colorThemes.map(color => (
+              <TileItem
+                key={color.name}
+                label={color.label}
+                active={config.chartColor === color.name}
+                onClick={() => updateConfig({ chartColor: color.name })}
+              />
+            ))}
           </Tile>
 
           {/* Mode */}

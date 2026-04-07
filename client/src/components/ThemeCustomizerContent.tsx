@@ -2,7 +2,6 @@
 
 import { Check, Moon, RotateCcw, Sun } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import {
   useThemeCustomizer,
   colorThemes,
@@ -136,28 +135,14 @@ export default function ThemeCustomizerContent() {
           />
         }
       >
-        <div className="p-2 grid grid-cols-4 gap-1.5">
-          {colorThemes.map(color => {
-            const isActive = config.themeColor === color.name
-            return (
-              <PopoverClose key={color.name} asChild>
-                <button
-                  title={color.label}
-                  onClick={() => updateConfig({ themeColor: color.name })}
-                  className={cn(
-                    'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110',
-                    isActive ? 'border-white' : 'border-transparent',
-                  )}
-                  style={{
-                    backgroundColor: color.light.primary,
-                  }}
-                >
-                  {isActive && <Check className="h-3.5 w-3.5 text-white drop-shadow" />}
-                </button>
-              </PopoverClose>
-            )
-          })}
-        </div>
+        {colorThemes.map(color => (
+          <OptionItem
+            key={color.name}
+            label={color.label}
+            active={config.themeColor === color.name}
+            onClick={() => updateConfig({ themeColor: color.name })}
+          />
+        ))}
       </OptionRow>
 
       {/* Base color */}
@@ -256,28 +241,14 @@ export default function ThemeCustomizerContent() {
           />
         }
       >
-        <div className="p-2 grid grid-cols-4 gap-1.5">
-          {colorThemes.map(color => {
-            const isActive = config.chartColor === color.name
-            return (
-              <PopoverClose key={color.name} asChild>
-                <button
-                  title={color.label}
-                  onClick={() => updateConfig({ chartColor: color.name })}
-                  className={cn(
-                    'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110',
-                    isActive ? 'border-white' : 'border-transparent',
-                  )}
-                  style={{
-                    backgroundColor: color.light.primary,
-                  }}
-                >
-                  {isActive && <Check className="h-3.5 w-3.5 text-white drop-shadow" />}
-                </button>
-              </PopoverClose>
-            )
-          })}
-        </div>
+        {colorThemes.map(color => (
+          <OptionItem
+            key={color.name}
+            label={color.label}
+            active={config.chartColor === color.name}
+            onClick={() => updateConfig({ chartColor: color.name })}
+          />
+        ))}
       </OptionRow>
 
       {/* Mode */}
