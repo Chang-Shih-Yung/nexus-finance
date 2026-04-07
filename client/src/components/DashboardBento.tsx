@@ -128,221 +128,204 @@ export default function DashboardBento() {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="flex flex-col gap-4">
 
       {/* Alert — full width, conditional */}
       {(monitorError || hasAlert) && (
-        <div className="col-span-12">
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
-            <div>
-              <p className="text-destructive font-semibold text-sm">
-                {monitorError ? '資料載入失敗' : '異常警示'}
-              </p>
-              <p className="text-destructive/80 text-sm">{monitorError ?? alertMessage}</p>
-            </div>
+        <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+          <div>
+            <p className="text-destructive font-semibold text-sm">
+              {monitorError ? '資料載入失敗' : '異常警示'}
+            </p>
+            <p className="text-destructive/80 text-sm">{monitorError ?? alertMessage}</p>
           </div>
         </div>
       )}
 
-      {/* Invisible scroll anchor */}
-      <div id="overview" className="col-span-12 -mb-4 scroll-mt-28" aria-hidden="true" />
+      {/* Scroll anchors */}
+      <div id="overview" className="-mb-4 scroll-mt-28" aria-hidden="true" />
 
-      {/* Row 1 — 4 stat cards, non-equal column widths */}
-      <div className="col-span-3">
-        <StatCard title="今日登入人數" value={overview.today_logins} format="number" />
-      </div>
-      <div className="col-span-4">
-        <StatCard title="今日交易筆數" value={overview.today_transactions} format="number" />
-      </div>
-      <div className="col-span-2">
-        <StatCard title="今日成功率" value={overview.today_success_rate} format="percent"
-          warn={overview.today_success_rate < 80} />
-      </div>
-      <div className="col-span-3">
-        <StatCard title="今日活躍用戶" value={overview.today_active_users} format="number" />
-      </div>
+      {/* ── 三欄主體：items-start 讓每欄自己長高，不互相對齊 ── */}
+      <div className="grid grid-cols-3 items-start gap-4">
 
-      {/* Row 2 — login trend (wide) + funnel bar (narrow) */}
-      <div className="col-span-7">
-        <ChartCard title="每日登入人數 (最近 7 天)" height={240}>
-          {trendData.length > 0 && (
-            <Line data={{
-              labels: trendLabels,
-              datasets: [{
-                label: '登入人數',
-                data: trendData.map(d => Number(d.logins)),
-                borderColor: colors.chart1,
-                backgroundColor: `${colors.chart1}1a`,
-                fill: true, tension: 0.3,
-              }],
-            }} options={baseOptions} />
-          )}
-        </ChartCard>
-      </div>
-
-      <div id="funnel" className="col-span-5 scroll-mt-28">
-        <ChartCard title="登入 → 發起轉帳 → 轉帳成功" height={240}>
+        {/* ── 欄 1 ── */}
+        <div className="flex flex-col gap-4">
+          <StatCard title="今日登入人數" value={overview.today_logins} format="number" />
+          <StatCard title="今日交易筆數" value={overview.today_transactions} format="number" />
+          <ChartCard title="每日登入人數 (最近 7 天)" height={220}>
+            {trendData.length > 0 && (
+              <Line data={{
+                labels: trendLabels,
+                datasets: [{
+                  label: '登入人數',
+                  data: trendData.map(d => Number(d.logins)),
+                  borderColor: colors.chart1,
+                  backgroundColor: `${colors.chart1}1a`,
+                  fill: true, tension: 0.3,
+                }],
+              }} options={baseOptions} />
+            )}
+          </ChartCard>
           {funnelData.length > 0 && (
-            <Bar data={{
-              labels: funnelData.map(d => stepLabels[d.step] || d.step),
-              datasets: [{
-                label: '不重複使用者數',
-                data: funnelData.map(d => d.users),
-                backgroundColor: [colors.chart1, colors.chart3, colors.chart2],
-                borderRadius: 8,
-              }],
-            }} options={{
-              ...baseOptions,
-              indexAxis: 'y' as const,
-              scales: { x: { beginAtZero: true } },
-            }} />
+            <Card className="shadow-sm">
+              <CardContent className="pt-5">
+                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[0]?.step] ?? funnelData[0]?.step}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[0]?.users.toLocaleString()}</p>
+              </CardContent>
+            </Card>
           )}
-        </ChartCard>
-      </div>
+          <ChartCard title="Error Rate % (每分鐘)" height={200}>
+            {healthData.length > 0 && (
+              <Line data={{
+                labels: healthLabels,
+                datasets: [{
+                  label: 'Error Rate %',
+                  data: healthData.map(d => Number(d.error_rate)),
+                  borderColor: colors.chart4,
+                  backgroundColor: `${colors.chart4}1a`,
+                  fill: true, tension: 0.3,
+                }],
+              }} options={{ ...baseOptions, scales: { y: { min: 0 } } }} />
+            )}
+          </ChartCard>
+        </div>
 
-      {/* Row 3 — success rate trend (narrow) + funnel step cards (wide) */}
-      <div className="col-span-5">
-        <ChartCard title="交易成功率趨勢 (最近 7 天)" height={240}>
-          {trendData.length > 0 && (
-            <Line data={{
-              labels: trendLabels,
-              datasets: [{
-                label: '成功率 %',
-                data: trendData.map(d => Number(d.success_rate)),
-                borderColor: colors.chart2,
-                backgroundColor: `${colors.chart2}1a`,
-                fill: true, tension: 0.3,
-              }],
-            }} options={{ ...baseOptions, scales: { y: { min: 0, max: 100 } } }} />
-          )}
-        </ChartCard>
-      </div>
-
-      <div className="col-span-7">
-        {funnelData.length > 0 && (
-          <div className="grid grid-cols-3 gap-4">
-            {funnelData.map((step, i) => (
-              <Card key={step.step} className="shadow-sm">
-                <CardContent className="pt-5">
-                  <p className="text-sm text-muted-foreground">{stepLabels[step.step] || step.step}</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{step.users.toLocaleString()}</p>
-                  {i > 0 && (
-                    <div className="mt-2 text-sm flex flex-col gap-1">
-                      <span className="text-chart-2">轉換率 {step.conversion_rate}%</span>
-                      <span className="text-destructive">流失率 {step.drop_off_rate}%</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+        {/* ── 欄 2 ── */}
+        <div id="funnel" className="flex flex-col gap-4 scroll-mt-28">
+          <StatCard title="今日成功率" value={overview.today_success_rate} format="percent"
+            warn={overview.today_success_rate < 80} />
+          <StatCard title="今日活躍用戶" value={overview.today_active_users} format="number" />
+          <ChartCard title="登入 → 發起轉帳 → 轉帳成功" height={220}>
+            {funnelData.length > 0 && (
+              <Bar data={{
+                labels: funnelData.map(d => stepLabels[d.step] || d.step),
+                datasets: [{
+                  label: '不重複使用者數',
+                  data: funnelData.map(d => d.users),
+                  backgroundColor: [colors.chart1, colors.chart3, colors.chart2],
+                  borderRadius: 8,
+                }],
+              }} options={{
+                ...baseOptions,
+                indexAxis: 'y' as const,
+                scales: { x: { beginAtZero: true } },
+              }} />
+            )}
+          </ChartCard>
+          <div id="errors" className="scroll-mt-28">
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium text-muted-foreground">最近失敗交易明細</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto max-h-72 overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>時間</TableHead>
+                        <TableHead>客戶</TableHead>
+                        <TableHead>等級</TableHead>
+                        <TableHead className="text-right">金額</TableHead>
+                        <TableHead>錯誤</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {failedTx.map(tx => (
+                        <TableRow key={tx.id}>
+                          <TableCell className="text-muted-foreground text-xs">{formatTime(tx.created_at)}</TableCell>
+                          <TableCell className="font-medium">{tx.user_name}</TableCell>
+                          <TableCell>
+                            <Badge variant={tierVariant[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-mono text-xs">{Number(tx.amount).toLocaleString()}</TableCell>
+                          <TableCell><span className="text-destructive font-mono text-xs">{tx.error_code}</span></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Row 4 — error chart (half) + monitor stat cards (half) */}
-      <div id="errors" className="col-span-6 scroll-mt-28">
-        <ChartCard title="錯誤代碼分佈" height={260}>
-          {errorData.length > 0 && (
-            <Bar data={{
-              labels: errorData.map(d => d.error_code),
-              datasets: [{
-                label: '次數',
-                data: errorData.map(d => Number(d.count)),
-                backgroundColor: colors.chart4,
-                borderRadius: 6,
-              }],
-            }} options={baseOptions} />
+        {/* ── 欄 3 ── */}
+        <div id="monitor" className="flex flex-col gap-4 scroll-mt-28">
+          <ChartCard title="交易成功率趨勢 (最近 7 天)" height={220}>
+            {trendData.length > 0 && (
+              <Line data={{
+                labels: trendLabels,
+                datasets: [{
+                  label: '成功率 %',
+                  data: trendData.map(d => Number(d.success_rate)),
+                  borderColor: colors.chart2,
+                  backgroundColor: `${colors.chart2}1a`,
+                  fill: true, tension: 0.3,
+                }],
+              }} options={{ ...baseOptions, scales: { y: { min: 0, max: 100 } } }} />
+            )}
+          </ChartCard>
+          {funnelData.length > 1 && (
+            <Card className="shadow-sm">
+              <CardContent className="pt-5">
+                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[1]?.step] ?? funnelData[1]?.step}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[1]?.users.toLocaleString()}</p>
+                <div className="mt-2 text-sm flex gap-3">
+                  <span className="text-chart-2">轉換率 {funnelData[1]?.conversion_rate}%</span>
+                  <span className="text-destructive">流失率 {funnelData[1]?.drop_off_rate}%</span>
+                </div>
+              </CardContent>
+            </Card>
           )}
-        </ChartCard>
-      </div>
-
-      <div id="monitor" className="col-span-6 scroll-mt-28">
-        <div className="grid grid-cols-3 gap-4">
+          {funnelData.length > 2 && (
+            <Card className="shadow-sm">
+              <CardContent className="pt-5">
+                <p className="text-sm text-muted-foreground">{stepLabels[funnelData[2]?.step] ?? funnelData[2]?.step}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{funnelData[2]?.users.toLocaleString()}</p>
+                <div className="mt-2 text-sm flex gap-3">
+                  <span className="text-chart-2">轉換率 {funnelData[2]?.conversion_rate}%</span>
+                  <span className="text-destructive">流失率 {funnelData[2]?.drop_off_rate}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          <ChartCard title="錯誤代碼分佈" height={220}>
+            {errorData.length > 0 && (
+              <Bar data={{
+                labels: errorData.map(d => d.error_code),
+                datasets: [{
+                  label: '次數',
+                  data: errorData.map(d => Number(d.count)),
+                  backgroundColor: colors.chart4,
+                  borderRadius: 6,
+                }],
+              }} options={baseOptions} />
+            )}
+          </ChartCard>
           <StatCard title="平均延遲 (ms)" value={avgLatency} format="number" warn={avgLatency > 500} />
           <StatCard title="Error Rate" value={errorRate} format="percent" warn={errorRate > 5} />
           <StatCard title="請求總數 (1hr)" value={totalRequests} format="number" />
+          <ChartCard title="API 平均延遲 (每分鐘)" height={200}>
+            {healthData.length > 0 && (
+              <Line data={{
+                labels: healthLabels,
+                datasets: [{
+                  label: '延遲 (ms)',
+                  data: healthData.map(d => Number(d.avg_latency)),
+                  borderColor: colors.chart3,
+                  backgroundColor: `${colors.chart3}1a`,
+                  fill: true, tension: 0.3,
+                }],
+              }} options={baseOptions} />
+            )}
+          </ChartCard>
         </div>
+
       </div>
 
-      {/* Row 5 — failed tx table (wide) + latency chart (narrow) */}
-      <div className="col-span-8">
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">最近失敗交易明細</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto max-h-72 overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>時間</TableHead>
-                    <TableHead>客戶</TableHead>
-                    <TableHead>等級</TableHead>
-                    <TableHead className="text-right">金額</TableHead>
-                    <TableHead>管道</TableHead>
-                    <TableHead>錯誤代碼</TableHead>
-                    <TableHead>錯誤訊息</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {failedTx.map(tx => (
-                    <TableRow key={tx.id}>
-                      <TableCell className="text-muted-foreground">{formatTime(tx.created_at)}</TableCell>
-                      <TableCell className="font-medium">{tx.user_name}</TableCell>
-                      <TableCell>
-                        <Badge variant={tierVariant[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-mono">{Number(tx.amount).toLocaleString()}</TableCell>
-                      <TableCell className="text-muted-foreground">{tx.channel}</TableCell>
-                      <TableCell><span className="text-destructive font-mono text-xs">{tx.error_code}</span></TableCell>
-                      <TableCell className="text-muted-foreground text-xs">{tx.error_message}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="col-span-4">
-        <ChartCard title="API 平均延遲 (每分鐘)" height={240}>
-          {healthData.length > 0 && (
-            <Line data={{
-              labels: healthLabels,
-              datasets: [{
-                label: '延遲 (ms)',
-                data: healthData.map(d => Number(d.avg_latency)),
-                borderColor: colors.chart3,
-                backgroundColor: `${colors.chart3}1a`,
-                fill: true, tension: 0.3,
-              }],
-            }} options={baseOptions} />
-          )}
-        </ChartCard>
-      </div>
-
-      {/* Row 6 — error rate chart (partial width, leaves gap intentionally) */}
-      <div className="col-span-5">
-        <ChartCard title="Error Rate % (每分鐘)" height={240}>
-          {healthData.length > 0 && (
-            <Line data={{
-              labels: healthLabels,
-              datasets: [{
-                label: 'Error Rate %',
-                data: healthData.map(d => Number(d.error_rate)),
-                borderColor: colors.chart4,
-                backgroundColor: `${colors.chart4}1a`,
-                fill: true, tension: 0.3,
-              }],
-            }} options={{ ...baseOptions, scales: { y: { min: 0 } } }} />
-          )}
-        </ChartCard>
-      </div>
-
-      {/* Row 7 — AI Query, full width, strip section chrome */}
-      <div id="ai-query" className="col-span-12 scroll-mt-28 [&>section]:border-t-0 [&>section]:py-0">
+      {/* AI Query — full width */}
+      <div id="ai-query" className="scroll-mt-28 [&>section]:border-t-0 [&>section]:py-0">
         <AiQuerySection />
       </div>
 
