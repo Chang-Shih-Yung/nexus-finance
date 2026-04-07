@@ -121,10 +121,17 @@ export default function DashboardBento() {
     errorRate > 5 && `錯誤率 ${errorRate}% 超過 5% 閾值`,
   ].filter(Boolean).join('；')
 
+  const noGrid = {
+    grid: { display: false },
+    border: { display: false },
+    ticks: { display: false },
+  }
+
   const baseOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
+    scales: { x: noGrid, y: noGrid },
   }
 
   return (
@@ -189,7 +196,7 @@ export default function DashboardBento() {
                   backgroundColor: `${colors.chart4}1a`,
                   fill: true, tension: 0.3,
                 }],
-              }} options={{ ...baseOptions, scales: { y: { min: 0 } } }} />
+              }} options={{ ...baseOptions, scales: { x: noGrid, y: { ...noGrid, min: 0 } } }} />
             )}
           </ChartCard>
         </div>
@@ -212,7 +219,7 @@ export default function DashboardBento() {
               }} options={{
                 ...baseOptions,
                 indexAxis: 'y' as const,
-                scales: { x: { beginAtZero: true } },
+                scales: { x: { ...noGrid, beginAtZero: true }, y: noGrid },
               }} />
             )}
           </ChartCard>
@@ -282,7 +289,7 @@ export default function DashboardBento() {
                   backgroundColor: `${colors.chart2}1a`,
                   fill: true, tension: 0.3,
                 }],
-              }} options={{ ...baseOptions, scales: { y: { min: 0, max: 100 } } }} />
+              }} options={{ ...baseOptions, scales: { x: noGrid, y: { ...noGrid, min: 0, max: 100 } } }} />
             )}
           </ChartCard>
           {funnelData.length > 2 && (
