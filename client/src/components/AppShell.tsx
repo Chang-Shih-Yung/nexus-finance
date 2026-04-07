@@ -65,7 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="h-dvh bg-muted/60 flex flex-col overflow-hidden p-3 gap-3">
 
         {/* ── Layer 1: Header — outside cards ───────────────────── */}
-        <header className="shrink-0 flex items-center gap-3">
+        <header className="shrink-0 flex items-center gap-3 bg-background rounded-2xl px-3 py-1.5">
 
           {/* Mobile: hamburger nav */}
           <Popover>
