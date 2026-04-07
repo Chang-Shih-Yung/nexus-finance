@@ -104,7 +104,7 @@ export default function AiQuerySection() {
   return (
     <section id="ai-query" className="scroll-mt-28 py-8 border-t border-border">
       <h2 className="text-base font-semibold text-foreground mb-4">AI 查詢</h2>
-      <div className="max-w-4xl flex flex-col gap-4">
+      <div className="w-full flex flex-col gap-4">
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

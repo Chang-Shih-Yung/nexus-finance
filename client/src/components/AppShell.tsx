@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
-import ThemeCustomizerContent from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 
 const sections = [
@@ -14,6 +13,18 @@ const sections = [
   { id: 'monitor', label: 'API 監控' },
   { id: 'ai-query', label: 'AI 查詢' },
 ]
+
+function NexusLogo() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <rect width="28" height="28" rx="7" fill="currentColor" className="text-primary" />
+      <path
+        d="M8 20V8h2.4l5.6 8V8H18v12h-2.4L10 12v8H8Z"
+        fill="white"
+      />
+    </svg>
+  )
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [activeSection, setActiveSection] = useState('overview')
@@ -48,120 +59,90 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCustomizerProvider>
-      {/* Outer page — muted bg on mobile to show card, plain bg on desktop */}
-      <div className="h-dvh bg-muted/60 lg:bg-background flex overflow-hidden p-3 lg:p-0">
+      {/* Outer page — muted bg + padding on all sizes */}
+      <div className="h-dvh bg-muted/60 flex flex-col overflow-hidden p-3 gap-3">
 
-        {/* ── Desktop sidebar (≥1024px) ────────────────────────── */}
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-sidebar-border h-full overflow-hidden bg-sidebar">
-          <div className="p-5 border-b border-sidebar-border shrink-0">
-            <h1 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
-              <span className="text-sidebar-primary">Nexus</span> Finance
-            </h1>
-            <p className="text-xs text-sidebar-foreground/50 mt-0.5">RPC-first Banking Intelligence</p>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <ThemeCustomizerContent />
-          </div>
-        </aside>
+        {/* ── Layer 1: Header — outside both cards ─────────────── */}
+        <header className="shrink-0 flex items-center gap-3">
 
-        {/* ── Main column ──────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden gap-3 lg:gap-0">
-
-          {/* Header — outside cards on mobile, inside column on desktop */}
-          <header className="shrink-0 lg:hidden px-1 flex items-center justify-between gap-4">
-            {/* Mobile: hamburger nav */}
-            <div className="flex items-center gap-3">
-              <Popover>
-                <PopoverTrigger asChild>
+          {/* Mobile: hamburger nav */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="導航選單"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="bottom"
+              align="start"
+              sideOffset={8}
+              className="p-1 w-44"
+            >
+              {sections.map(({ id, label }) => (
+                <PopoverClose key={id} asChild>
                   <button
                     type="button"
-                    className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    aria-label="導航選單"
+                    onClick={() => scrollToSection(id)}
+                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
+                      activeSection === id
+                        ? 'bg-accent text-accent-foreground font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    }`}
                   >
-                    <Menu className="h-5 w-5" />
+                    {label}
                   </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  side="bottom"
-                  align="start"
-                  sideOffset={8}
-                  className="p-1 w-44"
-                >
-                  {sections.map(({ id, label }) => (
-                    <PopoverClose key={id} asChild>
-                      <button
-                        type="button"
-                        onClick={() => scrollToSection(id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
-                          activeSection === id
-                            ? 'bg-accent text-accent-foreground font-medium'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    </PopoverClose>
-                  ))}
-                </PopoverContent>
-              </Popover>
-
-              <h2 className="text-base font-semibold text-foreground truncate">
-                Nexus Finance
-              </h2>
-            </div>
-
-            <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
-              {today}
-            </div>
-          </header>
-
-          {/* Content card — white rounded card on mobile, full-width on desktop */}
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background
-                          rounded-2xl border border-border shadow-sm
-                          lg:rounded-none lg:border-0 lg:shadow-none">
-
-          {/* Desktop header — inside card on desktop */}
-          <header className="hidden lg:flex z-20 bg-background border-b border-border px-4 md:px-8 py-3 items-center justify-between gap-4 shrink-0">
-            <h2 className="text-base font-semibold text-foreground truncate">Nexus Finance</h2>
-            <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">{today}</div>
-          </header>
-
-          {/* Tab nav — desktop only */}
-          <nav
-            className="hidden lg:block bg-background/95 border-b border-border shrink-0"
-            aria-label="頁面區塊導航"
-          >
-            <div className="flex overflow-x-auto scrollbar-none px-4 md:px-8">
-              {sections.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => scrollToSection(id)}
-                  aria-current={activeSection === id ? 'true' : undefined}
-                  className={`shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                    activeSection === id
-                      ? 'border-primary text-foreground'
-                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                  }`}
-                >
-                  {label}
-                </button>
+                </PopoverClose>
               ))}
-            </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Logo + brand */}
+          <div className="flex items-center gap-2 shrink-0">
+            <NexusLogo />
+            <span className="text-sm font-semibold text-foreground tracking-tight hidden sm:block">
+              Nexus Finance
+            </span>
+          </div>
+
+          {/* Desktop: inline tab nav */}
+          <nav className="hidden lg:flex items-center gap-1 ml-4" aria-label="頁面區塊導航">
+            {sections.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => scrollToSection(id)}
+                aria-current={activeSection === id ? 'true' : undefined}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+                  activeSection === id
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </nav>
 
-          {/* Page content */}
+          {/* Date — push to right */}
+          <div className="ml-auto rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
+            {today}
+          </div>
+        </header>
+
+        {/* ── Layer 2: Content card ─────────────────────────────── */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background rounded-2xl border border-border shadow-sm">
           <main className="flex-1 overflow-auto">
             <div className="px-4 md:px-8 py-6">
               {children}
             </div>
           </main>
+        </div>
 
-          </div>{/* end content card */}
-
-          {/* ── Customizer bar — separate card on mobile */}
-          <ThemeCustomizerBar />
-
-        </div>{/* end main column */}
+        {/* ── Layer 3: Customizer bar card ─────────────────────── */}
+        <ThemeCustomizerBar />
 
       </div>
     </ThemeCustomizerProvider>
