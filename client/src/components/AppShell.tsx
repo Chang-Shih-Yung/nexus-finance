@@ -62,7 +62,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <Suspense>
     <ThemeCustomizerProvider>
       {/* Outer page — muted bg + padding on all sizes */}
-      <div className="h-dvh bg-muted/60 flex flex-col overflow-hidden p-3 gap-3">
+      <div className="h-dvh bg-background flex flex-col overflow-hidden p-3 gap-3">
 
         {/* ── Layer 1: Header — outside cards ───────────────────── */}
         <header className="shrink-0 flex items-center gap-3 bg-background rounded-2xl px-3 py-1.5">
@@ -140,7 +140,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Content card — white, no border */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-background rounded-2xl shadow-sm">
-            <main className="flex-1 overflow-auto scrollbar-none">
+            <main className="flex-1 overflow-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <div className="px-4 md:px-8 py-6">
                 {children}
               </div>
