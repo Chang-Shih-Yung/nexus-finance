@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
+import ThemeCustomizerContent from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 
 const sections = [
@@ -62,7 +63,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Outer page — muted bg + padding on all sizes */}
       <div className="h-dvh bg-muted/60 flex flex-col overflow-hidden p-3 gap-3">
 
-        {/* ── Layer 1: Header — outside both cards ─────────────── */}
+        {/* ── Layer 1: Header — outside cards ───────────────────── */}
         <header className="shrink-0 flex items-center gap-3">
 
           {/* Mobile: hamburger nav */}
@@ -100,13 +101,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </PopoverContent>
           </Popover>
 
-          {/* Logo + brand */}
-          <div className="flex items-center gap-2 shrink-0">
-            <NexusLogo />
-            <span className="text-sm font-semibold text-foreground tracking-tight hidden sm:block">
-              Nexus Finance
-            </span>
-          </div>
+          {/* Logo only */}
+          <NexusLogo />
 
           {/* Desktop: inline tab nav */}
           <nav className="hidden lg:flex items-center gap-1 ml-4" aria-label="頁面區塊導航">
@@ -132,13 +128,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* ── Layer 2: Content card ─────────────────────────────── */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background rounded-2xl border border-border shadow-sm">
-          <main className="flex-1 overflow-auto">
-            <div className="px-4 md:px-8 py-6">
-              {children}
+        {/* ── Layer 2: Middle — sidebar + content card ───────────── */}
+        <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
+
+          {/* Desktop sidebar — dark card with customizer options */}
+          <aside className="hidden lg:flex w-56 shrink-0 flex-col overflow-hidden bg-[oklch(0.18_0_0)] rounded-2xl border border-white/10 shadow-xl">
+            <div className="flex-1 overflow-y-auto">
+              <ThemeCustomizerContent />
             </div>
-          </main>
+          </aside>
+
+          {/* Content card — white */}
+          <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-background rounded-2xl border border-border shadow-sm">
+            <main className="flex-1 overflow-auto">
+              <div className="px-4 md:px-8 py-6">
+                {children}
+              </div>
+            </main>
+          </div>
         </div>
 
         {/* ── Layer 3: Customizer bar card ─────────────────────── */}
