@@ -12,6 +12,31 @@ import {
 export { baseThemes, colorThemes, fontOptions, stylePresets, radiusPresets }
 export type { BaseTheme, ColorTheme, FontDef, StyleDef }
 
+// Clipboard helper with fallback for non-HTTPS / unfocused contexts
+export function copyToClipboard(text: string): boolean {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch { /* fallback below */ }
+  // Fallback: textarea + execCommand
+  const ta = document.createElement('textarea')
+  ta.value = text
+  ta.style.position = 'fixed'
+  ta.style.left = '-9999px'
+  document.body.appendChild(ta)
+  ta.select()
+  try {
+    document.execCommand('copy')
+    return true
+  } catch {
+    return false
+  } finally {
+    document.body.removeChild(ta)
+  }
+}
+
 // ── Types & Defaults ──────────────────────────────────────────────────────────
 
 export interface ThemeConfig {

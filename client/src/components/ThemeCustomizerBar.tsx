@@ -5,6 +5,7 @@ import { Check, Link, Moon, Shuffle, Sun } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   useThemeCustomizer,
+  copyToClipboard,
   colorThemes,
   baseThemes,
   stylePresets,
@@ -123,13 +124,13 @@ export default function ThemeCustomizerBar() {
       {/* Backdrop — locks background interaction when any tile is open */}
       {openId !== null && (
         <div
-          className="fixed inset-0 z-[29] touch-none"
+          className="fixed inset-0 z-[29] touch-none lg:hidden"
           onClick={() => setOpenId(null)}
         />
       )}
 
-      {/* Bar — standalone dark card on mobile */}
-      <div className="relative z-[30] bg-[oklch(0.18_0_0)] border border-white/10 rounded-2xl shrink-0 overflow-hidden shadow-xl">
+      {/* Bar — mobile only (sidebar handles desktop) */}
+      <div className="relative z-[30] lg:hidden bg-[oklch(0.18_0_0)] border border-white/10 rounded-2xl shrink-0 overflow-hidden shadow-xl">
         <div className="flex gap-2 overflow-x-auto scrollbar-none px-3 py-2.5">
 
           {/* Style */}
@@ -325,7 +326,7 @@ export default function ThemeCustomizerBar() {
           <button
             type="button"
             onClick={() => {
-              navigator.clipboard.writeText(getShareUrl())
+              copyToClipboard(getShareUrl())
               setCopied(true)
               setTimeout(() => setCopied(false), 2000)
             }}
