@@ -1,4 +1,4 @@
-import DashboardBento from '@/components/DashboardBento'
+  import DashboardBento from '@/components/DashboardBento'
 import OverviewSection from '@/components/sections/OverviewSection'
 import FunnelSection from '@/components/sections/FunnelSection'
 import ErrorsSection from '@/components/sections/ErrorsSection'
