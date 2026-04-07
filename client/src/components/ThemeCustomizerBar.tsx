@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Moon, Sun } from 'lucide-react'
+import { Check, Link, Moon, Shuffle, Sun } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   useThemeCustomizer,
@@ -97,9 +97,10 @@ function TileItem({
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function ThemeCustomizerBar() {
-  const { config, updateConfig, isDark, setTheme, mounted } =
+  const { config, updateConfig, isDark, setTheme, mounted, shuffle, getShareUrl } =
     useThemeCustomizer()
   const [openId, setOpenId] = useState<TileId | null>(null)
+  const [copied, setCopied] = useState(false)
 
   function handleOpen(id: TileId, open: boolean) {
     setOpenId(open ? id : null)
@@ -309,6 +310,33 @@ export default function ThemeCustomizerBar() {
             <TileItem label="淺色" active={!isDark} onClick={() => setTheme('light')} />
             <TileItem label="深色" active={isDark} onClick={() => setTheme('dark')} />
           </Tile>
+
+          {/* Shuffle */}
+          <button
+            type="button"
+            onClick={shuffle}
+            className="shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+            title="隨機組合"
+          >
+            <Shuffle className="h-4 w-4 text-white/60" />
+          </button>
+
+          {/* Share */}
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(getShareUrl())
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            }}
+            className="shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+            title="複製分享連結"
+          >
+            {copied
+              ? <Check className="h-4 w-4 text-green-400" />
+              : <Link className="h-4 w-4 text-white/60" />
+            }
+          </button>
 
         </div>
       </div>

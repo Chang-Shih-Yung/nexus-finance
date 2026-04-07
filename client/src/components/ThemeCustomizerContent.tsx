@@ -1,6 +1,7 @@
 'use client'
 
-import { Check, Moon, RotateCcw, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Copy, Link, Lock, Moon, RotateCcw, Save, Shuffle, Sun, Trash2, Unlock } from 'lucide-react'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   useThemeCustomizer,
@@ -9,6 +10,7 @@ import {
   stylePresets,
   fontOptions,
   radiusPresets,
+  type ThemeConfigKey,
 } from '@/components/ThemeCustomizerProvider'
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
@@ -17,40 +19,59 @@ function OptionRow({
   label,
   displayValue,
   icon,
+  locked,
+  onToggleLock,
   children,
 }: {
   label: string
   displayValue: string
   icon: React.ReactNode
+  locked?: boolean
+  onToggleLock?: () => void
   children: React.ReactNode
 }) {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <div className="flex items-stretch gap-1">
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="flex-1 min-w-0 flex items-center justify-between gap-3 px-3 py-3 rounded-xl border border-sidebar-border bg-sidebar-accent/10 hover:bg-sidebar-accent/40 transition-colors text-left"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-medium text-sidebar-foreground/50 uppercase tracking-wider leading-none mb-1">
+                {label}
+              </p>
+              <p className="text-sm font-semibold text-sidebar-foreground leading-none truncate">
+                {displayValue}
+              </p>
+            </div>
+            <div className="shrink-0">{icon}</div>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          side="bottom"
+          align="start"
+          sideOffset={6}
+          className="p-1 bg-sidebar border-sidebar-border min-w-[160px] w-auto"
+        >
+          {children}
+        </PopoverContent>
+      </Popover>
+      {onToggleLock && (
         <button
           type="button"
-          className="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl border border-sidebar-border bg-sidebar-accent/10 hover:bg-sidebar-accent/40 transition-colors text-left"
+          onClick={onToggleLock}
+          className="shrink-0 w-8 flex items-center justify-center rounded-xl border border-sidebar-border hover:bg-sidebar-accent/40 transition-colors"
+          title={locked ? '解鎖' : '鎖定'}
         >
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-medium text-sidebar-foreground/50 uppercase tracking-wider leading-none mb-1">
-              {label}
-            </p>
-            <p className="text-sm font-semibold text-sidebar-foreground leading-none truncate">
-              {displayValue}
-            </p>
-          </div>
-          <div className="shrink-0">{icon}</div>
+          {locked
+            ? <Lock className="h-3 w-3 text-sidebar-foreground/70" />
+            : <Unlock className="h-3 w-3 text-sidebar-foreground/30" />
+          }
         </button>
-      </PopoverTrigger>
-      <PopoverContent
-        side="bottom"
-        align="start"
-        sideOffset={6}
-        className="p-1 bg-sidebar border-sidebar-border min-w-[160px] w-auto"
-      >
-        {children}
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   )
 }
 
@@ -87,7 +108,18 @@ export default function ThemeCustomizerContent() {
     isDark,
     setTheme,
     mounted,
+    locks,
+    toggleLock,
+    shuffle,
+    presets,
+    savePreset,
+    loadPreset,
+    deletePreset,
+    getShareUrl,
   } = useThemeCustomizer()
+
+  const [presetName, setPresetName] = useState('')
+  const [copied, setCopied] = useState(false)
 
   if (!mounted) return <div className="h-8" />
 
@@ -101,24 +133,45 @@ export default function ThemeCustomizerContent() {
   const currentChartColor = colorThemes.find(c => c.name === config.chartColor) ?? colorThemes[0]
   const currentRadius = radiusPresets[config.radius] ?? radiusPresets[2]
 
+  function handleCopyUrl() {
+    navigator.clipboard.writeText(getShareUrl())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleSavePreset() {
+    const name = presetName.trim()
+    if (!name) return
+    savePreset(name)
+    setPresetName('')
+  }
+
+  const lockableRow = (key: ThemeConfigKey) => ({
+    locked: locks[key],
+    onToggleLock: () => toggleLock(key),
+  })
+
   return (
     <div className="px-3 py-4 space-y-2">
+
+      {/* Shuffle button */}
+      <button
+        onClick={shuffle}
+        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-sidebar-border bg-sidebar-accent/20 hover:bg-sidebar-accent/40 text-sm font-medium text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors"
+      >
+        <Shuffle className="h-3.5 w-3.5" />
+        隨機組合
+      </button>
 
       {/* Style */}
       <OptionRow
         label="樣式"
         displayValue={currentStyle.label}
-        icon={
-          <div className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0 rounded" />
-        }
+        icon={<div className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0 rounded" />}
+        {...lockableRow('style')}
       >
         {stylePresets.map(s => (
-          <OptionItem
-            key={s.name}
-            label={s.label}
-            active={config.style === s.name}
-            onClick={() => updateConfig({ style: s.name })}
-          />
+          <OptionItem key={s.name} label={s.label} active={config.style === s.name} onClick={() => updateConfig({ style: s.name })} />
         ))}
       </OptionRow>
 
@@ -126,22 +179,11 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="主題色"
         displayValue={currentThemeColor.label}
-        icon={
-          <div
-            className="h-5 w-5 rounded-full shrink-0"
-            style={{
-              backgroundColor: currentThemeColor.light.primary,
-            }}
-          />
-        }
+        icon={<div className="h-5 w-5 rounded-full shrink-0" style={{ backgroundColor: currentThemeColor.light.primary }} />}
+        {...lockableRow('themeColor')}
       >
         {colorThemes.map(color => (
-          <OptionItem
-            key={color.name}
-            label={color.label}
-            active={config.themeColor === color.name}
-            onClick={() => updateConfig({ themeColor: color.name })}
-          />
+          <OptionItem key={color.name} label={color.label} active={config.themeColor === color.name} onClick={() => updateConfig({ themeColor: color.name })} />
         ))}
       </OptionRow>
 
@@ -149,22 +191,11 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="基底灰調"
         displayValue={currentBaseColor.label}
-        icon={
-          <div
-            className="h-5 w-5 rounded-full shrink-0"
-            style={{
-              backgroundColor: currentBaseColor.light.muted,
-            }}
-          />
-        }
+        icon={<div className="h-5 w-5 rounded-full shrink-0" style={{ backgroundColor: currentBaseColor.light.muted }} />}
+        {...lockableRow('baseColor')}
       >
         {baseThemes.map(base => (
-          <OptionItem
-            key={base.name}
-            label={base.label}
-            active={config.baseColor === base.name}
-            onClick={() => updateConfig({ baseColor: base.name })}
-          />
+          <OptionItem key={base.name} label={base.label} active={config.baseColor === base.name} onClick={() => updateConfig({ baseColor: base.name })} />
         ))}
       </OptionRow>
 
@@ -172,20 +203,11 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="圓角"
         displayValue={currentRadius.label}
-        icon={
-          <div
-            className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0"
-            style={{ borderRadius: currentRadius.value }}
-          />
-        }
+        icon={<div className="h-4 w-7 border border-sidebar-border bg-sidebar-accent/40 shrink-0" style={{ borderRadius: currentRadius.value }} />}
+        {...lockableRow('radius')}
       >
         {radiusPresets.map((r, idx) => (
-          <OptionItem
-            key={r.label}
-            label={r.label}
-            active={config.radius === idx}
-            onClick={() => updateConfig({ radius: idx })}
-          />
+          <OptionItem key={r.label} label={r.label} active={config.radius === idx} onClick={() => updateConfig({ radius: idx })} />
         ))}
       </OptionRow>
 
@@ -193,22 +215,12 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="標題字型"
         displayValue={currentHeadingFont.label}
-        icon={
-          <span className="text-sm font-semibold text-sidebar-foreground/50 shrink-0">Aa</span>
-        }
+        icon={<span className="text-sm font-semibold text-sidebar-foreground/50 shrink-0">Aa</span>}
+        {...lockableRow('headingFont')}
       >
-        <OptionItem
-          label="繼承內文"
-          active={config.headingFont === 'inherit'}
-          onClick={() => updateConfig({ headingFont: 'inherit' })}
-        />
+        <OptionItem label="繼承內文" active={config.headingFont === 'inherit'} onClick={() => updateConfig({ headingFont: 'inherit' })} />
         {fontOptions.map(f => (
-          <OptionItem
-            key={f.name}
-            label={f.label}
-            active={config.headingFont === f.name}
-            onClick={() => updateConfig({ headingFont: f.name })}
-          />
+          <OptionItem key={f.name} label={f.label} active={config.headingFont === f.name} onClick={() => updateConfig({ headingFont: f.name })} />
         ))}
       </OptionRow>
 
@@ -216,17 +228,11 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="字型"
         displayValue={currentFont.label}
-        icon={
-          <span className="text-sm font-semibold text-sidebar-foreground/50 shrink-0">Aa</span>
-        }
+        icon={<span className="text-sm font-semibold text-sidebar-foreground/50 shrink-0">Aa</span>}
+        {...lockableRow('font')}
       >
         {fontOptions.map(f => (
-          <OptionItem
-            key={f.name}
-            label={f.label}
-            active={config.font === f.name}
-            onClick={() => updateConfig({ font: f.name })}
-          />
+          <OptionItem key={f.name} label={f.label} active={config.font === f.name} onClick={() => updateConfig({ font: f.name })} />
         ))}
       </OptionRow>
 
@@ -234,20 +240,11 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="圖表配色"
         displayValue={currentChartColor.label}
-        icon={
-          <div
-            className="h-5 w-5 rounded-full shrink-0"
-            style={{ backgroundColor: currentChartColor.light.primary }}
-          />
-        }
+        icon={<div className="h-5 w-5 rounded-full shrink-0" style={{ backgroundColor: currentChartColor.light.primary }} />}
+        {...lockableRow('chartColor')}
       >
         {colorThemes.map(color => (
-          <OptionItem
-            key={color.name}
-            label={color.label}
-            active={config.chartColor === color.name}
-            onClick={() => updateConfig({ chartColor: color.name })}
-          />
+          <OptionItem key={color.name} label={color.label} active={config.chartColor === color.name} onClick={() => updateConfig({ chartColor: color.name })} />
         ))}
       </OptionRow>
 
@@ -255,17 +252,80 @@ export default function ThemeCustomizerContent() {
       <OptionRow
         label="外觀模式"
         displayValue={isDark ? '深色' : '淺色'}
-        icon={
-          isDark ? (
-            <Moon className="h-4 w-4 text-sidebar-foreground/50 shrink-0" />
-          ) : (
-            <Sun className="h-4 w-4 text-sidebar-foreground/50 shrink-0" />
-          )
-        }
+        icon={isDark ? <Moon className="h-4 w-4 text-sidebar-foreground/50 shrink-0" /> : <Sun className="h-4 w-4 text-sidebar-foreground/50 shrink-0" />}
       >
         <OptionItem label="淺色" active={!isDark} onClick={() => setTheme('light')} />
         <OptionItem label="深色" active={isDark} onClick={() => setTheme('dark')} />
       </OptionRow>
+
+      {/* ── Divider ── */}
+      <div className="border-t border-sidebar-border my-2" />
+
+      {/* Share URL */}
+      <button
+        onClick={handleCopyUrl}
+        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-sidebar-border text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent/20 transition-colors"
+      >
+        {copied ? <Check className="h-3 w-3" /> : <Link className="h-3 w-3" />}
+        {copied ? '已複製！' : '複製分享連結'}
+      </button>
+
+      {/* Save preset */}
+      <div className="flex gap-1">
+        <input
+          type="text"
+          value={presetName}
+          onChange={e => setPresetName(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSavePreset()}
+          placeholder="預設組合名稱…"
+          className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-sidebar-border bg-transparent text-xs text-sidebar-foreground placeholder:text-sidebar-foreground/30 focus:outline-none focus:border-sidebar-primary/50"
+        />
+        <button
+          onClick={handleSavePreset}
+          disabled={!presetName.trim()}
+          className="shrink-0 px-3 py-2 rounded-xl border border-sidebar-border text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent/20 transition-colors disabled:opacity-30"
+        >
+          <Save className="h-3 w-3" />
+        </button>
+      </div>
+
+      {/* Preset list */}
+      {presets.length > 0 && (
+        <div className="space-y-1">
+          {presets.map(p => (
+            <div
+              key={p.name}
+              className="flex items-center gap-1"
+            >
+              <button
+                onClick={() => loadPreset(p)}
+                className="flex-1 min-w-0 text-left px-3 py-2 rounded-xl border border-sidebar-border text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/20 transition-colors truncate"
+              >
+                {p.name}
+              </button>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    window.location.origin + window.location.pathname +
+                    `?theme=${p.config.style}.${p.config.baseColor}.${p.config.themeColor}.${p.config.chartColor}.${p.config.radius}.${p.config.font}.${p.config.headingFont}.${p.mode}`
+                  )
+                }}
+                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-sidebar-foreground/30 hover:text-sidebar-foreground/60 hover:bg-sidebar-accent/20 transition-colors"
+                title="複製連結"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => deletePreset(p.name)}
+                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-sidebar-foreground/30 hover:text-red-400 hover:bg-sidebar-accent/20 transition-colors"
+                title="刪除"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Reset */}
       <button
