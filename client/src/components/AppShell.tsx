@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { Menu } from '@/lib/icons'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
@@ -28,7 +30,17 @@ function NexusLogo() {
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState('overview')
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
   const today = new Date().toLocaleDateString('zh-TW', {
     year: 'numeric',
     month: 'long',
@@ -143,9 +155,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          {/* Date — push to right */}
-          <div className="ml-auto rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide shrink-0">
-            {today}
+          {/* Date + Logout — push to right */}
+          <div className="ml-auto flex items-center gap-2 shrink-0">
+            <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">
+              {today}
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide hover:text-foreground hover:bg-muted/80 transition-colors"
+            >
+              {loggingOut ? '登出中...' : '登出'}
+            </button>
           </div>
         </header>
 

@@ -1,19 +1,59 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { ThemeCustomizerProvider, useThemeCustomizer } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
+function LogoutButton() {
+  const router = useRouter()
+  const [busy, setBusy] = useState(false)
+
+  async function handleLogout() {
+    setBusy(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={busy}
+      className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide hover:text-foreground hover:bg-muted/80 transition-colors"
+    >
+      {busy ? '登出中...' : '登出'}
+    </button>
+  )
+}
+
 function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const { mounted } = useThemeCustomizer()
+  const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div
       className="h-dvh bg-background flex flex-col overflow-hidden p-3 gap-3 transition-opacity duration-150"
       style={{ opacity: mounted ? 1 : 0 }}
     >
+      {/* ── Header ───────────── */}
+      <header className="shrink-0 flex items-center gap-3 px-3 py-1.5">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="currentColor" className="text-primary" />
+          <path d="M8 20V8h2.4l5.6 8V8H18v12h-2.4L10 12v8H8Z" fill="white" />
+        </svg>
+        <span className="text-sm font-semibold">Nexus Finance</span>
+        <div className="ml-auto flex items-center gap-2">
+          <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">{today}</div>
+          <LogoutButton />
+        </div>
+      </header>
+
       {/* ── Middle — sidebar + content ───────────── */}
       <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
 
