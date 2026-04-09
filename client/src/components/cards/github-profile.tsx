@@ -1,5 +1,7 @@
 "use client"
 
+import { useI18n } from "@/lib/i18n/context"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,54 +25,51 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 export function GithubProfile() {
+  const { t } = useI18n()
+
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
-        <CardDescription>Manage your profile information.</CardDescription>
+        <CardTitle>{t('cards.githubProfile.title')}</CardTitle>
+        <CardDescription>{t('cards.githubProfile.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form id="profile">
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">Name</FieldLabel>
-              <Input id="name" placeholder="shadcn" />
+              <FieldLabel htmlFor="name">{t('cards.githubProfile.name')}</FieldLabel>
+              <Input id="name" placeholder={t('cards.githubProfile.namePlaceholder')} />
               <FieldDescription>
-                Your name may appear around GitHub where you contribute or are
-                mentioned. You can remove it at any time.
+                {t('cards.githubProfile.nameDescription')}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="email">Public Email</FieldLabel>
+              <FieldLabel htmlFor="email">{t('cards.githubProfile.jobTitle')}</FieldLabel>
               <NativeSelect id="email">
-                <NativeSelectOption value="m@shadcn.com">
-                  m@shadcn.com
-                </NativeSelectOption>
-                <NativeSelectOption value="m@gmail.com">
-                  m@gmail.com
-                </NativeSelectOption>
+                <NativeSelectOption value="evp">{t('cards.githubProfile.evp')}</NativeSelectOption>
+                <NativeSelectOption value="svp">{t('cards.githubProfile.svp')}</NativeSelectOption>
+                <NativeSelectOption value="mgr">{t('cards.githubProfile.manager')}</NativeSelectOption>
+                <NativeSelectOption value="officer">{t('cards.githubProfile.officer')}</NativeSelectOption>
               </NativeSelect>
               <FieldDescription>
-                You can manage verified email addresses in your{" "}
-                <a href="#email-settings">email settings</a>.
+                {t('cards.githubProfile.jobTitleDescription')}
               </FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="bio">Bio</FieldLabel>
+              <FieldLabel htmlFor="bio">{t('cards.githubProfile.department')}</FieldLabel>
               <Textarea
                 id="bio"
-                placeholder="Tell us a little bit about yourself"
+                placeholder={t('cards.githubProfile.departmentPlaceholder')}
               />
               <FieldDescription>
-                You can <span>@mention</span> other users and organizations to
-                link to them.
+                {t('cards.githubProfile.departmentDescription')}
               </FieldDescription>
             </Field>
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter>
-        <Button form="profile">Save Profile</Button>
+        <Button form="profile">{t('cards.githubProfile.updateProfile')}</Button>
       </CardFooter>
     </Card>
   )

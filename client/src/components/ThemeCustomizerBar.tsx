@@ -1,8 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Link, Moon, Sun } from '@/lib/icons'
+import { Check, Globe, Link, Moon, Sun } from '@/lib/icons'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useI18n, type Locale } from '@/lib/i18n/context'
+
+const localeOptions: { value: Locale; label: string }[] = [
+  { value: 'zh-TW', label: '繁體中文' },
+  { value: 'en', label: 'English' },
+]
 
 // ── Icon library brand logos ─────────────────────────────────────────────────
 
@@ -56,6 +62,7 @@ type TileId =
   | 'iconLibrary'
   | 'chart'
   | 'mode'
+  | 'language'
 
 // ── Tile ──────────────────────────────────────────────────────────────────────
 
@@ -134,6 +141,7 @@ function TileItem({
 export default function ThemeCustomizerBar() {
   const { config, updateConfig, isDark, setTheme, mounted, shuffle, resetToDefaults, presetString } =
     useThemeCustomizer()
+  const { locale, setLocale } = useI18n()
   const [openId, setOpenId] = useState<TileId | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -370,6 +378,25 @@ export default function ThemeCustomizerBar() {
             >
               <TileItem label="淺色" active={!isDark} onClick={() => setTheme('light')} />
               <TileItem label="深色" active={isDark} onClick={() => setTheme('dark')} />
+            </Tile>
+
+            {/* Language — not part of ThemeConfig, unaffected by Shuffle */}
+            <Tile
+              id="language"
+              openId={openId}
+              onOpenChange={(o) => handleOpen('language', o)}
+              label="語言"
+              displayValue={localeOptions.find(o => o.value === locale)?.label ?? locale}
+              icon={<Globe className="h-4 w-4 text-white/60 shrink-0" />}
+            >
+              {localeOptions.map(opt => (
+                <TileItem
+                  key={opt.value}
+                  label={opt.label}
+                  active={locale === opt.value}
+                  onClick={() => setLocale(opt.value)}
+                />
+              ))}
             </Tile>
 
         </div>

@@ -1,5 +1,7 @@
 "use client"
 
+import { useI18n } from "@/lib/i18n/context"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,60 +24,60 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 export function ReportBug() {
+  const { t } = useI18n()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Report Bug</CardTitle>
-        <CardDescription>Help us fix issues faster.</CardDescription>
+        <CardTitle>{t('cards.reportBug.title')}</CardTitle>
+        <CardDescription>{t('cards.reportBug.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="bug-title">Title</FieldLabel>
-            <Input
-              id="bug-title"
-              placeholder="Brief description of the issue"
-            />
+            <FieldLabel htmlFor="bug-title">{t('cards.reportBug.incidentTitle')}</FieldLabel>
+            <Input id="bug-title" placeholder={t('cards.reportBug.incidentTitlePlaceholder')} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field>
-              <FieldLabel htmlFor="bug-severity">Severity</FieldLabel>
+              <FieldLabel htmlFor="bug-severity">{t('cards.reportBug.severity')}</FieldLabel>
               <Select defaultValue="medium">
                 <SelectTrigger id="bug-severity" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="critical">Critical</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="critical">{t('cards.reportBug.p1Critical')}</SelectItem>
+                    <SelectItem value="high">{t('cards.reportBug.p2High')}</SelectItem>
+                    <SelectItem value="medium">{t('cards.reportBug.p3Medium')}</SelectItem>
+                    <SelectItem value="low">{t('cards.reportBug.p4Low')}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </Field>
             <Field>
-              <FieldLabel htmlFor="bug-component">Component</FieldLabel>
-              <Select defaultValue="dashboard">
+              <FieldLabel htmlFor="bug-component">{t('cards.reportBug.impactScope')}</FieldLabel>
+              <Select defaultValue="core">
                 <SelectTrigger id="bug-component" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="dashboard">Dashboard</SelectItem>
-                    <SelectItem value="auth">Auth</SelectItem>
-                    <SelectItem value="api">API</SelectItem>
-                    <SelectItem value="billing">Billing</SelectItem>
+                    <SelectItem value="core">{t('cards.reportBug.coreSystem')}</SelectItem>
+                    <SelectItem value="payment">{t('cards.reportBug.paymentGateway')}</SelectItem>
+                    <SelectItem value="web">{t('cards.reportBug.onlineBanking')}</SelectItem>
+                    <SelectItem value="mobile">{t('cards.reportBug.mobileBanking')}</SelectItem>
+                    <SelectItem value="atm">{t('cards.reportBug.atm')}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </Field>
           </div>
           <Field>
-            <FieldLabel htmlFor="bug-steps">Steps to reproduce</FieldLabel>
+            <FieldLabel htmlFor="bug-steps">{t('cards.reportBug.incidentDescription')}</FieldLabel>
             <Textarea
               id="bug-steps"
-              placeholder="1. Go to&#10;2. Click on&#10;3. Observe..."
+              placeholder={t('cards.reportBug.incidentDescriptionPlaceholder')}
               className="min-h-24 resize-none"
             />
           </Field>
@@ -83,8 +85,8 @@ export function ReportBug() {
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal" className="justify-end">
-          <Button variant="outline">Attach File</Button>
-          <Button>Submit Bug</Button>
+          <Button variant="outline">{t('cards.reportBug.attachFile')}</Button>
+          <Button>{t('cards.reportBug.submitReport')}</Button>
         </Field>
       </CardFooter>
     </Card>

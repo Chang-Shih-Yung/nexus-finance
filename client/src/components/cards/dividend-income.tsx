@@ -9,6 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const miniChartConfig = {
   value: { label: "Volume", color: "var(--chart-2)" },
@@ -19,6 +20,7 @@ function formatAmount(n: number) {
 }
 
 export function DividendIncome() {
+  const { t } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 30 * 86400000).toISOString()
   const to = now.toISOString()
@@ -58,8 +60,8 @@ export function DividendIncome() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Transfer Users</CardTitle>
-        <CardDescription>Highest volume transfer users (30 days).</CardDescription>
+        <CardTitle>{t('cards.dividendIncome.title')}</CardTitle>
+        <CardDescription>{t('cards.dividendIncome.description')}</CardDescription>
         <CardAction>
           <Button variant="ghost" size="icon-sm" className="bg-muted">
             <X className="size-4" />
@@ -82,7 +84,7 @@ export function DividendIncome() {
               <Item key={item.name} variant="muted">
                 <ItemContent>
                   <ItemTitle className="capitalize">{item.name}</ItemTitle>
-                  <ItemDescription>{item.txCount} txns · {Math.round((item.raw / (totalAmount || 1)) * 100)}% of total</ItemDescription>
+                  <ItemDescription>{item.txCount} {t('cards.dividendIncome.txns')} · {Math.round((item.raw / (totalAmount || 1)) * 100)}% {t('cards.dividendIncome.ofTotal')}</ItemDescription>
                 </ItemContent>
                 <ChartContainer config={miniChartConfig} className="hidden h-8 w-24 md:block">
                   <BarChart data={item.sparkline} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

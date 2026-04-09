@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const areaChartConfig = {
   success_rate: { label: "Success Rate", color: "var(--chart-1)" },
 } satisfies ChartConfig
 
 export function Visitors() {
+  const { t } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 180 * 86400000).toISOString()
   const to = now.toISOString()
@@ -42,12 +44,12 @@ export function Visitors() {
   return (
     <Card className="pb-0">
       <CardHeader>
-        <CardTitle>Transfer Success Rate</CardTitle>
-        <CardDescription>Last 6 months</CardDescription>
+        <CardTitle>{t('cards.visitors.title')}</CardTitle>
+        <CardDescription>{t('cards.visitors.description')}</CardDescription>
         <CardAction>
           {isLoading ? <Skeleton className="h-5 w-24" /> : (
             <Badge variant={Number(trendDelta) >= 0 ? "secondary" : "destructive"}>
-              {trendPrefix}{trendDelta}% vs last day
+              {trendPrefix}{trendDelta}% {t('cards.visitors.vsLastDay')}
             </Badge>
           )}
         </CardAction>

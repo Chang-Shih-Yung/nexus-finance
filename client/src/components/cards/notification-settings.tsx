@@ -1,32 +1,34 @@
 "use client"
 
 import * as React from "react"
+import { useI18n } from "@/lib/i18n/context"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 
-const NOTIFICATIONS = [
-  { id: "transactions", label: "Transaction alerts", description: "Deposits, withdrawals, and transfers.", defaultChecked: true },
-  { id: "security", label: "Security alerts", description: "Login attempts and account changes.", defaultChecked: true },
-  { id: "goals", label: "Goal milestones", description: "Updates at 25%, 50%, 75%, and 100%.", defaultChecked: false },
-  { id: "market", label: "Market updates", description: "Daily portfolio summary and price alerts.", defaultChecked: false },
+const NOTIFICATION_KEYS = [
+  { id: "transactions", labelKey: "largeTransactionAlert", descKey: "largeTransactionAlertDescription", defaultChecked: true },
+  { id: "security", labelKey: "securityEventNotification", descKey: "securityEventNotificationDescription", defaultChecked: true },
+  { id: "goals", labelKey: "goalAchievementReminder", descKey: "goalAchievementReminderDescription", defaultChecked: false },
+  { id: "market", labelKey: "marketMovementNotification", descKey: "marketMovementNotificationDescription", defaultChecked: false },
 ]
 
 export function NotificationSettings() {
+  const { t } = useI18n()
   const [checked, setChecked] = React.useState<Record<string, boolean>>(
-    Object.fromEntries(NOTIFICATIONS.map((n) => [n.id, n.defaultChecked]))
+    Object.fromEntries(NOTIFICATION_KEYS.map((n) => [n.id, n.defaultChecked]))
   )
 
-  const allChecked = NOTIFICATIONS.every((n) => checked[n.id])
-  const someChecked = NOTIFICATIONS.some((n) => checked[n.id]) && !allChecked
+  const allChecked = NOTIFICATION_KEYS.every((n) => checked[n.id])
+  const someChecked = NOTIFICATION_KEYS.some((n) => checked[n.id]) && !allChecked
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notifications</CardTitle>
-        <CardDescription>Choose what you want to be notified about.</CardDescription>
+        <CardTitle>{t('cards.notificationSettings.title')}</CardTitle>
+        <CardDescription>{t('cards.notificationSettings.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
@@ -34,13 +36,13 @@ export function NotificationSettings() {
             <Checkbox
               id="notify-all"
               checked={someChecked ? "indeterminate" : allChecked}
-              onCheckedChange={(v) => setChecked(Object.fromEntries(NOTIFICATIONS.map((n) => [n.id, !!v])))}
+              onCheckedChange={(v) => setChecked(Object.fromEntries(NOTIFICATION_KEYS.map((n) => [n.id, !!v])))}
             />
             <FieldContent>
-              <FieldLabel htmlFor="notify-all">Select all</FieldLabel>
+              <FieldLabel htmlFor="notify-all">{t('cards.notificationSettings.selectAll')}</FieldLabel>
             </FieldContent>
           </Field>
-          {NOTIFICATIONS.map((n) => (
+          {NOTIFICATION_KEYS.map((n) => (
             <Field key={n.id} orientation="horizontal">
               <Checkbox
                 id={`notify-${n.id}`}
@@ -48,15 +50,15 @@ export function NotificationSettings() {
                 onCheckedChange={(v) => setChecked((prev) => ({ ...prev, [n.id]: !!v }))}
               />
               <FieldContent>
-                <FieldLabel htmlFor={`notify-${n.id}`}>{n.label}</FieldLabel>
-                <FieldDescription>{n.description}</FieldDescription>
+                <FieldLabel htmlFor={`notify-${n.id}`}>{t(`cards.notificationSettings.${n.labelKey}`)}</FieldLabel>
+                <FieldDescription>{t(`cards.notificationSettings.${n.descKey}`)}</FieldDescription>
               </FieldContent>
             </Field>
           ))}
         </FieldGroup>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Save Preferences</Button>
+        <Button className="w-full">{t('cards.notificationSettings.savePreferences')}</Button>
       </CardFooter>
     </Card>
   )

@@ -12,10 +12,12 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
 export function PieChartCard() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<
     { dimension_value: string; metric_value: number }[]
   >(["txn-by-tier"], "nf_current_breakdown", {
@@ -45,8 +47,8 @@ export function PieChartCard() {
   return (
     <Card>
       <CardHeader className="pb-0">
-        <CardTitle>Tier Distribution</CardTitle>
-        <CardDescription>Transaction count by user tier</CardDescription>
+        <CardTitle>{t('cards.pieChartCard.title')}</CardTitle>
+        <CardDescription>{t('cards.pieChartCard.description')}</CardDescription>
         <CardAction>
           {top && <Badge variant="outline" className="capitalize">{top.tier}</Badge>}
         </CardAction>
@@ -70,7 +72,7 @@ export function PieChartCard() {
                             {totalCount.toLocaleString()}
                           </tspan>
                           <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 4} className="fill-muted-foreground text-xs">
-                            Transactions
+                            {t('cards.pieChartCard.transactions')}
                           </tspan>
                         </text>
                       )

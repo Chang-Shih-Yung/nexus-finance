@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,24 +12,26 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { Kbd } from "@/components/ui/kbd"
+import { useI18n } from "@/lib/i18n/context"
 
-const shortcuts = [
-  { label: "Search", keys: ["⌘", "K"] },
-  { label: "Quick Actions", keys: ["⌘", "J"] },
-  { label: "New File", keys: ["⌘", "N"] },
-  { label: "Save", keys: ["⌘", "S"] },
-  { label: "Toggle Sidebar", keys: ["⌘", "B"] },
+const shortcutKeys = [
+  { labelKey: "quickSearch", keys: ["⌘", "K"] },
+  { labelKey: "switchBranch", keys: ["⌘", "J"] },
+  { labelKey: "newReport", keys: ["⌘", "N"] },
+  { labelKey: "exportReport", keys: ["⌘", "S"] },
+  { labelKey: "toggleSidebar", keys: ["⌘", "B"] },
 ] as const
 
 export function Shortcuts() {
+  const { t } = useI18n()
   return (
     <Card>
       <CardContent>
         <div className="flex flex-col gap-3">
-          <div className="text-sm font-medium">Shortcuts</div>
+          <div className="text-sm font-medium">{t('cards.shortcuts.title')}</div>
           <ItemGroup className="gap-2 text-muted-foreground" data-size="xs">
-            {shortcuts.map(({ label, keys }, i) => (
-              <React.Fragment key={label}>
+            {shortcutKeys.map(({ labelKey, keys }, i) => (
+              <React.Fragment key={labelKey}>
                 {i > 0 && <ItemSeparator />}
                 <Item
                   variant="default"
@@ -35,7 +39,7 @@ export function Shortcuts() {
                   className="border-0 px-0 py-0"
                 >
                   <ItemHeader>
-                    <ItemTitle className="font-normal">{label}</ItemTitle>
+                    <ItemTitle className="font-normal">{t(`cards.shortcuts.${labelKey}`)}</ItemTitle>
                     <ItemActions>
                       <div className="flex gap-1">
                         {keys.map((key) => (

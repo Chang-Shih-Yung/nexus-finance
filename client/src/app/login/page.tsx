@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n/context'
 
 function NexusLogo() {
   return (
@@ -21,6 +22,7 @@ function NexusLogo() {
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,9 +36,9 @@ export default function LoginPage() {
     const { error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) {
       if (err.message.includes('Invalid login credentials')) {
-        setError('帳號或密碼錯誤')
+        setError(t('login.invalidCredentials'))
       } else {
-        setError(`登入失敗：${err.message}`)
+        setError(`${t('login.loginFailed')}：${err.message}`)
       }
       setLoading(false)
     } else {
@@ -51,15 +53,15 @@ export default function LoginPage() {
         <CardContent className="pt-8 pb-8 px-8 space-y-6">
           <div className="space-y-1">
             <NexusLogo />
-            <h1 className="text-2xl font-bold pt-1">Sign in</h1>
+            <h1 className="text-2xl font-bold pt-1">{t('login.signIn')}</h1>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1">
-              <label htmlFor="email" className="block text-sm font-medium">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium">{t('login.emailLabel')}</label>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder={t('login.emailPlaceholder')}
                 autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -67,7 +69,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="password" className="block text-sm font-medium">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium">{t('login.passwordLabel')}</label>
               <Input
                 id="password"
                 type="password"
@@ -83,7 +85,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('login.signingIn') : t('login.signIn')}
             </Button>
           </form>
         </CardContent>

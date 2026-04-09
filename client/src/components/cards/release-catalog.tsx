@@ -9,6 +9,7 @@ import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } f
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 function formatAmount(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
@@ -21,6 +22,7 @@ const TIER_LABELS: Record<string, string> = {
 }
 
 export function ReleaseCatalog() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<
     { dimension_value: string; metric_value: number }[]
   >(["top-errors"], "nf_top_n", {
@@ -42,12 +44,12 @@ export function ReleaseCatalog() {
         <div className="flex items-center justify-between gap-3">
           <InputGroup className="max-w-sm">
             <InputGroupAddon><Search /></InputGroupAddon>
-            <InputGroupInput placeholder="Search error codes..." />
+            <InputGroupInput placeholder={t('cards.releaseCatalog.searchErrorCodes')} />
           </InputGroup>
           <ToggleGroup type="multiple" defaultValue={["critical"]} variant="outline">
-            <ToggleGroupItem value="critical">Critical</ToggleGroupItem>
-            <ToggleGroupItem value="warning">Warning</ToggleGroupItem>
-            <ToggleGroupItem value="info">Info</ToggleGroupItem>
+            <ToggleGroupItem value="critical">{t('cards.releaseCatalog.critical')}</ToggleGroupItem>
+            <ToggleGroupItem value="warning">{t('cards.releaseCatalog.warning')}</ToggleGroupItem>
+            <ToggleGroupItem value="info">{t('cards.releaseCatalog.info')}</ToggleGroupItem>
           </ToggleGroup>
         </div>
       </CardHeader>
@@ -77,13 +79,13 @@ export function ReleaseCatalog() {
                 <ItemContent>
                   <ItemTitle>{item.name}</ItemTitle>
                   <ItemDescription className="text-xs tracking-wider uppercase">
-                    #{item.rank} by frequency
+                    #{item.rank} {t('cards.releaseCatalog.byFrequency')}
                   </ItemDescription>
                 </ItemContent>
                 <div className="flex shrink-0 items-center gap-6">
-                  <Badge variant="destructive">Error</Badge>
+                  <Badge variant="destructive">{t('cards.releaseCatalog.error')}</Badge>
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-xs tracking-wider text-muted-foreground uppercase">Count</span>
+                    <span className="text-xs tracking-wider text-muted-foreground uppercase">{t('cards.releaseCatalog.count')}</span>
                     <span className="font-medium tabular-nums">{item.amount}</span>
                   </div>
                 </div>

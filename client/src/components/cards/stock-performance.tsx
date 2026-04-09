@@ -10,20 +10,23 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
 const METRICS = ["txn_amount", "txn_count", "login_count", "active_users", "avg_balance"]
-const METRIC_LABELS: Record<string, string> = {
-  txn_amount: "Transaction Amount",
-  txn_count: "Transaction Count",
-  login_count: "Logins",
-  active_users: "Active Users",
-  avg_balance: "Avg Balance",
-}
 
 const chartConfig = { value: { label: "Value", color: "var(--chart-1)" } } satisfies ChartConfig
 
 export function StockPerformance() {
+  const { t } = useI18n()
   const [metric, setMetric] = React.useState("txn_amount")
+
+  const METRIC_LABELS: Record<string, string> = {
+    txn_amount: t('cards.stockPerformance.txnAmount'),
+    txn_count: t('cards.stockPerformance.txnCount'),
+    login_count: t('cards.stockPerformance.loginCount'),
+    active_users: t('cards.stockPerformance.activeUsers'),
+    avg_balance: t('cards.stockPerformance.avgBalance'),
+  }
 
   const { data, isLoading } = useRpc<
     { date: string; metric_value: number }[]
@@ -40,21 +43,21 @@ export function StockPerformance() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Metric Trend</CardTitle>
-        <CardDescription>30-day daily trend.</CardDescription>
+        <CardTitle>{t('cards.stockPerformance.title')}</CardTitle>
+        <CardDescription>{t('cards.stockPerformance.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="metric-select">Metric</FieldLabel>
+            <FieldLabel htmlFor="metric-select">{t('cards.stockPerformance.metricLabel')}</FieldLabel>
             <Combobox
               items={METRICS}
               value={metric}
               onValueChange={(value) => { if (value !== null) setMetric(value) }}
             >
-              <ComboboxInput id="metric-select" placeholder="Search metric..." />
+              <ComboboxInput id="metric-select" placeholder={t('cards.stockPerformance.searchMetric')} />
               <ComboboxContent>
-                <ComboboxEmpty>No metrics found.</ComboboxEmpty>
+                <ComboboxEmpty>{t('cards.stockPerformance.noMetrics')}</ComboboxEmpty>
                 <ComboboxList>
                   {(item) => (
                     <ComboboxItem key={item} value={item}>

@@ -6,6 +6,7 @@ import { Item, ItemContent } from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 interface StatsOverview {
   today_logins: number
@@ -19,6 +20,7 @@ function formatPct(n: number) {
 }
 
 export function ClaimableBalance() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<StatsOverview[]>(
     ["stats-overview"], "nf_stats_overview", {},
     { select: (rows: any) => rows },
@@ -28,12 +30,12 @@ export function ClaimableBalance() {
 
   const successRate = stats?.today_success_rate ?? 0
   const badgeVariant = Number(successRate) >= 95 ? "secondary" : Number(successRate) >= 80 ? "outline" : "destructive"
-  const badgeLabel = Number(successRate) >= 95 ? "Healthy" : Number(successRate) >= 80 ? "Moderate" : "Degraded"
+  const badgeLabel = Number(successRate) >= 95 ? t('cards.claimableBalance.healthy') : Number(successRate) >= 80 ? t('cards.claimableBalance.moderate') : t('cards.claimableBalance.degraded')
 
   return (
     <Card>
       <CardHeader>
-        <CardDescription>Today&apos;s Summary</CardDescription>
+        <CardDescription>{t('cards.claimableBalance.todaySummary')}</CardDescription>
         {isLoading ? (
           <Skeleton className="h-12 w-32" />
         ) : (
@@ -41,27 +43,27 @@ export function ClaimableBalance() {
         )}
         <Badge variant={badgeVariant}>
           <span className="size-2 rounded-full bg-current" />
-          {isLoading ? "Loading..." : badgeLabel}
+          {isLoading ? t('common.loading') : badgeLabel}
         </Badge>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col justify-end">
         <Item variant="muted" className="flex-col items-stretch">
           <ItemContent className="gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Logins Today</span>
+              <span className="text-sm text-muted-foreground">{t('cards.claimableBalance.loginsToday')}</span>
               {isLoading ? <Skeleton className="h-4 w-12" /> : (
                 <span className="text-sm font-medium tabular-nums">{stats?.today_logins?.toLocaleString() ?? 0}</span>
               )}
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Active Users</span>
+              <span className="text-sm text-muted-foreground">{t('cards.claimableBalance.activeUsers')}</span>
               {isLoading ? <Skeleton className="h-4 w-12" /> : (
                 <span className="text-sm font-medium tabular-nums">{stats?.today_active_users?.toLocaleString() ?? 0}</span>
               )}
             </div>
             <Separator />
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Success Rate</span>
+              <span className="text-sm text-muted-foreground">{t('cards.claimableBalance.successRate')}</span>
               {isLoading ? <Skeleton className="h-4 w-16" /> : (
                 <span className="text-sm font-semibold tabular-nums">{formatPct(successRate)}</span>
               )}
@@ -70,7 +72,7 @@ export function ClaimableBalance() {
         </Item>
       </CardContent>
       <CardFooter>
-        <CardDescription>Live snapshot of today&apos;s platform activity — refreshes automatically.</CardDescription>
+        <CardDescription>{t('cards.claimableBalance.footerDescription')}</CardDescription>
       </CardFooter>
     </Card>
   )

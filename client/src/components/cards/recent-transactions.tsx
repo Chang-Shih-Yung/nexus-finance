@@ -5,6 +5,7 @@ import {
   ArrowLeftRight, CreditCard, Globe, DollarSign, Send,
 } from "@/lib/icons"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -75,6 +76,7 @@ interface Transaction {
 
 // ── Component ───────────────────────────────────────────────────────────────
 export function RecentTransactions() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<Transaction[]>(
     ["recent-transactions"],
     "nf_recent_transactions",
@@ -84,10 +86,10 @@ export function RecentTransactions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>Your latest account activity.</CardDescription>
+        <CardTitle>{t('cards.recentTransactions.title')}</CardTitle>
+        <CardDescription>{t('cards.recentTransactions.description')}</CardDescription>
         <CardAction>
-          <Button variant="outline" size="sm">View All</Button>
+          <Button variant="outline" size="sm">{t('cards.recentTransactions.viewAll')}</Button>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -141,11 +143,11 @@ export function RecentTransactions() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View details</DropdownMenuItem>
-                          <DropdownMenuItem>Add note</DropdownMenuItem>
-                          <DropdownMenuItem>Categorize</DropdownMenuItem>
+                          <DropdownMenuItem>{t('cards.recentTransactions.viewDetails')}</DropdownMenuItem>
+                          <DropdownMenuItem>{t('cards.recentTransactions.addNote')}</DropdownMenuItem>
+                          <DropdownMenuItem>{t('cards.recentTransactions.categorize')}</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>Dispute</DropdownMenuItem>
+                          <DropdownMenuItem>{t('cards.recentTransactions.dispute')}</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

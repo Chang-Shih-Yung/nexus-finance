@@ -17,22 +17,23 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { Kbd } from "@/components/ui/kbd"
+import { useI18n } from "@/lib/i18n/context"
 
 export function NotFound() {
+  const { t } = useI18n()
   return (
     <Card>
       <CardContent>
         <Empty className="h-72">
           <EmptyHeader>
-            <EmptyTitle>404 - Not Found</EmptyTitle>
+            <EmptyTitle>{t('cards.notFound.title')}</EmptyTitle>
             <EmptyDescription>
-              The page you&apos;re looking for doesn&apos;t exist. Try searching
-              for what you need below.
+              {t('cards.notFound.description')}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <InputGroup className="w-3/4">
-              <InputGroupInput placeholder="Try searching for pages..." />
+              <InputGroupInput placeholder={t('cards.notFound.searchPlaceholder')} />
               <InputGroupAddon>
                 <SearchIcon />
               </InputGroupAddon>
@@ -40,7 +41,7 @@ export function NotFound() {
                 <Kbd>/</Kbd>
               </InputGroupAddon>
             </InputGroup>
-            <Button variant="link">Go to homepage</Button>
+            <Button variant="link">{t('cards.notFound.backToDashboard')}</Button>
           </EmptyContent>
         </Empty>
       </CardContent>

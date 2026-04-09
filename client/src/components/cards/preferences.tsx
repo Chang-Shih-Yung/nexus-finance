@@ -1,4 +1,7 @@
-import { X } from "@/lib/icons"
+"use client"
+
+import { useI18n } from "@/lib/i18n/context"
+import { XIcon } from "@/lib/icons"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,55 +9,52 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSep
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
-const CURRENCIES = [
-  { label: "USD — United States Dollar", value: "usd" },
-  { label: "EUR — Euro", value: "eur" },
-  { label: "GBP — British Pound", value: "gbp" },
-  { label: "JPY — Japanese Yen", value: "jpy" },
-]
+const CURRENCY_KEYS = ["twd", "usd", "eur", "jpy"] as const
 
 export function Preferences() {
+  const { t } = useI18n()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Preferences</CardTitle>
-        <CardDescription>Manage your account settings and notifications.</CardDescription>
+        <CardTitle>{t('cards.preferences.title')}</CardTitle>
+        <CardDescription>{t('cards.preferences.description')}</CardDescription>
         <CardAction>
           <Button variant="ghost" size="icon-sm" className="bg-muted">
-            <X className="size-4" />
+            <XIcon className="size-4" />
           </Button>
         </CardAction>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="default-currency">Default Currency</FieldLabel>
-            <Select defaultValue="usd">
+            <FieldLabel htmlFor="default-currency">{t('cards.preferences.defaultCurrency')}</FieldLabel>
+            <Select defaultValue="twd">
               <SelectTrigger id="default-currency" className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent><SelectGroup>{CURRENCIES.map((item) => (<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectGroup></SelectContent>
+              <SelectContent><SelectGroup>{CURRENCY_KEYS.map((key) => (<SelectItem key={key} value={key}>{t(`cards.preferences.${key}`)}</SelectItem>))}</SelectGroup></SelectContent>
             </Select>
           </Field>
           <FieldSeparator className="-my-4" />
           <Field orientation="horizontal">
             <FieldContent>
-              <FieldLabel htmlFor="public-statistics">Public Statistics</FieldLabel>
-              <FieldDescription>Allow others to see your total stream count and listening activity</FieldDescription>
+              <FieldLabel htmlFor="public-statistics">{t('cards.preferences.liveDataUpdates')}</FieldLabel>
+              <FieldDescription>{t('cards.preferences.liveDataUpdatesDescription')}</FieldDescription>
             </FieldContent>
             <Switch id="public-statistics" defaultChecked />
           </Field>
           <FieldSeparator className="-my-4" />
           <Field orientation="horizontal">
             <FieldContent>
-              <FieldLabel htmlFor="email-notifications">Email Notifications</FieldLabel>
-              <FieldDescription>Monthly royalty reports and distribution updates</FieldDescription>
+              <FieldLabel htmlFor="email-notifications">{t('cards.preferences.anomalyAlertNotifications')}</FieldLabel>
+              <FieldDescription>{t('cards.preferences.anomalyAlertNotificationsDescription')}</FieldDescription>
             </FieldContent>
             <Switch id="email-notifications" defaultChecked />
           </Field>
         </FieldGroup>
       </CardContent>
       <CardFooter>
-        <Button variant="outline">Reset</Button>
-        <Button className="ml-auto">Save Preferences</Button>
+        <Button variant="outline">{t('cards.preferences.reset')}</Button>
+        <Button className="ml-auto">{t('cards.preferences.savePreferences')}</Button>
       </CardFooter>
     </Card>
   )

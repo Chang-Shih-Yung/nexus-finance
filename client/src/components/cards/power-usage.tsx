@@ -8,12 +8,14 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const chartConfig = {
   avg_latency: { label: "Avg Latency (ms)", color: "var(--chart-2)" },
 } satisfies ChartConfig
 
 export function PowerUsage() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<
     { minute: string; avg_latency: number; total_requests: number; error_count: number; error_rate: number }[]
   >(["api-health-60"], "nf_stats_api_health", { p_minutes: 60 })
@@ -34,8 +36,8 @@ export function PowerUsage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>API Health</CardTitle>
-        <CardDescription>Last 60 minutes</CardDescription>
+        <CardTitle>{t('cards.powerUsage.title')}</CardTitle>
+        <CardDescription>{t('cards.powerUsage.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isLoading ? (
@@ -52,13 +54,13 @@ export function PowerUsage() {
         <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-muted-foreground">Current Latency</span>
+            <span className="text-sm text-muted-foreground">{t('cards.powerUsage.currentLatency')}</span>
             {isLoading ? <Skeleton className="h-6 w-16" /> : (
               <span className="text-lg font-semibold tabular-nums">{latestLatency.toFixed(0)} ms</span>
             )}
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-muted-foreground">Requests (1h)</span>
+            <span className="text-sm text-muted-foreground">{t('cards.powerUsage.requests1h')}</span>
             {isLoading ? <Skeleton className="h-6 w-16" /> : (
               <span className="text-lg font-semibold text-chart-1 tabular-nums">{totalRequests.toLocaleString()}</span>
             )}
@@ -66,7 +68,7 @@ export function PowerUsage() {
         </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-1">
-        <span className="text-sm text-muted-foreground">Health Score</span>
+        <span className="text-sm text-muted-foreground">{t('cards.powerUsage.healthScore')}</span>
         <div className="flex w-full items-center gap-2">
           {isLoading ? <Skeleton className="h-2 flex-1" /> : (
             <>

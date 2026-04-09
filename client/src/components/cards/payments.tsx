@@ -1,59 +1,95 @@
 "use client"
 
-import { Gauge, Calendar, Repeat, RefreshCw, ChevronRight, MoreHorizontal } from "@/lib/icons"
+import {
+  Gauge,
+  Calendar,
+  Repeat,
+  RefreshCw,
+  ChevronRight,
+  MoreHorizontal,
+} from "@/lib/icons"
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item"
-
-const items = [
-  { icon: Gauge, title: "Change transfer limit", desc: "Adjust how much you can send from your balance." },
-  { icon: Calendar, title: "Scheduled transfers", desc: "Set up a transfer to send at a later date." },
-  { icon: Repeat, title: "Direct Debits", desc: "Set up and manage regular payments." },
-  { icon: RefreshCw, title: "Recurring card payments", desc: "Manage your repeated card transactions." },
-]
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item"
+import { useI18n } from "@/lib/i18n/context"
 
 export function Payments() {
+  const { t } = useI18n()
+
+  const items = [
+    { icon: Gauge, titleKey: "adjustLimit" as const },
+    { icon: Calendar, titleKey: "scheduledTransfer" as const },
+    { icon: Repeat, titleKey: "autoDebit" as const },
+    { icon: RefreshCw, titleKey: "recurringPayment" as const },
+  ]
+
   return (
     <Card>
       <CardHeader className="flex flex-col gap-3">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink href="#">Home</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">{t('cards.payments.home')}</BreadcrumbLink>
+            </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon-sm" variant="ghost">
                     <MoreHorizontal />
-                    <span className="sr-only">Account options</span>
+                    <span className="sr-only">{t('cards.payments.accountOptions')}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Statements</DropdownMenuItem>
-                    <DropdownMenuItem>Documents</DropdownMenuItem>
+                    <DropdownMenuItem>{t('cards.payments.personalInfo')}</DropdownMenuItem>
+                    <DropdownMenuItem>{t('cards.payments.statements')}</DropdownMenuItem>
+                    <DropdownMenuItem>{t('cards.payments.documentManagement')}</DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem><BreadcrumbPage>Payments</BreadcrumbPage></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{t('cards.payments.paymentOperations')}</BreadcrumbPage>
+            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </CardHeader>
       <CardContent>
         <ItemGroup>
           {items.map((item) => (
-            <Item key={item.title} variant="muted" asChild>
+            <Item key={item.titleKey} variant="muted" asChild>
               <a href="#">
-                <ItemMedia variant="icon"><item.icon /></ItemMedia>
+                <ItemMedia variant="icon">
+                  <item.icon />
+                </ItemMedia>
                 <ItemContent>
-                  <ItemTitle>{item.title}</ItemTitle>
-                  <ItemDescription>{item.desc}</ItemDescription>
+                  <ItemTitle>{t(`cards.payments.items.${item.titleKey}.title`)}</ItemTitle>
+                  <ItemDescription>{t(`cards.payments.items.${item.titleKey}.desc`)}</ItemDescription>
                 </ItemContent>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
               </a>

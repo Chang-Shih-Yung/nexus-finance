@@ -1,66 +1,115 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select"
-import { Textarea } from "@/components/ui/textarea"
+import { Bar, BarChart, XAxis, YAxis } from "recharts"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
 export function FeedbackForm() {
+  const { t } = useI18n()
+
+  const chartConfig = {
+    promoters: { label: t('cards.feedbackForm.promoters'), color: "var(--chart-2)" },
+    passives: { label: t('cards.feedbackForm.passives'), color: "var(--chart-4)" },
+    detractors: { label: t('cards.feedbackForm.detractors'), color: "var(--chart-5)" },
+  } satisfies ChartConfig
+
+  const { data, isLoading } = useRpc<{
+    avg_score: number
+    total_responses: number
+    promoters: number
+    passives: number
+    detractors: number
+    nps_score: number
+  }>(
+    ["customer-nps"],
+    "nf_customer_nps",
+    {},
+    { select: (rows: any) => (Array.isArray(rows) ? rows[0] : rows) ?? null },
+  )
+
+  const stackData = data
+    ? [
+        {
+          name: "NPS",
+          promoters: data.promoters,
+          passives: data.passives,
+          detractors: data.detractors,
+        },
+      ]
+    : []
+
   return (
     <Card>
-      <CardContent>
-        <form id="feedback-form">
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="topic">Topic</FieldLabel>
-              <NativeSelect id="topic">
-                <NativeSelectOption value="">Select a topic</NativeSelectOption>
-                <NativeSelectOption value="ai">AI</NativeSelectOption>
-                <NativeSelectOption value="accounts-and-access-controls">
-                  Accounts and Access Controls
-                </NativeSelectOption>
-                <NativeSelectOption value="billing">Billing</NativeSelectOption>
-                <NativeSelectOption value="cdn">
-                  CDN (Firewall, Caching)
-                </NativeSelectOption>
-                <NativeSelectOption value="ci-cd">
-                  CI/CD (Builds, Deployments, Environment Variables)
-                </NativeSelectOption>
-                <NativeSelectOption value="dashboard-interface">
-                  Dashboard Interface (Navigation, UI Issues)
-                </NativeSelectOption>
-                <NativeSelectOption value="domains">Domains</NativeSelectOption>
-                <NativeSelectOption value="frameworks">
-                  Frameworks
-                </NativeSelectOption>
-                <NativeSelectOption value="marketplace-and-integrations">
-                  Marketplace and Integrations
-                </NativeSelectOption>
-                <NativeSelectOption value="observability">
-                  Observability (Observability, Logs, Monitoring)
-                </NativeSelectOption>
-                <NativeSelectOption value="storage">Storage</NativeSelectOption>
-              </NativeSelect>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="feedback">Feedback</FieldLabel>
-              <Textarea
-                id="feedback"
-                placeholder="Your feedback helps us improve..."
-              />
-            </Field>
-          </FieldGroup>
-        </form>
+      <CardHeader>
+        <CardTitle>{t('cards.feedbackForm.title')}</CardTitle>
+        <CardDescription>
+          {isLoading ? (
+            <Skeleton className="h-4 w-32" />
+          ) : (
+            `${t('cards.feedbackForm.totalResponses').replace('{count}', String(data?.total_responses ?? 0))}`
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-14 w-24" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </>
+        ) : (
+          <>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold tabular-nums">
+                {data?.nps_score ?? 0}
+              </span>
+              <span className="text-sm text-muted-foreground">{t('cards.feedbackForm.npsScore')}</span>
+            </div>
+
+            <ChartContainer config={chartConfig} className="h-10 w-full">
+              <BarChart
+                data={stackData}
+                layout="vertical"
+                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+              >
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" hide />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent />}
+                />
+                <Bar
+                  dataKey="promoters"
+                  stackId="nps"
+                  fill="var(--color-promoters)"
+                  radius={[4, 0, 0, 4]}
+                />
+                <Bar
+                  dataKey="passives"
+                  stackId="nps"
+                  fill="var(--color-passives)"
+                  radius={0}
+                />
+                <Bar
+                  dataKey="detractors"
+                  stackId="nps"
+                  fill="var(--color-detractors)"
+                  radius={[0, 4, 4, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
+
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{t('cards.feedbackForm.promoters')} {data?.promoters ?? 0}</span>
+              <span>{t('cards.feedbackForm.passives')} {data?.passives ?? 0}</span>
+              <span>{t('cards.feedbackForm.detractors')} {data?.detractors ?? 0}</span>
+            </div>
+          </>
+        )}
       </CardContent>
-      <CardFooter>
-        <Button type="submit" form="feedback-form">
-          Submit
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

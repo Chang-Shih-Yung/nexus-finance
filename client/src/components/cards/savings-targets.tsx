@@ -9,6 +9,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 function getDateRange(offsetMonths: number) {
   const now = new Date()
@@ -27,6 +28,7 @@ function formatCompact(n: number) {
 }
 
 export function SavingsTargets() {
+  const { t } = useI18n()
   const current = getDateRange(0)
   const previous = getDateRange(-1)
 
@@ -66,9 +68,9 @@ export function SavingsTargets() {
     <div className="grid grid-cols-2 gap-(--gap)">
       <Card>
         <CardHeader>
-          <CardTitle>Month-over-Month</CardTitle>
-          <CardDescription>Current vs previous month</CardDescription>
-          <CardAction><Button variant="outline" size="sm">Details</Button></CardAction>
+          <CardTitle>{t('cards.savingsTargets.monthOverMonth')}</CardTitle>
+          <CardDescription>{t('cards.savingsTargets.currentVsPrevious')}</CardDescription>
+          <CardAction><Button variant="outline" size="sm">{t('common.details')}</Button></CardAction>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -80,23 +82,23 @@ export function SavingsTargets() {
             <ItemGroup className="gap-3">
               <Item variant="muted" className="flex-col items-stretch">
                 <ItemContent className="gap-3">
-                  <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Transaction Volume</ItemDescription>
+                  <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.savingsTargets.transactionVolume')}</ItemDescription>
                   <span className="text-3xl font-semibold tabular-nums">{formatCompact(Number(txn?.current_total ?? 0))}</span>
                   <Progress value={txnPct} />
                 </ItemContent>
                 <ItemFooter>
-                  <span className="text-sm text-muted-foreground">{txnPct}% of last month</span>
+                  <span className="text-sm text-muted-foreground">{txnPct}% {t('cards.savingsTargets.ofLastMonth')}</span>
                   <span className="text-sm font-medium tabular-nums">{formatCompact(Number(txn?.previous_total ?? 0))}</span>
                 </ItemFooter>
               </Item>
               <Item variant="muted" className="flex-col items-stretch">
                 <ItemContent className="gap-3">
-                  <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Login Activity</ItemDescription>
+                  <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.savingsTargets.loginActivity')}</ItemDescription>
                   <span className="text-3xl font-semibold tabular-nums">{Number(login?.current_total ?? 0).toLocaleString()}</span>
                   <Progress value={loginPct} />
                 </ItemContent>
                 <ItemFooter>
-                  <span className="text-sm text-muted-foreground">{loginPct}% of last month</span>
+                  <span className="text-sm text-muted-foreground">{loginPct}% {t('cards.savingsTargets.ofLastMonth')}</span>
                   <span className="text-sm font-medium tabular-nums">{Number(login?.previous_total ?? 0).toLocaleString()}</span>
                 </ItemFooter>
               </Item>
@@ -105,45 +107,45 @@ export function SavingsTargets() {
         </CardContent>
         <CardFooter>
           <CardDescription className="text-center">
-            {isLoading ? "Loading..." : `Txn volume ${Number(txn?.change_pct ?? 0) >= 0 ? "up" : "down"} ${Math.abs(Number(txn?.change_pct ?? 0)).toFixed(1)}% vs last month.`}
+            {isLoading ? t('common.loading') : `${t('cards.savingsTargets.transactionVolume')} ${Number(txn?.change_pct ?? 0) >= 0 ? t('cards.savingsTargets.up') : t('cards.savingsTargets.down')} ${Math.abs(Number(txn?.change_pct ?? 0)).toFixed(1)}%`}
           </CardDescription>
         </CardFooter>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Buy Investment</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('cards.savingsTargets.buyInvestment')}</CardTitle></CardHeader>
         <CardContent className="flex flex-1 flex-col gap-3">
           <FieldGroup className="flex-1">
             <Field>
-              <FieldLabel htmlFor="invest-amount">Amount to Invest</FieldLabel>
+              <FieldLabel htmlFor="invest-amount">{t('cards.savingsTargets.amountToInvest')}</FieldLabel>
               <InputGroup>
                 <InputGroupAddon><InputGroupText>$</InputGroupText></InputGroupAddon>
                 <InputGroupInput id="invest-amount" defaultValue="1,000.00" />
               </InputGroup>
             </Field>
             <Field>
-              <FieldLabel htmlFor="invest-type">Order Type</FieldLabel>
+              <FieldLabel htmlFor="invest-type">{t('cards.savingsTargets.orderType')}</FieldLabel>
               <NativeSelect id="invest-type" defaultValue="market">
-                <NativeSelectOption value="market">Market Order</NativeSelectOption>
-                <NativeSelectOption value="limit">Limit Order</NativeSelectOption>
-                <NativeSelectOption value="stop">Stop Order</NativeSelectOption>
+                <NativeSelectOption value="market">{t('cards.savingsTargets.marketOrder')}</NativeSelectOption>
+                <NativeSelectOption value="limit">{t('cards.savingsTargets.limitOrder')}</NativeSelectOption>
+                <NativeSelectOption value="stop">{t('cards.savingsTargets.stopOrder')}</NativeSelectOption>
               </NativeSelect>
-              <FieldDescription>Market orders execute at the current price.</FieldDescription>
+              <FieldDescription>{t('cards.savingsTargets.marketOrderDescription')}</FieldDescription>
             </Field>
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Estimated Shares</span>
+                <span className="text-sm text-muted-foreground">{t('cards.savingsTargets.estimatedShares')}</span>
                 <span className="text-sm font-semibold tabular-nums">1.95</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Buying Power</span>
+                <span className="text-sm text-muted-foreground">{t('cards.savingsTargets.buyingPower')}</span>
                 <span className="text-sm font-semibold tabular-nums">$12,450.00</span>
               </div>
             </div>
           </FieldGroup>
         </CardContent>
         <CardFooter className="flex-col gap-3">
-          <Button className="w-full">Review Order</Button>
-          <CardDescription className="text-center">Trades are typically executed within minutes during market hours.</CardDescription>
+          <Button className="w-full">{t('cards.savingsTargets.reviewOrder')}</Button>
+          <CardDescription className="text-center">{t('cards.savingsTargets.tradeExecutionNote')}</CardDescription>
         </CardFooter>
       </Card>
     </div>

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/chart"
 import { Item, ItemContent, ItemDescription } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useI18n } from '@/lib/i18n/context'
 
 const chartConfig = {
   metric_value: { label: "Transactions", color: "var(--chart-2)" },
@@ -29,6 +30,7 @@ function getDateRange(offsetMonths: number) {
 }
 
 export function ContributionHistory() {
+  const { t } = useI18n()
   const { data: rawData, isLoading } = useRpc<Array<{ date: string; metric_value: number }>>(
     ["daily_trend", METRIC_KEYS.TXN_COUNT, "30"],
     "nf_daily_trend",
@@ -75,10 +77,10 @@ export function ContributionHistory() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Contribution History</CardTitle>
-        <CardDescription>Last 30 days of transaction activity</CardDescription>
+        <CardTitle>{t('cards.contributionHistory.title')}</CardTitle>
+        <CardDescription>{t('cards.contributionHistory.description')}</CardDescription>
         <CardAction>
-          <Badge variant="secondary">{isLoading ? "..." : `${changeLabel} vs prior period`}</Badge>
+          <Badge variant="secondary">{isLoading ? "..." : `${changeLabel} ${t('cards.contributionHistory.vsPriorPeriod')}`}</Badge>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -98,20 +100,20 @@ export function ContributionHistory() {
         <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
           <Item variant="muted" className="flex-col items-stretch">
             <ItemContent className="gap-1">
-              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total (30d)</ItemDescription>
+              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.contributionHistory.total30d')}</ItemDescription>
               <span className="text-lg font-semibold">{isLoading ? "..." : total.toLocaleString()}</span>
-              <span className="text-sm text-muted-foreground">transactions</span>
+              <span className="text-sm text-muted-foreground">{t('cards.contributionHistory.transactions')}</span>
             </ItemContent>
           </Item>
           <Item variant="muted" className="flex-col items-stretch">
             <ItemContent className="gap-1">
-              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Next Batch</ItemDescription>
+              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.contributionHistory.nextBatch')}</ItemDescription>
               <span className="text-lg font-semibold">{nextDate}</span>
-              <span className="text-sm text-muted-foreground">Scheduled daily</span>
+              <span className="text-sm text-muted-foreground">{t('cards.contributionHistory.scheduledDaily')}</span>
             </ItemContent>
           </Item>
         </div>
-        <Button className="w-full">View Full Report</Button>
+        <Button className="w-full">{t('cards.contributionHistory.viewFullReport')}</Button>
       </CardFooter>
     </Card>
   )

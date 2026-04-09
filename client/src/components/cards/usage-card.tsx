@@ -8,16 +8,20 @@ import {
 } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
-const METRIC_LABELS: Record<string, string> = {
-  txn_count: "Transactions",
-  txn_amount: "Volume (TWD)",
-  success_rate: "Success Rate",
-  error_count: "Errors",
-  login_count: "Logins",
-  active_users: "Active Users",
-  avg_balance: "Avg Balance",
-  error_rate: "Error Rate",
+function useMetricLabels() {
+  const { t } = useI18n()
+  return {
+    txn_count: t('cards.usageCard.transactions'),
+    txn_amount: t('cards.usageCard.volumeTwd'),
+    success_rate: t('cards.usageCard.successRate'),
+    error_count: t('cards.usageCard.errors'),
+    login_count: t('cards.usageCard.logins'),
+    active_users: t('cards.usageCard.activeUsers'),
+    avg_balance: t('cards.usageCard.avgBalance'),
+    error_rate: t('cards.usageCard.errorRate'),
+  } as Record<string, string>
 }
 
 function CircularGauge({ percentage }: { percentage: number }) {
@@ -52,6 +56,8 @@ function gaugePercent(key: string, value: number): number {
 }
 
 export function UsageCard() {
+  const { t } = useI18n()
+  const METRIC_LABELS = useMetricLabels()
   const { data, isLoading } = useRpc<
     { metric_key: string; dimension: string; dimension_value: string; today_value: number; avg_7d: number; stddev_7d: number; z_score: number }[]
   >(["anomaly-check"], "nf_anomaly_check", {})
@@ -86,7 +92,7 @@ export function UsageCard() {
     <Card className="w-full max-w-sm gap-4">
       <CardHeader>
         <CardTitle className="px-1 text-sm">
-          {data && data.length > 0 ? `${data.length} anomalies detected` : "Error Breakdown"}
+          {data && data.length > 0 ? `${data.length} ${t('cards.usageCard.anomaliesDetected')}` : t('cards.usageCard.errorBreakdown')}
         </CardTitle>
       </CardHeader>
       <CardContent>

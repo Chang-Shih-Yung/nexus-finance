@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 interface DormantUser {
   user_name: string
@@ -24,6 +25,7 @@ const TIER_COLORS: Record<string, "default" | "secondary" | "outline" | "destruc
 }
 
 export function BookAppointment() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<DormantUser[]>(
     ["dormant-users"], "nf_ai_dormant_users", { p_days: 7, p_limit: 6 },
   )
@@ -33,8 +35,8 @@ export function BookAppointment() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dormant Users</CardTitle>
-        <CardDescription>Inactive for 7+ days · {isLoading ? "..." : users.length} users</CardDescription>
+        <CardTitle>{t('cards.bookAppointment.title')}</CardTitle>
+        <CardDescription>{t('cards.bookAppointment.description')} · {isLoading ? "..." : users.length} {t('common.accounts')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isLoading ? (
@@ -48,7 +50,7 @@ export function BookAppointment() {
                 <ItemContent>
                   <ItemTitle>{u.user_name}</ItemTitle>
                   <ItemDescription>
-                    Last seen {u.inactive_days}d ago · {new Date(u.last_login_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    {u.inactive_days} {t('common.daysAgo')} · {new Date(u.last_login_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </ItemDescription>
                 </ItemContent>
                 <Badge variant={TIER_COLORS[u.tier] ?? "outline"} className="capitalize">{u.tier}</Badge>
@@ -58,15 +60,15 @@ export function BookAppointment() {
         )}
         {!isLoading && users.some(u => u.tier === "vip" || u.tier === "premium") && (
           <Alert>
-            <AlertTitle>High-value users at risk</AlertTitle>
+            <AlertTitle>{t('cards.bookAppointment.highValueAtRisk')}</AlertTitle>
             <AlertDescription>
-              {users.filter(u => u.tier === "vip" || u.tier === "premium").length} VIP/Premium users haven&apos;t logged in recently.
+              {users.filter(u => u.tier === "vip" || u.tier === "premium").length} {t('cards.bookAppointment.vipPremiumWarning')}
             </AlertDescription>
           </Alert>
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Send Re-engagement Campaign</Button>
+        <Button className="w-full">{t('cards.bookAppointment.sendCampaign')}</Button>
       </CardFooter>
     </Card>
   )

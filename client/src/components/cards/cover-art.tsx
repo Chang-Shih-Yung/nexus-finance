@@ -1,3 +1,6 @@
+"use client"
+
+import { useI18n } from "@/lib/i18n/context"
 import { ImageIcon } from "@/lib/icons"
 
 import { Button } from "@/components/ui/button"
@@ -6,10 +9,12 @@ import { Item } from "@/components/ui/item"
 import { Label } from "@/components/ui/label"
 
 export function CoverArt() {
+  const { t } = useI18n()
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-3">
-        <Label htmlFor="cover-art" className="text-center text-xs font-normal tracking-wider text-muted-foreground uppercase">Cover Art</Label>
+        <Label htmlFor="cover-art" className="text-center text-xs font-normal tracking-wider text-muted-foreground uppercase">{t('cards.coverArt.reportTemplate')}</Label>
         <Item className="aspect-square" variant="outline">
           <label htmlFor="cover-art" className="flex size-full cursor-pointer items-center justify-center">
             <ImageIcon className="size-10 text-muted-foreground/50" />
@@ -19,10 +24,10 @@ export function CoverArt() {
       </CardContent>
       <CardFooter className="flex-col gap-2">
         <Button variant="secondary" className="w-full" asChild>
-          <label htmlFor="cover-art" className="cursor-pointer">Upload Artwork</label>
+          <label htmlFor="cover-art" className="cursor-pointer">{t('cards.coverArt.uploadTemplate')}</label>
         </Button>
         <CardDescription className="text-center text-xs">
-          Minimum 3000 x 3000px<br />JPEG or PNG only
+          {t('cards.coverArt.recommendedSize')}<br />{t('cards.coverArt.supportedFormats')}
         </CardDescription>
       </CardFooter>
     </Card>

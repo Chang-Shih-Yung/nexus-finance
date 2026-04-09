@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const Calendar = dynamic(
   () => import("@/components/ui/calendar").then((mod) => mod.Calendar),
@@ -38,6 +39,7 @@ function isSameDay(a: Date, b: Date) {
 }
 
 export function UpcomingPayments() {
+  const { t } = useI18n()
   const [date, setDate] = React.useState<Date | undefined>(undefined)
 
   const { data, isLoading } = useRpc<PendingTx[]>(
@@ -60,14 +62,14 @@ export function UpcomingPayments() {
     : items
 
   const description = date
-    ? `${filtered.length} payment${filtered.length !== 1 ? "s" : ""} on ${formatDate(date.toISOString())}`
-    : `${items.length} pending transaction${items.length !== 1 ? "s" : ""}`
+    ? `${filtered.length} ${t('cards.upcomingPayments.paymentsOnDate')} ${formatDate(date.toISOString())}`
+    : `${items.length} ${t('cards.upcomingPayments.pendingTransactions')}`
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upcoming Payments</CardTitle>
-        <CardDescription>{isLoading ? "Loading..." : description}</CardDescription>
+        <CardTitle>{t('cards.upcomingPayments.title')}</CardTitle>
+        <CardDescription>{isLoading ? t('common.loading') : description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Item variant="outline" className="justify-center">
@@ -108,10 +110,10 @@ export function UpcomingPayments() {
               <Item variant="muted">
                 <ItemContent>
                   <ItemTitle className="text-muted-foreground">
-                    {date ? "No payments on this date" : "No pending payments"}
+                    {date ? t('cards.upcomingPayments.noPaymentsOnDate') : t('cards.upcomingPayments.noPendingPayments')}
                   </ItemTitle>
                   <ItemDescription>
-                    {date ? "Try selecting another date." : "All transactions are settled."}
+                    {date ? t('cards.upcomingPayments.tryAnotherDate') : t('cards.upcomingPayments.allSettled')}
                   </ItemDescription>
                 </ItemContent>
               </Item>

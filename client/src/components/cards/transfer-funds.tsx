@@ -11,6 +11,7 @@ import { Item, ItemContent } from "@/components/ui/item"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useI18n } from "@/lib/i18n/context"
 
 function formatCompact(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -19,6 +20,7 @@ function formatCompact(n: number) {
 }
 
 export function TransferFunds() {
+  const { t } = useI18n()
   const { data: summary, isLoading } = useRpc<{
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
   }>(

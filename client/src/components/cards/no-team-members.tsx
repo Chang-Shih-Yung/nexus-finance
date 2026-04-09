@@ -1,11 +1,8 @@
 "use client"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { CheckCircle2Icon } from "@/lib/icons"
+import { useI18n } from "@/lib/i18n/context"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -18,43 +15,22 @@ import {
 } from "@/components/ui/empty"
 
 export function NoTeamMembers() {
+  const { t } = useI18n()
   return (
     <Card>
       <CardContent>
         <Empty className="h-56 border">
           <EmptyHeader>
-            <EmptyMedia>
-              <AvatarGroup className="grayscale">
-                <Avatar size="lg">
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="@shadcn"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <Avatar size="lg">
-                  <AvatarImage
-                    src="https://github.com/maxleiter.png"
-                    alt="@maxleiter"
-                  />
-                  <AvatarFallback>LR</AvatarFallback>
-                </Avatar>
-                <Avatar size="lg">
-                  <AvatarImage
-                    src="https://github.com/evilrabbit.png"
-                    alt="@evilrabbit"
-                  />
-                  <AvatarFallback>ER</AvatarFallback>
-                </Avatar>
-              </AvatarGroup>
+            <EmptyMedia variant="icon">
+              <CheckCircle2Icon />
             </EmptyMedia>
-            <EmptyTitle>No Team Members</EmptyTitle>
+            <EmptyTitle>{t('cards.noTeamMembers.title')}</EmptyTitle>
             <EmptyDescription>
-              Invite your team to collaborate on this project.
+              {t('cards.noTeamMembers.description')}
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button size="sm">Invite Members</Button>
+            <Button size="sm" variant="outline">{t('cards.noTeamMembers.viewAlertHistory')}</Button>
           </EmptyContent>
         </Empty>
       </CardContent>

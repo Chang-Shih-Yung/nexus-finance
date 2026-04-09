@@ -1,513 +1,75 @@
 "use client"
 
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
-type AgentState =
-  | "connecting"
-  | "initializing"
-  | "listening"
-  | "speaking"
-  | "thinking"
-
-type AnimationState = AgentState | undefined
-
-interface AudioAnalyserOptions {
-  fftSize?: number
-  smoothingTimeConstant?: number
-  minDecibels?: number
-  maxDecibels?: number
+type ChannelDist = {
+  channel: string
+  event_count: number
+  pct: number
 }
 
-interface MultiBandVolumeOptions {
-  bands?: number
-  loPass?: number
-  hiPass?: number
-  updateInterval?: number
-  analyserOptions?: AudioAnalyserOptions
-}
+export function BarVisualizer() {
+  const { t } = useI18n()
 
-const multibandDefaults: MultiBandVolumeOptions = {
-  bands: 5,
-  loPass: 100,
-  hiPass: 600,
-  updateInterval: 32,
-  analyserOptions: { fftSize: 2048 },
-}
-
-const normalizeDb = (value: number) => {
-  if (value === -Infinity) {
-    return 0
-  }
-  const minDb = -100
-  const maxDb = -10
-  const db = 1 - (Math.max(minDb, Math.min(maxDb, value)) * -1) / 100
-  return Math.sqrt(db)
-}
-
-function createAudioAnalyser(
-  mediaStream: MediaStream,
-  options: AudioAnalyserOptions = {}
-) {
-  const audioContext = new (window.AudioContext ||
-    (window as unknown as { webkitAudioContext: typeof AudioContext })
-      .webkitAudioContext)()
-  const source = audioContext.createMediaStreamSource(mediaStream)
-  const analyser = audioContext.createAnalyser()
-
-  if (options.fftSize) {
-    analyser.fftSize = options.fftSize
-  }
-  if (options.smoothingTimeConstant !== undefined) {
-    analyser.smoothingTimeConstant = options.smoothingTimeConstant
-  }
-  if (options.minDecibels !== undefined) {
-    analyser.minDecibels = options.minDecibels
-  }
-  if (options.maxDecibels !== undefined) {
-    analyser.maxDecibels = options.maxDecibels
+  const CHANNEL_LABELS: Record<string, string> = {
+    web: t('cards.barVisualizer.web'),
+    mobile: t('cards.barVisualizer.mobile'),
+    atm: t('cards.barVisualizer.atm'),
+    desktop: t('cards.barVisualizer.desktop'),
+    branch: t('cards.barVisualizer.branch'),
   }
 
-  source.connect(analyser)
-
-  const cleanup = () => {
-    source.disconnect()
-    audioContext.close()
-  }
-
-  return { analyser, audioContext, cleanup }
-}
-
-function useMultibandVolume(
-  mediaStream?: MediaStream | null,
-  options: MultiBandVolumeOptions = {}
-) {
-  const bands = options.bands ?? multibandDefaults.bands ?? 5
-  const loPass = options.loPass ?? multibandDefaults.loPass ?? 100
-  const hiPass = options.hiPass ?? multibandDefaults.hiPass ?? 600
-  const updateInterval =
-    options.updateInterval ?? multibandDefaults.updateInterval ?? 32
-  const fftSize =
-    options.analyserOptions?.fftSize ??
-    multibandDefaults.analyserOptions?.fftSize
-  const smoothingTimeConstant =
-    options.analyserOptions?.smoothingTimeConstant ??
-    multibandDefaults.analyserOptions?.smoothingTimeConstant
-  const minDecibels =
-    options.analyserOptions?.minDecibels ??
-    multibandDefaults.analyserOptions?.minDecibels
-  const maxDecibels =
-    options.analyserOptions?.maxDecibels ??
-    multibandDefaults.analyserOptions?.maxDecibels
-
-  const [frequencyBands, setFrequencyBands] = React.useState<number[]>(() =>
-    new Array(bands).fill(0)
+  const { data, isLoading } = useRpc<ChannelDist[]>(
+    ["channel-distribution"],
+    "nf_channel_distribution",
+    { p_days: 7 }
   )
-  const bandsRef = React.useRef<number[]>(new Array(bands).fill(0))
-  const frameId = React.useRef<number | undefined>(undefined)
-
-  React.useEffect(() => {
-    if (!mediaStream) {
-      const emptyBands = new Array(bands).fill(0)
-      bandsRef.current = emptyBands
-      setFrequencyBands(emptyBands)
-      return
-    }
-
-    const { analyser, cleanup } = createAudioAnalyser(mediaStream, {
-      fftSize,
-      smoothingTimeConstant,
-      minDecibels,
-      maxDecibels,
-    })
-
-    const bufferLength = analyser.frequencyBinCount
-    const dataArray = new Float32Array(bufferLength)
-    const sliceStart = loPass
-    const sliceEnd = hiPass
-    const sliceLength = sliceEnd - sliceStart
-    const chunkSize = Math.ceil(sliceLength / bands)
-
-    let lastUpdate = 0
-
-    const updateVolume = (timestamp: number) => {
-      if (timestamp - lastUpdate >= updateInterval) {
-        analyser.getFloatFrequencyData(dataArray)
-
-        const chunks = new Array(bands)
-
-        for (let i = 0; i < bands; i++) {
-          let sum = 0
-          let count = 0
-          const startIdx = sliceStart + i * chunkSize
-          const endIdx = Math.min(sliceStart + (i + 1) * chunkSize, sliceEnd)
-
-          for (let j = startIdx; j < endIdx; j++) {
-            sum += normalizeDb(dataArray[j])
-            count++
-          }
-
-          chunks[i] = count > 0 ? sum / count : 0
-        }
-
-        let hasChanged = false
-        for (let i = 0; i < chunks.length; i++) {
-          if (Math.abs(chunks[i] - bandsRef.current[i]) > 0.01) {
-            hasChanged = true
-            break
-          }
-        }
-
-        if (hasChanged) {
-          bandsRef.current = chunks
-          setFrequencyBands(chunks)
-        }
-
-        lastUpdate = timestamp
-      }
-
-      frameId.current = requestAnimationFrame(updateVolume)
-    }
-
-    frameId.current = requestAnimationFrame(updateVolume)
-
-    return () => {
-      cleanup()
-      if (frameId.current) {
-        cancelAnimationFrame(frameId.current)
-      }
-    }
-  }, [
-    bands,
-    fftSize,
-    hiPass,
-    loPass,
-    maxDecibels,
-    mediaStream,
-    minDecibels,
-    smoothingTimeConstant,
-    updateInterval,
-  ])
-
-  return frequencyBands
-}
-
-const generateConnectingSequenceBar = (columns: number): number[][] => {
-  const seq = []
-  for (let x = 0; x < columns; x++) {
-    seq.push([x, columns - 1 - x])
-  }
-  return seq
-}
-
-const generateListeningSequenceBar = (columns: number): number[][] => {
-  const center = Math.floor(columns / 2)
-  const noIndex = -1
-  return [[center], [noIndex]]
-}
-
-const useBarAnimator = (
-  state: AnimationState,
-  columns: number,
-  interval: number
-): number[] => {
-  const indexRef = React.useRef(0)
-  const [currentFrame, setCurrentFrame] = React.useState<number[]>([])
-  const animationFrameId = React.useRef<number | null>(null)
-
-  const sequence = React.useMemo(() => {
-    if (state === "thinking" || state === "listening") {
-      return generateListeningSequenceBar(columns)
-    } else if (state === "connecting" || state === "initializing") {
-      return generateConnectingSequenceBar(columns)
-    } else if (state === undefined || state === "speaking") {
-      return [new Array(columns).fill(0).map((_, idx) => idx)]
-    } else {
-      return [[]]
-    }
-  }, [state, columns])
-
-  React.useEffect(() => {
-    indexRef.current = 0
-    setCurrentFrame(sequence[0] || [])
-  }, [sequence])
-
-  React.useEffect(() => {
-    let startTime = performance.now()
-
-    const animate = (time: DOMHighResTimeStamp) => {
-      const timeElapsed = time - startTime
-
-      if (timeElapsed >= interval) {
-        indexRef.current = (indexRef.current + 1) % sequence.length
-        setCurrentFrame(sequence[indexRef.current] || [])
-        startTime = time
-      }
-
-      animationFrameId.current = requestAnimationFrame(animate)
-    }
-
-    animationFrameId.current = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current)
-      }
-    }
-  }, [interval, sequence])
-
-  return currentFrame
-}
-
-// Memoized Bar component to prevent unnecessary re-renders.
-const VisualizerBar = React.memo<{
-  heightPct: number
-  isHighlighted: boolean
-  state?: AgentState
-}>(({ heightPct, isHighlighted, state }) => (
-  <div
-    data-highlighted={isHighlighted}
-    className={cn(
-      "max-w-[12px] min-w-[8px] flex-1 transition-all duration-150",
-      "rounded-full",
-      "bg-border data-[highlighted=true]:bg-chart-3",
-      state === "speaking" && "bg-chart-3",
-      state === "thinking" && isHighlighted && "animate-pulse"
-    )}
-    style={{
-      height: `${heightPct}%`,
-      animationDuration: state === "thinking" ? "300ms" : undefined,
-    }}
-  />
-))
-
-VisualizerBar.displayName = "VisualizerBar"
-
-const BarVisualizerComponent = React.forwardRef<
-  HTMLDivElement,
-  {
-    state?: AgentState
-    barCount?: number
-    mediaStream?: MediaStream | null
-    minHeight?: number
-    maxHeight?: number
-    demo?: boolean
-    centerAlign?: boolean
-  } & React.HTMLAttributes<HTMLDivElement>
->(
-  (
-    {
-      state,
-      barCount = 15,
-      mediaStream,
-      minHeight = 20,
-      maxHeight = 100,
-      demo = false,
-      centerAlign = false,
-      className,
-      style,
-      ...props
-    },
-    ref
-  ) => {
-    const realVolumeBands = useMultibandVolume(mediaStream, {
-      bands: barCount,
-      loPass: 100,
-      hiPass: 200,
-    })
-
-    const fakeVolumeBandsRef = React.useRef<number[]>(
-      new Array(barCount).fill(0.2)
-    )
-    const [fakeVolumeBands, setFakeVolumeBands] = React.useState<number[]>(() =>
-      new Array(barCount).fill(0.2)
-    )
-    const fakeAnimationRef = React.useRef<number | undefined>(undefined)
-
-    React.useEffect(() => {
-      if (!demo) {
-        return
-      }
-
-      if (state !== "speaking" && state !== "listening") {
-        const bands = new Array(barCount).fill(0.2)
-        fakeVolumeBandsRef.current = bands
-        setFakeVolumeBands(bands)
-        return
-      }
-
-      let lastUpdate = 0
-      const updateInterval = 50
-      const startTime = Date.now() / 1000
-
-      const updateFakeVolume = (timestamp: number) => {
-        if (timestamp - lastUpdate >= updateInterval) {
-          const time = Date.now() / 1000 - startTime
-          const newBands = new Array(barCount)
-
-          for (let i = 0; i < barCount; i++) {
-            const waveOffset = i * 0.5
-            const baseVolume = Math.sin(time * 2 + waveOffset) * 0.3 + 0.5
-            const randomNoise = Math.random() * 0.2
-            newBands[i] = Math.max(0.1, Math.min(1, baseVolume + randomNoise))
-          }
-
-          let hasChanged = false
-          for (let i = 0; i < barCount; i++) {
-            if (Math.abs(newBands[i] - fakeVolumeBandsRef.current[i]) > 0.05) {
-              hasChanged = true
-              break
-            }
-          }
-
-          if (hasChanged) {
-            fakeVolumeBandsRef.current = newBands
-            setFakeVolumeBands(newBands)
-          }
-
-          lastUpdate = timestamp
-        }
-
-        fakeAnimationRef.current = requestAnimationFrame(updateFakeVolume)
-      }
-
-      fakeAnimationRef.current = requestAnimationFrame(updateFakeVolume)
-
-      return () => {
-        if (fakeAnimationRef.current) {
-          cancelAnimationFrame(fakeAnimationRef.current)
-        }
-      }
-    }, [demo, state, barCount])
-
-    const volumeBands = React.useMemo(
-      () => (demo ? fakeVolumeBands : realVolumeBands),
-      [demo, fakeVolumeBands, realVolumeBands]
-    )
-
-    const highlightedIndices = useBarAnimator(
-      state,
-      barCount,
-      state === "connecting"
-        ? 2000 / barCount
-        : state === "thinking"
-          ? 150
-          : state === "listening"
-            ? 500
-            : 1000
-    )
-
-    return (
-      <div
-        ref={ref}
-        data-state={state}
-        className={cn(
-          "relative flex justify-center gap-1.5",
-          centerAlign ? "items-center" : "items-end",
-          "h-32 w-full overflow-hidden rounded-lg bg-muted p-4",
-          className
-        )}
-        style={{
-          ...style,
-        }}
-        {...props}
-      >
-        {volumeBands.map((volume, index) => {
-          const heightPct = Math.min(
-            maxHeight,
-            Math.max(minHeight, volume * 100 + 5)
-          )
-          const isHighlighted = highlightedIndices?.includes(index) ?? false
-
-          return (
-            <VisualizerBar
-              key={index}
-              heightPct={heightPct}
-              isHighlighted={isHighlighted}
-              state={state}
-            />
-          )
-        })}
-      </div>
-    )
-  }
-)
-
-BarVisualizerComponent.displayName = "BarVisualizerComponent"
-
-const BarVisualizer = React.memo(
-  BarVisualizerComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.state === nextProps.state &&
-      prevProps.barCount === nextProps.barCount &&
-      prevProps.mediaStream === nextProps.mediaStream &&
-      prevProps.minHeight === nextProps.minHeight &&
-      prevProps.maxHeight === nextProps.maxHeight &&
-      prevProps.demo === nextProps.demo &&
-      prevProps.centerAlign === nextProps.centerAlign &&
-      prevProps.className === nextProps.className &&
-      JSON.stringify(prevProps.style) === JSON.stringify(nextProps.style)
-    )
-  }
-)
-
-BarVisualizer.displayName = "BarVisualizer"
-
-export function BarVisualizerCard() {
-  const [state, setState] = React.useState<AgentState>("speaking")
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Audio Frequency Visualizer</CardTitle>
-        <CardDescription>
-          Real-time frequency band visualization with animated state transitions
-        </CardDescription>
+        <CardTitle>{t('cards.barVisualizer.title')}</CardTitle>
+        <CardDescription>{t('cards.barVisualizer.description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <BarVisualizer
-          state={state}
-          demo={true}
-          barCount={20}
-          minHeight={15}
-          maxHeight={90}
-          className="h-40 max-w-full"
-        />
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {(data ?? []).map((ch) => (
+              <div key={ch.channel} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">
+                    {CHANNEL_LABELS[ch.channel] ?? ch.channel}
+                  </span>
+                  <span className="tabular-nums text-muted-foreground">
+                    {ch.event_count.toLocaleString()} ({ch.pct}%)
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${ch.pct}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="gap-2">
-        <Button
-          size="sm"
-          variant={state === "connecting" ? "default" : "outline"}
-          onClick={() => setState("connecting")}
-        >
-          Connecting
-        </Button>
-        <Button
-          size="sm"
-          variant={state === "listening" ? "default" : "outline"}
-          onClick={() => setState("listening")}
-        >
-          Listening
-        </Button>
-        <Button
-          size="sm"
-          variant={state === "speaking" ? "default" : "outline"}
-          onClick={() => setState("speaking")}
-        >
-          Speaking
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

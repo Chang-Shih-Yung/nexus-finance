@@ -1,6 +1,6 @@
 "use client"
 
-import { UploadCloudIcon } from "@/lib/icons"
+import { DownloadIcon } from "@/lib/icons"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,25 +18,27 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { useI18n } from "@/lib/i18n/context"
 
 export function FileUpload() {
+  const { t } = useI18n()
   return (
     <Card>
       <CardHeader>
-        <CardTitle>File Upload</CardTitle>
-        <CardDescription>Drag and drop or browse</CardDescription>
+        <CardTitle>{t('cards.fileUpload.title')}</CardTitle>
+        <CardDescription>{t('cards.fileUpload.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <UploadCloudIcon />
+              <DownloadIcon />
             </EmptyMedia>
-            <EmptyTitle>Upload files</EmptyTitle>
-            <EmptyDescription>PNG, JPG, PDF up to 10MB</EmptyDescription>
+            <EmptyTitle>{t('cards.fileUpload.selectFormat')}</EmptyTitle>
+            <EmptyDescription>{t('cards.fileUpload.supportedFormats')}</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button>Browse Files</Button>
+            <Button>{t('cards.fileUpload.exportReport')}</Button>
           </EmptyContent>
         </Empty>
       </CardContent>

@@ -1,0 +1,785 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "viewAll": "View All",
+    "viewDetails": "View details",
+    "details": "Details",
+    "export": "Export",
+    "exportCsv": "Export CSV",
+    "search": "Search",
+    "reset": "Reset",
+    "submit": "Submit",
+    "discard": "Discard",
+    "saveChanges": "Save Changes",
+    "back": "Back",
+    "next": "Next",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "noData": "No data available",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status",
+    "user": "User",
+    "error": "Error",
+    "success": "Success",
+    "failed": "Failed",
+    "ratio": "Ratio",
+    "total": "Total",
+    "count": "Count",
+    "score": "Score",
+    "points": "pts",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago"
+  },
+
+  "metadata": {
+    "title": "Nexus Finance",
+    "description": "Bank Data Monitoring + AI Query Platform"
+  },
+
+  "login": {
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "email": "Email",
+    "emailLabel": "Email",
+    "emailPlaceholder": "m@example.com",
+    "password": "Password",
+    "passwordLabel": "Password",
+    "invalidCredentials": "Incorrect email or password",
+    "loginFailed": "Login failed"
+  },
+
+  "dashboard": {
+    "title": "Nexus Finance",
+    "logout": "Log Out",
+    "loggingOut": "Logging out..."
+  },
+
+  "cards": {
+    "recentTransactions": {
+      "title": "Recent Transactions",
+      "description": "Your latest account activity.",
+      "viewAll": "View All",
+      "viewDetails": "View details",
+      "addNote": "Add note",
+      "categorize": "Categorize",
+      "dispute": "Dispute"
+    },
+
+    "stockPerformance": {
+      "title": "Metric Trend",
+      "description": "30-day daily trend.",
+      "metricLabel": "Metric",
+      "searchMetric": "Search metric...",
+      "noMetrics": "No metrics found.",
+      "txnAmount": "Transaction Amount",
+      "txnCount": "Transaction Count",
+      "loginCount": "Logins",
+      "activeUsers": "Active Users",
+      "avgBalance": "Avg Balance"
+    },
+
+    "cardOverview": {
+      "totalBalance": "Total Balance",
+      "avgBalance": "Avg Balance",
+      "accounts": "{count} Accounts",
+      "viewAll": "View All",
+      "yearlyActivity": "Yearly Activity",
+      "months": "{count} months"
+    },
+
+    "barChartCard": {
+      "title": "Transaction Volume",
+      "description": "Daily successful vs failed transactions for the last 30 days -- compare volume and error rates at a glance.",
+      "success": "Success",
+      "failed": "Failed",
+      "ratio": "Ratio",
+      "viewReport": "View report"
+    },
+
+    "transferFunds": {
+      "title": "Transfer Funds",
+      "description": "Move money between your connected accounts.",
+      "amountToTransfer": "Amount to Transfer",
+      "fromAccount": "From Account",
+      "toAccount": "To Account",
+      "mainChecking": "Main Checking",
+      "savings": "Savings",
+      "wealth": "Wealth",
+      "estimatedArrival": "Estimated arrival",
+      "transactionFee": "Transaction fee",
+      "totalAmount": "Total amount",
+      "confirmTransfer": "Confirm Transfer"
+    },
+
+    "upcomingPayments": {
+      "title": "Upcoming Payments",
+      "paymentsOnDate": "{count} payment(s) on {date}",
+      "pendingTransactions": "{count} pending transaction(s)",
+      "noPaymentsOnDate": "No payments on this date",
+      "noPendingPayments": "No pending payments",
+      "tryAnotherDate": "Try selecting another date.",
+      "allSettled": "All transactions are settled."
+    },
+
+    "claimableBalance": {
+      "todaySummary": "Today's Summary",
+      "healthy": "Healthy",
+      "moderate": "Moderate",
+      "degraded": "Degraded",
+      "loginsToday": "Logins Today",
+      "activeUsers": "Active Users",
+      "successRate": "Success Rate",
+      "footerDescription": "Live snapshot of today's platform activity -- refreshes automatically."
+    },
+
+    "weeklyFitnessSummary": {
+      "title": "7-Day Activity",
+      "description": "Daily transaction volume this week",
+      "viewDetails": "View details"
+    },
+
+    "invoice": {
+      "title": "Failed Transactions",
+      "description": "Last 30 days",
+      "failures": "{count} failures",
+      "lost": "{amount} lost",
+      "user": "User",
+      "error": "Error",
+      "amount": "Amount",
+      "date": "Date",
+      "exportCsv": "Export CSV",
+      "investigate": "Investigate"
+    },
+
+    "powerUsage": {
+      "title": "API Health",
+      "description": "Last 60 minutes",
+      "avgLatency": "Avg Latency (ms)",
+      "currentLatency": "Current Latency",
+      "requests1h": "Requests (1h)",
+      "healthScore": "Health Score"
+    },
+
+    "sleepReport": {
+      "title": "Conversion Funnel",
+      "description": "Last 30 days -- Login to Transfer",
+      "login": "Login",
+      "initiate": "Initiate",
+      "complete": "Complete",
+      "rate": "Rate",
+      "good": "Good",
+      "fair": "Fair",
+      "low": "Low",
+      "details": "Details"
+    },
+
+    "visitors": {
+      "title": "Transfer Success Rate",
+      "description": "Last 6 months",
+      "vsLastDay": "vs last day"
+    },
+
+    "bookAppointment": {
+      "title": "Dormant Users",
+      "description": "Inactive for 7+ days",
+      "users": "{count} users",
+      "lastSeen": "Last seen {days}d ago",
+      "highValueAtRisk": "High-value users at risk",
+      "vipPremiumWarning": "{count} VIP/Premium users haven't logged in recently.",
+      "sendCampaign": "Send Re-engagement Campaign"
+    },
+
+    "savingsProgress": {
+      "topBranch": "Top Branch",
+      "totalTransactions": "Total Transactions",
+      "branches": "Branches"
+    },
+
+    "releaseCatalog": {
+      "searchErrorCodes": "Search error codes...",
+      "critical": "Critical",
+      "warning": "Warning",
+      "info": "Info",
+      "byFrequency": "#{rank} by frequency",
+      "error": "Error",
+      "count": "Count"
+    },
+
+    "pieChartCard": {
+      "title": "Tier Distribution",
+      "description": "Transaction count by user tier",
+      "transactions": "Transactions"
+    },
+
+    "savingsTargets": {
+      "monthOverMonth": "Month-over-Month",
+      "currentVsPrevious": "Current vs previous month",
+      "transactionVolume": "Transaction Volume",
+      "loginActivity": "Login Activity",
+      "ofLastMonth": "{pct}% of last month",
+      "txnVolumeChange": "Txn volume {direction} {pct}% vs last month.",
+      "up": "up",
+      "down": "down",
+      "buyInvestment": "Buy Investment",
+      "amountToInvest": "Amount to Invest",
+      "orderType": "Order Type",
+      "marketOrder": "Market Order",
+      "limitOrder": "Limit Order",
+      "stopOrder": "Stop Order",
+      "marketOrderDescription": "Market orders execute at the current price.",
+      "estimatedShares": "Estimated Shares",
+      "buyingPower": "Buying Power",
+      "reviewOrder": "Review Order",
+      "tradeExecutionNote": "Trades are typically executed within minutes during market hours."
+    },
+
+    "contributionHistory": {
+      "title": "Contribution History",
+      "description": "Last 30 days of transaction activity",
+      "vsPriorPeriod": "vs prior period",
+      "total30d": "Total (30d)",
+      "transactions": "transactions",
+      "nextBatch": "Next Batch",
+      "scheduledDaily": "Scheduled daily",
+      "viewFullReport": "View Full Report"
+    },
+
+    "analyticsCard": {
+      "title": "Analytics",
+      "logins": "Logins",
+      "viewAnalytics": "View Analytics"
+    },
+
+    "usageCard": {
+      "anomaliesDetected": "{count} anomalies detected",
+      "errorBreakdown": "Error Breakdown",
+      "transactions": "Transactions",
+      "volumeTwd": "Volume (TWD)",
+      "successRate": "Success Rate",
+      "errors": "Errors",
+      "logins": "Logins",
+      "activeUsers": "Active Users",
+      "avgBalance": "Avg Balance",
+      "errorRate": "Error Rate"
+    },
+
+    "dividendIncome": {
+      "title": "Top Transfer Users",
+      "description": "Highest volume transfer users (30 days).",
+      "txns": "{count} txns",
+      "ofTotal": "{pct}% of total"
+    },
+
+    "environmentVariables": {
+      "title": "Foreign Exchange Rates",
+      "description": "Live Quotes",
+      "noData": "No exchange rate data available",
+      "buy": "Buy",
+      "sell": "Sell"
+    },
+
+    "feedbackForm": {
+      "title": "Customer Satisfaction (NPS)",
+      "totalResponses": "{count} responses total",
+      "npsScore": "NPS Score",
+      "promoters": "Promoters",
+      "passives": "Passives",
+      "detractors": "Detractors"
+    },
+
+    "liveWaveform": {
+      "title": "Revenue Trend",
+      "description": "Last 30 days",
+      "revenue": "Revenue",
+      "interestIncome": "Interest Income",
+      "feeIncome": "Fee Income"
+    },
+
+    "anomalyAlert": {
+      "title": "Active Anomalies",
+      "description": "Anomaly Metric Detection",
+      "noAnomalies": "All systems normal, no anomalies detected",
+      "critical": "Critical",
+      "warning": "Warning",
+      "today": "Today",
+      "avg7d": "7d avg",
+      "zScore": "z-score"
+    },
+
+    "shippingAddress": {
+      "title": "Branch Information",
+      "description": "Configure branch details",
+      "branchName": "Branch Name",
+      "branchNamePlaceholder": "Taipei Xinyi Branch",
+      "branchCode": "Branch Code",
+      "branchCodePlaceholder": "0154",
+      "region": "Region",
+      "regionNorth": "North",
+      "regionCentral": "Central",
+      "regionSouth": "South",
+      "branchManager": "Branch Manager",
+      "branchManagerPlaceholder": "John Smith",
+      "phone": "Phone",
+      "phonePlaceholder": "02-2345-6789",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+
+    "styleOverview": {
+      "title": "Branch Performance Ranking",
+      "description": "Revenue achievement ranking by branch",
+      "noData": "No branch data available",
+      "actual": "Actual",
+      "target": "Target"
+    },
+
+    "iconPreviewGrid": {
+      "title": "KPI Achievement",
+      "description": "Key metrics achievement for this period",
+      "revenue": "Revenue",
+      "newAccounts": "New Accounts",
+      "loanVolume": "Loan Volume",
+      "depositGrowth": "Deposit Growth",
+      "nps": "NPS",
+      "digitalAdoption": "Digital Adoption Rate"
+    },
+
+    "contributors": {
+      "title": "Relationship Manager Performance",
+      "noData": "No advisor data available",
+      "clients": "{count} clients",
+      "txn": "Txn",
+      "avgBal": "Avg bal"
+    },
+
+    "typographySpecimen": {
+      "title": "Loan Portfolio Overview",
+      "description": "Loan asset quality and distribution",
+      "loans": "{count} loans",
+      "avgRate": "Avg rate {rate}%",
+      "npl": "NPL",
+      "overdue": "Overdue",
+      "overdueCount": "{count} overdue",
+      "default": "Default",
+      "defaultCount": "Default {count}",
+      "mortgage": "Mortgage",
+      "personal": "Personal Loan",
+      "business": "Business Loan",
+      "auto": "Auto Loan",
+      "creditLine": "Revolving Credit"
+    },
+
+    "indexInvesting": {
+      "title": "Wealth Management Products",
+      "description": "Investment Product Overview",
+      "products": "{count} products",
+      "avgReturn": "Avg return {rate}%",
+      "highRisk": "High Risk",
+      "mediumRisk": "Medium Risk",
+      "lowRisk": "Low Risk"
+    },
+
+    "codespacesCard": {
+      "title": "System Health Status",
+      "description": "Real-time monitoring of system components",
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "outage": "Outage",
+      "maintenance": "Maintenance",
+      "avgUptime": "Avg uptime {pct}%",
+      "operationalCount": "{count}/{total} Operational"
+    },
+
+    "inviteTeam": {
+      "title": "Compliance Overview",
+      "description": "Compliance status by category",
+      "aml": "Anti-Money Laundering",
+      "kyc": "Customer Verification (KYC)",
+      "capitalAdequacy": "Capital Adequacy",
+      "dataPrivacy": "Data Privacy",
+      "liquidity": "Liquidity",
+      "reporting": "Regulatory Reporting",
+      "compliant": "compliant",
+      "compliantCount": "{count}/{total} compliant",
+      "warnings": "{count} warning(s)",
+      "violations": "{count} violation(s)",
+      "score": "Score"
+    },
+
+    "barVisualizer": {
+      "title": "Channel Activity Distribution",
+      "description": "Channel usage breakdown over the last 7 days",
+      "web": "Online Banking",
+      "mobile": "Mobile Banking",
+      "atm": "ATM",
+      "desktop": "Desktop",
+      "branch": "In-Branch"
+    },
+
+    "assignIssue": {
+      "title": "Customer Feedback Feed",
+      "description": "Latest customer reviews",
+      "app": "App",
+      "branch": "In-Branch",
+      "callCenter": "Call Center",
+      "web": "Online Banking"
+    },
+
+    "reportBug": {
+      "title": "Incident Report",
+      "description": "Report system anomalies or security incidents",
+      "incidentTitle": "Incident Title",
+      "incidentTitlePlaceholder": "Brief description of the incident",
+      "severity": "Severity",
+      "p1Critical": "P1 Critical",
+      "p2High": "P2 High",
+      "p3Medium": "P3 Medium",
+      "p4Low": "P4 Low",
+      "impactScope": "Impact Scope",
+      "coreSystem": "Core System",
+      "paymentGateway": "Payment Gateway",
+      "onlineBanking": "Online Banking",
+      "mobileBanking": "Mobile Banking",
+      "atm": "ATM",
+      "incidentDescription": "Incident Description",
+      "incidentDescriptionPlaceholder": "1. Time of occurrence\n2. Number of affected users\n3. Current resolution status...",
+      "attachFile": "Attach File",
+      "submitReport": "Submit Report"
+    },
+
+    "githubProfile": {
+      "title": "Personal Information",
+      "description": "Manage your account details",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "nameDescription": "This name will appear in system audit logs and notifications.",
+      "jobTitle": "Job Title",
+      "evp": "Executive Vice President",
+      "svp": "Senior Vice President",
+      "manager": "Manager",
+      "officer": "Officer",
+      "jobTitleDescription": "Your job title determines your system access level.",
+      "department": "Department",
+      "departmentPlaceholder": "e.g., Digital Finance Division / Risk Management Dept.",
+      "departmentDescription": "Department info is used for report permissions and data filtering.",
+      "updateProfile": "Update Profile"
+    },
+
+    "payoutThreshold": {
+      "title": "Alert Threshold Settings",
+      "description": "Automatically send alerts when metrics exceed thresholds.",
+      "monitorMetric": "Monitor Metric",
+      "transactionAmountNtd": "Transaction Amount (NT$)",
+      "errorRatePct": "Error Rate (%)",
+      "latencyMs": "Latency (ms)",
+      "loginCount": "Login Count",
+      "thresholdAmount": "Threshold Amount",
+      "minimum": "NT$10,000 (minimum)",
+      "maximum": "NT$5,000,000 (maximum)",
+      "notificationNotes": "Notification Notes",
+      "notificationNotesPlaceholder": "Notes to include when the alert is triggered...",
+      "saveSettings": "Save Settings"
+    },
+
+    "preferences": {
+      "title": "Dashboard Preferences",
+      "description": "Manage display settings and notification preferences.",
+      "defaultCurrency": "Default Currency",
+      "twd": "TWD -- New Taiwan Dollar",
+      "usd": "USD -- US Dollar",
+      "eur": "EUR -- Euro",
+      "jpy": "JPY -- Japanese Yen",
+      "liveDataUpdates": "Live Data Updates",
+      "liveDataUpdatesDescription": "Dashboard data refreshes automatically every 30 seconds when enabled",
+      "anomalyAlertNotifications": "Anomaly Alert Notifications",
+      "anomalyAlertNotificationsDescription": "Receive real-time notifications when anomalous metrics are detected",
+      "reset": "Reset",
+      "savePreferences": "Save Preferences"
+    },
+
+    "accountAccess": {
+      "title": "Security Settings",
+      "description": "Update login credentials and security settings.",
+      "loginEmail": "Login Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "updateSecuritySettings": "Update Security Settings",
+      "dangerZone": "Danger Zone",
+      "dangerZoneDescription": "Deactivate account and remove all access permissions"
+    },
+
+    "receivingMethod": {
+      "paymentPreferences": "Payment Preferences",
+      "title": "Channel Settings",
+      "accountHolder": "Account Holder",
+      "accountHolderDefault": "Nexus Finance Digital Banking Division",
+      "channelSelection": "Channel Selection",
+      "bankTransfer": "Bank Transfer",
+      "bankTransferDescription": "SWIFT / Domestic Transfer",
+      "mobilePayment": "Mobile Payment",
+      "mobilePaymentDescription": "Instant arrival",
+      "accountId": "Account / ID Code",
+      "accountIdPlaceholder": "Enter bank account or payment identifier",
+      "saveChannelSettings": "Save Channel Settings"
+    },
+
+    "newMilestone": {
+      "title": "Financial Goal Setting",
+      "description": "Set KPI targets for branches or departments.",
+      "goalName": "Goal Name",
+      "goalNamePlaceholder": "e.g., Q2 Revenue Target, New Account Openings",
+      "targetAmount": "Target Amount",
+      "targetDate": "Due Date",
+      "createGoal": "Create Goal",
+      "cancel": "Cancel"
+    },
+
+    "socialLinks": {
+      "title": "System Integration Links",
+      "coreBankingApi": "Core Banking API",
+      "paymentGateway": "Payment Gateway",
+      "riskControlSystem": "Risk Control System",
+      "externalDataSource": "External Data Source",
+      "discard": "Discard",
+      "saveChanges": "Save Changes"
+    },
+
+    "notificationSettings": {
+      "title": "Notification Preferences",
+      "description": "Choose the types of notifications you want to receive.",
+      "selectAll": "Select All",
+      "largeTransactionAlert": "Large Transaction Alert",
+      "largeTransactionAlertDescription": "Instant notification when a single transaction exceeds the threshold.",
+      "securityEventNotification": "Security Event Notification",
+      "securityEventNotificationDescription": "Unusual login, password changes, and other security events.",
+      "goalAchievementReminder": "Goal Achievement Reminder",
+      "goalAchievementReminderDescription": "Notifications at 25%, 50%, 75%, and 100% KPI achievement.",
+      "marketMovementNotification": "Market Movement Notification",
+      "marketMovementNotificationDescription": "Significant exchange rate fluctuations and major market events.",
+      "savePreferences": "Save Preferences"
+    },
+
+    "contributionsActivity": {
+      "title": "Audit Log Settings",
+      "description": "Manage the visibility of activity logs.",
+      "hideActivityLog": "Hide Activity Log",
+      "hideActivityLogDescription": "When enabled, other administrators will not be able to view your activity history, including login times, report access, and system configuration changes.",
+      "saveSettings": "Save Settings"
+    },
+
+    "uiElements": {
+      "title": "Deposit Overview",
+      "description": "Balances by deposit product type",
+      "accounts": "{count} accounts",
+      "avgBalance": "Avg balance",
+      "weightedRate": "Weighted rate",
+      "savings": "Savings Deposits",
+      "checking": "Checking Deposits",
+      "timeDeposit": "Time Deposits",
+      "moneyMarket": "Money Market"
+    },
+
+    "kitchenIsland": {
+      "title": "Branch Operations Control",
+      "description": "Operations mode settings",
+      "normalBusiness": "Normal Business",
+      "lunchMode": "Lunch Mode",
+      "nightMode": "Night Mode",
+      "emergencyMode": "Emergency Mode",
+      "counterServiceVolume": "Counter Service Volume",
+      "automationLevel": "Automation Level",
+      "notificationFrequency": "Notification Frequency",
+      "responseTimeTarget": "Response Time Target"
+    },
+
+    "rollerShades": {
+      "title": "Risk Tolerance Settings",
+      "description": "Adjust the system risk alert level",
+      "conservative": "Conservative",
+      "balanced": "Balanced",
+      "aggressive": "Aggressive"
+    },
+
+    "coverArt": {
+      "reportTemplate": "Report Template",
+      "uploadTemplate": "Upload Template",
+      "recommendedSize": "Recommended size 1200 x 800 pixels",
+      "supportedFormats": "JPEG or PNG format only"
+    },
+
+    "observabilityCard": {
+      "title": "Fraud Risk Alerts",
+      "description": "Suspicious transaction monitoring over the last 7 days",
+      "pending": "pending",
+      "pendingCases": "{count} pending",
+      "critical": "Critical",
+      "highRisk": "High Risk",
+      "investigating": "Investigating",
+      "involvedAmount": "Amount involved",
+      "amountInvolved": "Amount involved",
+      "resolved": "Resolved",
+      "falsePositive": "False positive",
+      "total": "Total",
+      "totalAlerts": "Total {count}"
+    },
+
+    "noTeamMembers": {
+      "title": "All Systems Normal",
+      "description": "No active alerts at this time. All metrics are within normal range.",
+      "viewAlertHistory": "View Alert History"
+    },
+
+    "fileUpload": {
+      "title": "Export Report",
+      "description": "Generate and download analytics reports",
+      "selectFormat": "Select Export Format",
+      "supportedFormats": "Supports PDF, Excel, CSV formats",
+      "exportReport": "Export Report"
+    },
+
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "quickSearch": "Quick Search",
+      "switchBranch": "Switch Branch",
+      "newReport": "New Report",
+      "exportReport": "Export Report",
+      "toggleSidebar": "Toggle Sidebar"
+    },
+
+    "notFound": {
+      "title": "No Results Found",
+      "description": "No data matches your criteria. Please adjust your search.",
+      "searchPlaceholder": "Search transactions, customers, reports...",
+      "backToDashboard": "Back to Dashboard"
+    },
+
+    "frontDoor": {
+      "title": "Fraud Alert Feed",
+      "description": "Suspicious transactions in the last 7 days",
+      "noSuspiciousTransactions": "No suspicious transactions at this time",
+      "severityCritical": "Critical",
+      "severityHigh": "High",
+      "severityMedium": "Medium",
+      "severityLow": "Low"
+    },
+
+    "emptyDistributeTrack": {
+      "title": "Create New Report",
+      "description": "Upload or create your first analytics report to start tracking branch performance and revenue trends.",
+      "createReport": "Create Report"
+    },
+
+    "qrConnect": {
+      "title": "Scan to Connect Mobile Device",
+      "description": "Open the Mobile Banking App and scan this QR Code to quickly log into the dashboard.",
+      "dismiss": "Got it"
+    },
+
+    "syncingState": {
+      "title": "Syncing Data",
+      "description": "Fetching the latest transaction and account data. This usually takes a few seconds.",
+      "cancel": "Cancel"
+    },
+
+    "sidebarNav": {
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "transactionDetails": "Transaction Details",
+      "investmentManagement": "Investment Management",
+      "operationsPlanning": "Operations Planning",
+      "performanceTargets": "Performance Targets",
+      "budgetManagement": "Budget Management",
+      "analyticsReports": "Analytics Reports",
+      "regulatoryDocuments": "Regulatory Documents",
+      "accountManagement": "Account Management",
+      "personalInfo": "Personal Information",
+      "authorizationManagement": "Authorization Management",
+      "notificationSettings": "Notification Settings",
+      "securitySettings": "Security Settings",
+      "support": "Support",
+      "userGuide": "User Guide",
+      "contactUs": "Contact Us",
+      "systemStatus": "System Status"
+    },
+
+    "faq": {
+      "general": "General",
+      "transactions": "Transactions",
+      "riskControl": "Risk Control",
+      "contactSupport": "Contact Support",
+      "viewFullDocs": "View Full Documentation",
+      "generalQ1": "How often is the dashboard data updated?",
+      "generalA1": "Core revenue, loan, and deposit data is batch-updated daily at 04:00. FX rates and system health are monitored in real time and refresh every 5 minutes.",
+      "generalQ2": "How do I add or remove branches from monitoring?",
+      "generalA2": "Go to Settings > Branch Management and check the branches you want to monitor. Changes take effect on your next login.",
+      "generalQ3": "Can I export reports for presentations?",
+      "generalA3": "Yes. Click 'Export Report' in the top right corner. PDF, Excel, and CSV formats are supported, with customizable date ranges and metrics.",
+      "transactionQ1": "How do I look up specific transaction details?",
+      "transactionA1": "Use Quick Search (Cmd+K) and enter the transaction ID, customer name, or amount range. The system will filter relevant records in real time.",
+      "transactionQ2": "What criteria are used for suspicious transaction alerts?",
+      "transactionA2": "The system uses a combination of transaction amount deviation (Z-score > 2.5), transaction frequency, cross-border characteristics, and blacklist matching.",
+      "transactionQ3": "How do I handle false positive alerts?",
+      "transactionA3": "Click the alert in the Fraud Alert Feed, select 'Mark as False Positive,' and provide a reason. The system will learn from this pattern to reduce future false positives.",
+      "riskQ1": "What metrics does the risk tolerance setting affect?",
+      "riskA1": "Risk tolerance affects alert thresholds, NPL ratio warning levels, and the risk level filtering for investment product recommendations.",
+      "riskQ2": "How often are compliance checks performed?",
+      "riskA2": "KYC and AML checks are continuously monitored. Periodic audits are conducted quarterly, with results displayed in the Compliance Overview card.",
+      "riskQ3": "How do I set up custom alert rules?",
+      "riskA3": "Go to Alert Threshold Settings, select the metric to monitor and adjust the threshold. Supported metrics include transaction amount, NPL ratio, NPS, and more."
+    },
+
+    "emptyConnectBank": {
+      "title": "Connect Data Source",
+      "description": "Connect to the core banking system to automatically import transaction and account data to the dashboard.",
+      "setupConnection": "Set Up Connection"
+    },
+
+    "emptyExploreCatalog": {
+      "title": "Explore Financial Products",
+      "description": "Browse the full catalog of funds, bonds, structured products, and more. Compare performance and risk levels.",
+      "browseProducts": "Browse Products"
+    },
+
+    "activateAgentDialog": {
+      "title": "Activate AI Analytics",
+      "description": "Once activated, real-time insights and recommendations will be provided based on your dashboard data.",
+      "anomalyDetection": "Anomaly Detection",
+      "anomalyDetectionDescription": "Real-time analysis of transaction patterns, automatically flagging suspicious activity.",
+      "trendAnalysis": "Trend Analysis",
+      "trendAnalysisDescription": "Predict revenue trends and changes in customer behavior.",
+      "riskAssessment": "Risk Assessment",
+      "riskAssessmentDescription": "Comprehensive assessment of loan portfolios and market risk.",
+      "requiresAdvancedModule": "Requires Advanced Module",
+      "trialNote": "The trial period provides 14 days of full feature access at no additional cost.",
+      "maybeLater": "Maybe Later",
+      "activateNow": "Activate Now"
+    },
+
+    "payments": {
+      "home": "Home",
+      "accountOptions": "Account Options",
+      "personalInfo": "Personal Information",
+      "statements": "Statements",
+      "documentManagement": "Document Management",
+      "paymentOperations": "Payment Operations",
+      "adjustTransferLimits": "Adjust Transfer Limits",
+      "adjustTransferLimitsDescription": "Set per-transaction and daily transfer limits.",
+      "scheduledTransfer": "Scheduled Transfer",
+      "scheduledTransferDescription": "Schedule one-time or recurring transfers on specified dates.",
+      "autoDebitManagement": "Auto-Debit Management",
+      "autoDebitManagementDescription": "Set up and manage recurring automatic deductions.",
+      "recurringPayments": "Recurring Payments",
+      "recurringPaymentsDescription": "Manage recurring card and account payments."
+    }
+  }
+}

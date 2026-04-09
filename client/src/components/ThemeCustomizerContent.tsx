@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, LockKeyhole, Moon, Sun, UnlockKeyhole } from '@/lib/icons'
+import { Check, Globe, LockKeyhole, Moon, Sun, UnlockKeyhole } from '@/lib/icons'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   useThemeCustomizer,
@@ -14,6 +14,12 @@ import {
   iconLibraries,
   type ThemeConfigKey,
 } from '@/components/ThemeCustomizerProvider'
+import { useI18n, type Locale } from '@/lib/i18n/context'
+
+const localeOptions: { value: Locale; label: string }[] = [
+  { value: 'zh-TW', label: '繁體中文' },
+  { value: 'en', label: 'English' },
+]
 
 // ── Icon library brand logos (from official shadcn source) ───────────────────
 
@@ -148,6 +154,7 @@ export default function ThemeCustomizerContent() {
     locks,
     toggleLock,
   } = useThemeCustomizer()
+  const { locale, setLocale } = useI18n()
 
   if (!mounted) return <div className="h-8" />
 
@@ -302,6 +309,25 @@ export default function ThemeCustomizerContent() {
       >
         <OptionItem label="Light" active={!isDark} onClick={() => setTheme('light')} />
         <OptionItem label="Dark" active={isDark} onClick={() => setTheme('dark')} />
+      </OptionRow>
+
+      {/* Separator */}
+      <div className="h-px bg-white/5 -mx-2" />
+
+      {/* Language — not part of ThemeConfig, unaffected by Shuffle */}
+      <OptionRow
+        label="Language"
+        displayValue={localeOptions.find(o => o.value === locale)?.label ?? locale}
+        preview={<Globe className="h-4 w-4 text-white" />}
+      >
+        {localeOptions.map(opt => (
+          <OptionItem
+            key={opt.value}
+            label={opt.label}
+            active={locale === opt.value}
+            onClick={() => setLocale(opt.value)}
+          />
+        ))}
       </OptionRow>
 
     </div>

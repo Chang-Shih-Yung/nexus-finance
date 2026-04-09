@@ -1,186 +1,127 @@
 "use client"
 
-import * as React from "react"
-import { ChevronUpIcon, SearchIcon } from "@/lib/icons"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ButtonGroup } from "@/components/ui/button-group"
-import { Card, CardContent } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Field, FieldGroup } from "@/components/ui/field"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group"
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@/components/ui/item"
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
+type DepositSummary = {
+  total_deposits: number
+  account_count: number
+  avg_balance: number
+  weighted_rate: number
+}
+
+type DepositByProduct = {
+  product_type: string
+  account_count: number
+  total_balance: number
+  avg_rate: number
+}
+
+const PRODUCT_LABEL_KEYS: Record<string, string> = {
+  savings: "cards.uiElements.savings",
+  checking: "cards.uiElements.checking",
+  time_deposit: "cards.uiElements.timeDeposit",
+  money_market: "cards.uiElements.moneyMarket",
+}
+
+function fmt(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(1)}B`
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`
+  if (v >= 1e3) return `${(v / 1e3).toFixed(0)}K`
+  return v.toLocaleString()
+}
 
 export function UIElements() {
-  const [sliderValue, setSliderValue] = React.useState<number[]>([500])
-  const handleSliderValueChange = React.useCallback(
-    (value: number | readonly number[]) => {
-      if (typeof value === "number") {
-        setSliderValue([value])
-      } else {
-        setSliderValue([...value])
-      }
-    },
-    []
+  const { t } = useI18n()
+  const { data: summary, isLoading: l1 } = useRpc<DepositSummary[]>(
+    ["deposit-summary"],
+    "nf_deposit_summary"
   )
+  const { data: byProduct, isLoading: l2 } = useRpc<DepositByProduct[]>(
+    ["deposit-by-product"],
+    "nf_deposit_by_product"
+  )
+
+  const s = summary?.[0]
+  const total = (byProduct ?? []).reduce((sum, p) => sum + p.total_balance, 0) || 1
 
   return (
     <Card className="w-full">
-      <CardContent className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-2">
-            <Button>Button</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="ghost">Ghost</Button>
+      <CardHeader>
+        <CardTitle>{t('cards.uiElements.title')}</CardTitle>
+        <CardDescription>{t('cards.uiElements.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {l1 || !s ? (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-4 w-56" />
           </div>
-          <Item variant="outline">
-            <ItemContent>
-              <ItemTitle>Two-factor authentication</ItemTitle>
-              <ItemDescription className="text-pretty xl:hidden 2xl:block">
-                Verify via email or phone number.
-              </ItemDescription>
-            </ItemContent>
-            <ItemActions className="hidden md:flex">
-              <Button size="sm" variant="secondary">
-                Enable
-              </Button>
-            </ItemActions>
-          </Item>
-        </div>
-        <Slider
-          value={sliderValue}
-          onValueChange={handleSliderValueChange}
-          max={1000}
-          min={0}
-          step={10}
-          className="flex-1"
-          aria-label="Slider"
-        />
-        <FieldGroup>
-          <Field>
-            <InputGroup>
-              <InputGroupInput placeholder="Name" />
-              <InputGroupAddon align="inline-end">
-                <InputGroupText>
-                  <SearchIcon />
-                </InputGroupText>
-              </InputGroupAddon>
-            </InputGroup>
-          </Field>
-          <Field className="flex-1">
-            <Textarea placeholder="Message" className="resize-none" />
-          </Field>
-        </FieldGroup>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-2">
-            <Badge>Badge</Badge>
-            <Badge variant="secondary">Secondary</Badge>
-            <Badge variant="outline">Outline</Badge>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <span className="text-2xl font-bold tabular-nums">
+              NT${fmt(s.total_deposits)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {s.account_count} {t('cards.uiElements.accounts').replace('{count} ', '')} · {t('cards.uiElements.avgBalance')} {fmt(s.avg_balance)} · {t('cards.uiElements.weightedRate')}{" "}
+              {s.weighted_rate}%
+            </span>
           </div>
-          <RadioGroup defaultValue="apple" className="ml-auto flex w-fit gap-3">
-            <RadioGroupItem value="apple" />
-            <RadioGroupItem value="banana" />
-          </RadioGroup>
-          <div className="flex gap-3">
-            <Checkbox defaultChecked />
-            <Checkbox />
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">
-                <span className="hidden md:block">Alert Dialog</span>
-                <span className="block md:hidden">Dialog</span>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent size="sm">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Do you want to allow the USB accessory to connect to this
-                  device and your data?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Don&apos;t allow</AlertDialogCancel>
-                <AlertDialogAction>Allow</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <ButtonGroup>
-            <Button variant="outline">Button Group</Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <ChevronUpIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" side="top" className="w-40">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>Mute Conversation</DropdownMenuItem>
-                  <DropdownMenuItem>Mark as Read</DropdownMenuItem>
-                  <DropdownMenuItem>Block User</DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Conversation</DropdownMenuLabel>
-                  <DropdownMenuItem>Share Conversation</DropdownMenuItem>
-                  <DropdownMenuItem>Copy Conversation</DropdownMenuItem>
-                  <DropdownMenuItem>Report Conversation</DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    Delete Conversation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </ButtonGroup>
-          <Switch defaultChecked className="ml-auto" />
-        </div>
+        )}
+        {l2 ? (
+          <Skeleton className="h-32 w-full" />
+        ) : (
+          <>
+            {/* Stacked bar */}
+            <div className="flex h-3 w-full overflow-hidden rounded-full">
+              {(byProduct ?? []).map((p, i) => (
+                <div
+                  key={p.product_type}
+                  className="h-full bg-primary transition-all"
+                  style={{
+                    width: `${(p.total_balance / total) * 100}%`,
+                    opacity: 1 - i * 0.2,
+                  }}
+                />
+              ))}
+            </div>
+            {/* Legend list */}
+            <div className="flex flex-col gap-2">
+              {(byProduct ?? []).map((p, i) => (
+                <div
+                  key={p.product_type}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="size-2.5 rounded-full bg-primary"
+                      style={{ opacity: 1 - i * 0.2 }}
+                    />
+                    <span>
+                      {PRODUCT_LABEL_KEYS[p.product_type] ? t(PRODUCT_LABEL_KEYS[p.product_type]) : p.product_type}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 tabular-nums text-muted-foreground">
+                    <span className="text-xs">
+                      {p.account_count} {t('cards.uiElements.accounts').replace('{count} ', '')} · {p.avg_rate}%
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {fmt(p.total_balance)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   )

@@ -1,54 +1,85 @@
 "use client"
 
-import * as React from "react"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
-import { Card, CardContent } from "@/components/ui/card"
+type BranchRanking = {
+  branch_name: string
+  target_value: number
+  actual_value: number
+  achievement_pct: number
+  rank: number
+}
 
 export function StyleOverview() {
+  const { t } = useI18n()
+  const { data, isLoading } = useRpc<BranchRanking[]>(
+    ["branch-ranking"],
+    "nf_branch_ranking",
+    { p_metric: "revenue", p_period: "2026-Q2" }
+  )
+
   return (
     <Card>
-      <CardContent className="flex flex-col gap-6">
-        <div className="flex flex-col gap-1">
-          <div className="text-2xl font-medium">
-            Style Overview
-          </div>
-          <div className="line-clamp-2 text-base text-muted-foreground">
-            Designers love packing quirky glyphs into test phrases. This is a
-            preview of the typography styles.
-          </div>
-        </div>
-        <div className="grid grid-cols-6 gap-3">
-          {[
-            "--background",
-            "--foreground",
-            "--primary",
-            "--secondary",
-            "--muted",
-            "--accent",
-            "--border",
-            "--chart-1",
-            "--chart-2",
-            "--chart-3",
-            "--chart-4",
-            "--chart-5",
-          ].map((variant) => (
-            <div
-              key={variant}
-              className="flex flex-col flex-wrap items-center gap-2"
-            >
-              <div
-                className="relative aspect-square w-full rounded-lg bg-(--color) after:absolute after:inset-0 after:rounded-lg after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten"
-                style={
-                  {
-                    "--color": `var(${variant})`,
-                  } as React.CSSProperties
-                }
-              />
-              <div className="hidden max-w-14 truncate font-mono text-[0.60rem] md:block">
-                {variant}
+      <CardHeader>
+        <CardTitle>{t('cards.styleOverview.title')}</CardTitle>
+        <CardDescription>{t('cards.styleOverview.description')}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex max-h-[360px] flex-col gap-2 overflow-y-auto scrollbar-thin">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-md border p-2.5">
+                <Skeleton className="size-8 rounded-full" />
+                <div className="flex flex-1 flex-col gap-1">
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : !data?.length ? (
+            <p className="text-sm text-muted-foreground">{t('cards.styleOverview.noData')}</p>
+          ) : (
+            data.map((branch) => {
+              const pct = branch.achievement_pct
+              return (
+                <div
+                  key={branch.branch_name}
+                  className="flex items-center gap-3 rounded-md border p-2.5"
+                >
+                  <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {branch.rank}
+                  </div>
+                  <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <span className="truncate text-sm font-medium">
+                        {branch.branch_name}
+                      </span>
+                      <Badge
+                        variant={pct >= 90 ? "default" : pct >= 70 ? "secondary" : "destructive"}
+                        className="ml-2 flex-shrink-0 tabular-nums"
+                      >
+                        {pct.toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <div className="flex gap-3 text-xs text-muted-foreground tabular-nums">
+                      <span>{t('cards.styleOverview.actual')} {(branch.actual_value / 1e6).toFixed(1)}M</span>
+                      <span>{t('cards.styleOverview.target')} {(branch.target_value / 1e6).toFixed(1)}M</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </CardContent>
     </Card>

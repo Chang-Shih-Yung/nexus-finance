@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
 const barChartConfig = {
   success: { label: "Success", color: "var(--chart-1)" },
@@ -18,6 +19,7 @@ const barChartConfig = {
 } satisfies ChartConfig
 
 export function BarChartCard() {
+  const { t } = useI18n()
   const { data: successData, isLoading: l1 } = useRpc<
     { date: string; metric_value: number }[]
   >(["success-trend-30"], "nf_daily_trend", {
@@ -52,10 +54,9 @@ export function BarChartCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Transaction Volume</CardTitle>
+        <CardTitle className="text-lg">{t('cards.barChartCard.title')}</CardTitle>
         <CardDescription className="line-clamp-2 text-sm leading-snug">
-          Daily successful vs failed transactions for the last 30 days — compare
-          volume and error rates at a glance.
+          {t('cards.barChartCard.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 pt-0">
@@ -75,21 +76,21 @@ export function BarChartCard() {
         )}
         <div className="grid w-full grid-cols-3 divide-x divide-border/60">
           <div className="px-2 text-center">
-            <div className="text-[0.65rem] text-muted-foreground uppercase">Success</div>
+            <div className="text-[0.65rem] text-muted-foreground uppercase">{t('cards.barChartCard.success')}</div>
             <div className="text-sm font-medium tabular-nums">{successTotal.toLocaleString()}</div>
           </div>
           <div className="px-2 text-center">
-            <div className="text-[0.65rem] text-muted-foreground uppercase">Failed</div>
+            <div className="text-[0.65rem] text-muted-foreground uppercase">{t('cards.barChartCard.failed')}</div>
             <div className="text-sm font-medium tabular-nums">{failedTotal.toLocaleString()}</div>
           </div>
           <div className="px-2 text-center">
-            <div className="text-[0.65rem] text-muted-foreground uppercase">Ratio</div>
+            <div className="text-[0.65rem] text-muted-foreground uppercase">{t('cards.barChartCard.ratio')}</div>
             <div className="text-sm font-medium tabular-nums">{deltaPrefix}{delta}%</div>
           </div>
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">View report</Button>
+        <Button className="w-full">{t('cards.barChartCard.viewReport')}</Button>
       </CardFooter>
     </Card>
   )

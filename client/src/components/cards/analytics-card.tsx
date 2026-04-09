@@ -12,12 +12,14 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const chartConfig = {
-  logins: { label: "Logins", color: "var(--chart-1)" },
+  logins: { label: "logins", color: "var(--chart-1)" },
 } satisfies ChartConfig
 
 export function AnalyticsCard() {
+  const { t } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 180 * 86400000).toISOString()
   const to = now.toISOString()
@@ -43,16 +45,16 @@ export function AnalyticsCard() {
   return (
     <Card className="mx-auto w-full max-w-sm data-[size=sm]:pb-0" size="sm">
       <CardHeader>
-        <CardTitle>Analytics</CardTitle>
+        <CardTitle>{t('cards.analyticsCard.title')}</CardTitle>
         <CardDescription>
           {isLoading ? (
             <Skeleton className="h-4 w-32 inline-block" />
           ) : (
-            <>{total.toLocaleString()} Logins <Badge>{pctPrefix}{pctChange}%</Badge></>
+            <>{total.toLocaleString()} {t('cards.analyticsCard.logins')} <Badge>{pctPrefix}{pctChange}%</Badge></>
           )}
         </CardDescription>
         <CardAction>
-          <Button variant="outline" size="sm">View Analytics</Button>
+          <Button variant="outline" size="sm">{t('cards.analyticsCard.viewAnalytics')}</Button>
         </CardAction>
       </CardHeader>
       {isLoading ? (

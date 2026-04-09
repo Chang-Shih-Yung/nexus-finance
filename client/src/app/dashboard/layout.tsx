@@ -7,10 +7,12 @@ import { ThemeCustomizerProvider, useThemeCustomizer } from '@/components/ThemeC
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { useI18n } from '@/lib/i18n/context'
 
 function LogoutButton() {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
+  const { t } = useI18n()
 
   async function handleLogout() {
     setBusy(true)
@@ -27,14 +29,15 @@ function LogoutButton() {
       disabled={busy}
       className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide hover:text-foreground hover:bg-muted/80 transition-colors"
     >
-      {busy ? '登出中...' : '登出'}
+      {busy ? t('dashboard.loggingOut') : t('dashboard.logout')}
     </button>
   )
 }
 
 function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const { mounted } = useThemeCustomizer()
-  const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
+  const { locale } = useI18n()
+  const today = new Date().toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div

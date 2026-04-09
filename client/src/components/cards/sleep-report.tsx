@@ -10,6 +10,7 @@ import {
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const funnelChartConfig = {
   login: { label: "Login", color: "var(--chart-1)" },
@@ -18,6 +19,7 @@ const funnelChartConfig = {
 } satisfies ChartConfig
 
 export function SleepReport() {
+  const { t } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 30 * 86400000).toISOString()
   const to = now.toISOString()
@@ -41,13 +43,13 @@ export function SleepReport() {
   const completeUsers = steps.find(s => s.step === "complete_transfer")?.users ?? 0
   const overallRate = steps.find(s => s.step === "complete_transfer")?.conversion_rate ?? 0
 
-  const badge = Number(overallRate) >= 50 ? "Good" : Number(overallRate) >= 30 ? "Fair" : "Low"
+  const badge = Number(overallRate) >= 50 ? t('cards.sleepReport.good') : Number(overallRate) >= 30 ? t('cards.sleepReport.fair') : t('cards.sleepReport.low')
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Conversion Funnel</CardTitle>
-        <CardDescription>Last 30 days · Login → Transfer</CardDescription>
+        <CardTitle>{t('cards.sleepReport.title')}</CardTitle>
+        <CardDescription>{t('cards.sleepReport.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {isLoading ? (
@@ -68,10 +70,10 @@ export function SleepReport() {
         )}
         <div className="grid grid-cols-4 gap-2">
           {[
-            { label: "Login", value: Number(loginUsers).toLocaleString() },
-            { label: "Initiate", value: Number(initiateUsers).toLocaleString() },
-            { label: "Complete", value: Number(completeUsers).toLocaleString() },
-            { label: "Rate", value: `${Number(overallRate).toFixed(0)}%` },
+            { label: t('cards.sleepReport.login'), value: Number(loginUsers).toLocaleString() },
+            { label: t('cards.sleepReport.initiate'), value: Number(initiateUsers).toLocaleString() },
+            { label: t('cards.sleepReport.complete'), value: Number(completeUsers).toLocaleString() },
+            { label: t('cards.sleepReport.rate'), value: `${Number(overallRate).toFixed(0)}%` },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-sm font-medium tabular-nums">{isLoading ? "..." : s.value}</div>
@@ -82,7 +84,7 @@ export function SleepReport() {
       </CardContent>
       <CardFooter>
         <Badge variant="outline">{badge}</Badge>
-        <Button variant="outline" size="sm" className="ml-auto">Details</Button>
+        <Button variant="outline" size="sm" className="ml-auto">{t('cards.sleepReport.details')}</Button>
       </CardFooter>
     </Card>
   )

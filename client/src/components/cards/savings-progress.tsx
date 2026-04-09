@@ -7,6 +7,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const chartConfig = {
   success: { label: "Success", color: "var(--chart-2)" },
@@ -14,6 +15,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function SavingsProgress() {
+  const { t } = useI18n()
   const { data: breakdown, isLoading } = useRpc<
     { dimension_value: string; metric_value: number }[]
   >(["branch-breakdown"], "nf_current_breakdown", {
@@ -69,21 +71,21 @@ export function SavingsProgress() {
       </CardContent>
       <CardFooter className="flex-col gap-0">
         <div className="flex w-full items-center justify-between py-3">
-          <span className="text-sm text-muted-foreground">Top Branch</span>
+          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.topBranch')}</span>
           <span className="text-sm font-semibold capitalize">
             {isLoading ? <Skeleton className="h-4 w-20" /> : (topCategory?.dimension_value ?? "—")}
           </span>
         </div>
         <Separator />
         <div className="flex w-full items-center justify-between py-3">
-          <span className="text-sm text-muted-foreground">Total Transactions</span>
+          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.totalTransactions')}</span>
           <span className="text-sm font-semibold tabular-nums">
             {isLoading ? <Skeleton className="h-4 w-16" /> : total.toLocaleString()}
           </span>
         </div>
         <Separator />
         <div className="flex w-full items-center justify-between py-3">
-          <span className="text-sm text-muted-foreground">Branches</span>
+          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.branches')}</span>
           <span className="text-sm font-semibold">
             {isLoading ? <Skeleton className="h-4 w-10" /> : (breakdown?.length ?? 0)}
           </span>

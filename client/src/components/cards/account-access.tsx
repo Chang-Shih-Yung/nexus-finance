@@ -1,6 +1,7 @@
 "use client"
 
-import { LockKeyhole, AlertCircle, ArrowRight } from "@/lib/icons"
+import { useI18n } from "@/lib/i18n/context"
+import { CircleAlertIcon, ArrowRightIcon } from "@/lib/icons"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,42 +10,41 @@ import { Input } from "@/components/ui/input"
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 
 export function AccountAccess() {
+  const { t } = useI18n()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Account Access</CardTitle>
-        <CardDescription>Update your credentials or re-authenticate.</CardDescription>
+        <CardTitle>{t('cards.accountAccess.title')}</CardTitle>
+        <CardDescription>{t('cards.accountAccess.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="email-address">Email Address</FieldLabel>
-            <Input id="email-address" type="email" defaultValue="artist@studio.inc" />
+            <FieldLabel htmlFor="email-address">{t('cards.accountAccess.loginEmail')}</FieldLabel>
+            <Input id="email-address" type="email" defaultValue="admin@nexusfinance.tw" />
           </Field>
           <Field>
             <div className="flex items-center justify-between">
-              <FieldLabel htmlFor="current-password">Current Password</FieldLabel>
-              <a href="#" className="text-xs font-medium tracking-wider text-muted-foreground uppercase hover:text-foreground">Forgot?</a>
+              <FieldLabel htmlFor="current-password">{t('cards.accountAccess.password')}</FieldLabel>
+              <a href="#" className="text-xs font-medium tracking-wider text-muted-foreground uppercase hover:text-foreground">{t('cards.accountAccess.forgotPassword')}</a>
             </div>
             <Input id="current-password" type="password" defaultValue="password123" />
           </Field>
         </FieldGroup>
       </CardContent>
       <CardFooter className="flex-col gap-4">
-        <Button className="w-full">
-          <LockKeyhole className="size-4" />
-          Update Security
-        </Button>
+        <Button className="w-full">{t('cards.accountAccess.updateSecuritySettings')}</Button>
         <Item variant="muted" asChild>
           <a href="#">
             <ItemMedia variant="icon">
-              <AlertCircle className="text-destructive" />
+              <CircleAlertIcon className="text-destructive" />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>Danger Zone</ItemTitle>
-              <ItemDescription className="line-clamp-1">Archive account and remove catalog</ItemDescription>
+              <ItemTitle>{t('cards.accountAccess.dangerZone')}</ItemTitle>
+              <ItemDescription className="line-clamp-1">{t('cards.accountAccess.dangerZoneDescription')}</ItemDescription>
             </ItemContent>
-            <ArrowRight className="size-4" />
+            <ArrowRightIcon className="size-4" />
           </a>
         </Item>
       </CardFooter>

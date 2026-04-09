@@ -1,88 +1,92 @@
 "use client"
 
-import { PlusIcon, CopyIcon } from "@/lib/icons"
-
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
+
+type ComplianceStatus = {
+  category: string
+  total_items: number
+  compliant: number
+  warning: number
+  violation: number
+  pending: number
+  avg_score: number
+}
+
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  AML: "cards.inviteTeam.aml",
+  KYC: "cards.inviteTeam.kyc",
+  capital_adequacy: "cards.inviteTeam.capitalAdequacy",
+  data_privacy: "cards.inviteTeam.dataPrivacy",
+  liquidity: "cards.inviteTeam.liquidity",
+  reporting: "cards.inviteTeam.reporting",
+}
 
 export function InviteTeam() {
+  const { t } = useI18n()
+  const { data, isLoading } = useRpc<ComplianceStatus[]>(
+    ["compliance-status"],
+    "nf_compliance_status"
+  )
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invite Team</CardTitle>
-        <CardDescription>Add members to your workspace</CardDescription>
+        <CardTitle>{t('cards.inviteTeam.title')}</CardTitle>
+        <CardDescription>{t('cards.inviteTeam.description')}</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          {[
-            { email: "alex@example.com", role: "Editor" },
-            { email: "sam@example.com", role: "Viewer" },
-          ].map((invite) => (
-            <div key={invite.email} className="flex items-center gap-2">
-              <Input defaultValue={invite.email} className="flex-1" />
-              <Select defaultValue={invite.role.toLowerCase()}>
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent align="end">
-                  <SelectGroup>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
+      <CardContent>
+        <div className="flex max-h-[300px] flex-col gap-2 overflow-y-auto scrollbar-thin">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))
+          ) : (
+            (data ?? []).map((c) => (
+              <div
+                key={c.category}
+                className="flex items-center justify-between rounded-md border px-3 py-2"
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm font-medium">
+                    {CATEGORY_LABEL_KEYS[c.category] ? t(CATEGORY_LABEL_KEYS[c.category]) : c.category}
+                  </span>
+                  <div className="flex gap-1.5">
+                    <span className="text-xs text-muted-foreground">
+                      {c.compliant}/{c.total_items} {t('cards.inviteTeam.compliant')}
+                    </span>
+                    {c.warning > 0 && (
+                      <Badge variant="secondary" className="text-[0.55rem] px-1 py-0">
+                        {c.warning} {t('cards.inviteTeam.warning')}
+                      </Badge>
+                    )}
+                    {c.violation > 0 && (
+                      <Badge variant="destructive" className="text-[0.55rem] px-1 py-0">
+                        {c.violation} {t('cards.inviteTeam.violation')}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-lg font-bold tabular-nums">
+                    {c.avg_score}
+                  </span>
+                  <span className="text-xs text-muted-foreground"> {t('cards.inviteTeam.score')}</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-        <Button variant="outline">
-          <PlusIcon data-icon="inline-start" />
-          Add another
-        </Button>
-        <Separator />
-        <Field>
-          <FieldLabel htmlFor="invite-link">Or share invite link</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="invite-link"
-              defaultValue="https://app.co/invite/x8f2k"
-              readOnly
-            />
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton size="icon-xs" aria-label="Copy link">
-                <CopyIcon />
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-        </Field>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full">Send Invites</Button>
-      </CardFooter>
     </Card>
   )
 }

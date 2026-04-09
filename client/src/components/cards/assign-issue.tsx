@@ -1,121 +1,102 @@
 "use client"
 
-import * as React from "react"
-import { PlusIcon } from "@/lib/icons"
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
-} from "@/components/ui/combobox"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@/components/ui/item"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
-// Users available for assignment.
-const users = [
-  "shadcn",
-  "maxleiter",
-  "evilrabbit",
-  "pranathip",
-  "jorgezreik",
-  "shuding",
-  "rauchg",
-]
+type FeedbackItem = {
+  user_name: string
+  channel: string
+  score: number
+  category: string
+  comment: string
+  created_at: string
+}
+
+function scoreVariant(score: number): "default" | "secondary" | "destructive" {
+  if (score >= 9) return "default"
+  if (score >= 7) return "secondary"
+  return "destructive"
+}
 
 export function AssignIssue() {
-  const anchor = useComboboxAnchor()
+  const { t } = useI18n()
+
+  const CHANNEL_LABELS: Record<string, string> = {
+    app: t('cards.assignIssue.app'),
+    branch: t('cards.assignIssue.branch'),
+    call_center: t('cards.assignIssue.callCenter'),
+    web: t('cards.assignIssue.web'),
+  }
+
+  function timeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return `${mins} ${t('cards.assignIssue.minutesAgo')}`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs} ${t('cards.assignIssue.hoursAgo')}`
+    return `${Math.floor(hrs / 24)} ${t('cards.assignIssue.daysAgo')}`
+  }
+
+  const { data, isLoading } = useRpc<FeedbackItem[]>(
+    ["customer-feedback-recent"],
+    "nf_customer_feedback_recent",
+    { p_limit: 8 }
+  )
+
   return (
-    <Card className="w-full max-w-sm" size="sm">
-      <CardHeader className="border-b">
-        <CardTitle className="text-sm">Assign Issue</CardTitle>
-        <CardDescription className="text-sm">
-          Select users to assign to this issue.
-        </CardDescription>
-        <CardAction>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon-xs">
-                <PlusIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Add user</TooltipContent>
-          </Tooltip>
-        </CardAction>
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('cards.assignIssue.title')}</CardTitle>
+        <CardDescription>{t('cards.assignIssue.description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Combobox
-          multiple
-          autoHighlight
-          items={users}
-          defaultValue={[users[0]]}
-        >
-          <ComboboxChips ref={anchor}>
-            <ComboboxValue>
-              {(values) => (
-                <React.Fragment>
-                  {values.map((username: string) => (
-                    <ComboboxChip key={username}>
-                      <Avatar className="size-4">
-                        <AvatarImage
-                          src={`https://github.com/${username}.png`}
-                          alt={username}
-                        />
-                        <AvatarFallback>{username.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      {username}
-                    </ComboboxChip>
-                  ))}
-                  <ComboboxChipsInput
-                    placeholder={
-                      values.length > 0 ? undefined : "Select a item..."
-                    }
-                  />
-                </React.Fragment>
-              )}
-            </ComboboxValue>
-          </ComboboxChips>
-          <ComboboxContent anchor={anchor}>
-            <ComboboxEmpty>No users found.</ComboboxEmpty>
-            <ComboboxList>
-              {(username: string) => (
-                <ComboboxItem key={username} value={username}>
-                  <Avatar className="size-5">
-                    <AvatarImage
-                      src={`https://github.com/${username}.png`}
-                      alt={username}
-                    />
-                    <AvatarFallback>{username.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  {username}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
+        <div className="flex max-h-[280px] flex-col gap-1 overflow-y-auto scrollbar-thin">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-1 py-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            ))
+          ) : (
+            (data ?? []).map((fb, i) => (
+              <Item key={i} size="sm">
+                <ItemContent>
+                  <ItemTitle className="flex items-center gap-2">
+                    <Badge variant={scoreVariant(fb.score)} className="tabular-nums text-[0.6rem]">
+                      {fb.score}
+                    </Badge>
+                    <span>{fb.user_name}</span>
+                    <Badge variant="outline" className="text-[0.55rem]">
+                      {CHANNEL_LABELS[fb.channel] ?? fb.channel}
+                    </Badge>
+                  </ItemTitle>
+                  <ItemDescription className="line-clamp-1">
+                    {fb.comment}
+                  </ItemDescription>
+                  <span className="text-xs text-muted-foreground">
+                    {timeAgo(fb.created_at)}
+                  </span>
+                </ItemContent>
+              </Item>
+            ))
+          )}
+        </div>
       </CardContent>
     </Card>
   )

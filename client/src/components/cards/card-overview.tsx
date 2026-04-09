@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/c
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
 
 const chartConfig = { amount: { label: "Transactions", color: "var(--chart-2)" } } satisfies ChartConfig
 
@@ -24,6 +25,7 @@ function formatCompact(amount: number, currency: string) {
 }
 
 export function CardOverview() {
+  const { t } = useI18n()
   const { data: summary, isLoading: loadingSummary } = useRpc<{
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
   }>(
@@ -42,7 +44,7 @@ export function CardOverview() {
     <div className="grid grid-cols-2 gap-3">
       <Card>
         <CardContent>
-          <CardDescription>Total Balance</CardDescription>
+          <CardDescription>{t('cards.cardOverview.totalBalance')}</CardDescription>
           {loadingSummary ? (
             <Skeleton className="h-8 w-32 mt-1" />
           ) : (
@@ -54,7 +56,7 @@ export function CardOverview() {
             {loadingSummary ? (
               <Skeleton className="h-4 w-24 mt-1" />
             ) : (
-              `${summary?.account_count ?? 0} Accounts`
+              `${summary?.account_count ?? 0} ${t('cards.cardOverview.accounts')}`
             )}
           </CardDescription>
         </CardContent>
@@ -62,7 +64,7 @@ export function CardOverview() {
       <Card className="flex flex-col justify-between">
         <CardContent className="flex flex-1 flex-col justify-between">
           <div className="flex flex-col gap-1">
-            <CardDescription>Avg Balance</CardDescription>
+            <CardDescription>{t('cards.cardOverview.avgBalance')}</CardDescription>
             {loadingSummary ? (
               <Skeleton className="h-8 w-28 mt-1" />
             ) : (
@@ -71,14 +73,14 @@ export function CardOverview() {
               </CardTitle>
             )}
           </div>
-          <Button variant="outline" size="sm" className="mt-3 w-full">View All</Button>
+          <Button variant="outline" size="sm" className="mt-3 w-full">{t('cards.cardOverview.viewAll')}</Button>
         </CardContent>
       </Card>
       <Card className="col-span-2">
         <CardContent className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <CardDescription>Yearly Activity</CardDescription>
-            <Badge variant="secondary">{chartData.length} months</Badge>
+            <CardDescription>{t('cards.cardOverview.yearlyActivity')}</CardDescription>
+            <Badge variant="secondary">{chartData.length} {t('cards.cardOverview.months')}</Badge>
           </div>
           {loadingActivity ? (
             <Skeleton className="h-20 w-full" />

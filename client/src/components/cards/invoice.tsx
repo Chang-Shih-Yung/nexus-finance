@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 interface FailedTx {
   id: number
@@ -36,6 +37,7 @@ function formatDate(iso: string) {
 }
 
 export function Invoice() {
+  const { t } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 30 * 86400000).toISOString()
   const to = now.toISOString()
@@ -51,10 +53,10 @@ export function Invoice() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Failed Transactions</CardTitle>
-        <CardDescription>Last 30 days · {items.length} failures</CardDescription>
+        <CardTitle>{t('cards.invoice.title')}</CardTitle>
+        <CardDescription>{t('cards.invoice.description')} · {items.length} {t('cards.invoice.failures')}</CardDescription>
         <CardAction>
-          <Badge variant="destructive">{isLoading ? "..." : formatCurrency(totalLost)} lost</Badge>
+          <Badge variant="destructive">{isLoading ? "..." : formatCurrency(totalLost)} {t('cards.invoice.lost')}</Badge>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -66,10 +68,10 @@ export function Invoice() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Error</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-right">Date</TableHead>
+                <TableHead>{t('cards.invoice.user')}</TableHead>
+                <TableHead>{t('cards.invoice.error')}</TableHead>
+                <TableHead className="text-right">{t('cards.invoice.amount')}</TableHead>
+                <TableHead className="text-right">{t('cards.invoice.date')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,8 +94,8 @@ export function Invoice() {
         )}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" size="sm">Export CSV</Button>
-        <Button size="sm" className="ml-auto">Investigate</Button>
+        <Button variant="outline" size="sm">{t('cards.invoice.exportCsv')}</Button>
+        <Button size="sm" className="ml-auto">{t('cards.invoice.investigate')}</Button>
       </CardFooter>
     </Card>
   )

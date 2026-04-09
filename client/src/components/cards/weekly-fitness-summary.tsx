@@ -8,10 +8,12 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from '@/lib/i18n/context'
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
 
 export function WeeklyFitnessSummary() {
+  const { t } = useI18n()
   const { data, isLoading } = useRpc<
     { date: string; logins: number; transactions: number; success_rate: number }[]
   >(["stats-trend-7"], "nf_stats_trend", { p_days: 7 })
@@ -24,8 +26,8 @@ export function WeeklyFitnessSummary() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>7-Day Activity</CardTitle>
-        <CardDescription>Daily transaction volume this week</CardDescription>
+        <CardTitle>{t('cards.weeklyFitnessSummary.title')}</CardTitle>
+        <CardDescription>{t('cards.weeklyFitnessSummary.description')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isLoading ? (
@@ -58,7 +60,7 @@ export function WeeklyFitnessSummary() {
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full">View details</Button>
+        <Button className="w-full">{t('cards.weeklyFitnessSummary.viewDetails')}</Button>
       </CardFooter>
     </Card>
   )

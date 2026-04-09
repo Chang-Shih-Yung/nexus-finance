@@ -1,302 +1,120 @@
 "use client"
 
-import * as React from "react"
+import { Badge } from "@/components/ui/badge"
 import {
-  PlusIcon,
-  MoreHorizontalIcon,
-  ContainerIcon,
-  ZapIcon,
-  ServerIcon,
-  ShareIcon,
-  InfoIcon,
-  TerminalIcon,
-  CopyIcon,
-  MonitorIcon,
-  DownloadIcon,
-} from "@/lib/icons"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from "@/components/ui/field"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Item,
-  ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item"
-import { Separator } from "@/components/ui/separator"
-import { Spinner } from "@/components/ui/spinner"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useRpc } from "@/hooks/useRpc"
+import { useI18n } from "@/lib/i18n/context"
+
+type SystemOverview = {
+  total_components: number
+  operational: number
+  degraded: number
+  outage: number
+  avg_uptime: number
+}
+
+type SystemComponent = {
+  name: string
+  category: string
+  status: string
+  uptime_pct: number
+  avg_response_ms: number
+  last_incident: string
+  last_check: string
+}
+
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  operational: "default",
+  degraded: "secondary",
+  outage: "destructive",
+  maintenance: "outline",
+}
+
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  operational: "cards.codespacesCard.operational",
+  degraded: "cards.codespacesCard.degraded",
+  outage: "cards.codespacesCard.outage",
+  maintenance: "cards.codespacesCard.maintenance",
+}
 
 export function CodespacesCard() {
-  const [isCreatingCodespace, setIsCreatingCodespace] = React.useState(false)
+  const { t } = useI18n()
+  const { data: overview, isLoading: l1 } = useRpc<SystemOverview[]>(
+    ["system-overview"],
+    "nf_system_overview"
+  )
+  const { data: components, isLoading: l2 } = useRpc<SystemComponent[]>(
+    ["system-status"],
+    "nf_system_status"
+  )
+
+  const o = overview?.[0]
+
   return (
     <Card>
-      <CardContent>
-        <Tabs defaultValue="codespaces">
-          <TabsList className="w-full">
-            <TabsTrigger value="codespaces">Codespaces</TabsTrigger>
-            <TabsTrigger value="local">Local</TabsTrigger>
-          </TabsList>
-          <TabsContent value="codespaces">
-            <Item size="sm" className="px-1 pt-2">
-              <ItemContent>
-                <ItemTitle>Codespaces</ItemTitle>
-                <ItemDescription>Your workspaces in the cloud</ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon-sm">
-                      <PlusIcon />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    Create a codespace on main
-                  </TooltipContent>
-                </Tooltip>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon-sm">
-                      <MoreHorizontalIcon />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <PlusIcon />
-                        New with options...
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ContainerIcon />
-                        Configure dev container
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ZapIcon />
-                        Set up prebuilds
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <ServerIcon />
-                        Manage codespaces
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ShareIcon />
-                        Share deep link
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <InfoIcon />
-                        What are codespaces?
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </ItemActions>
-            </Item>
-            <Separator className="-mx-2 my-2 w-auto!" />
-            <Empty className="p-4">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <ServerIcon />
-                </EmptyMedia>
-                <EmptyTitle>No codespaces</EmptyTitle>
-                <EmptyDescription>
-                  You don&apos;t have any codespaces with this repository
-                  checked out
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setIsCreatingCodespace(true)
-                    setTimeout(() => {
-                      setIsCreatingCodespace(false)
-                    }, 2000)
-                  }}
-                  disabled={isCreatingCodespace}
-                >
-                  {isCreatingCodespace ? (
-                    <Spinner data-icon="inline-start" />
-                  ) : (
-                    ""
-                  )}
-                  Create Codespace
-                </Button>
-                <a
-                  href="#learn-more"
-                  className="text-xs text-muted-foreground underline underline-offset-4"
-                >
-                  Learn more about codespaces
-                </a>
-              </EmptyContent>
-            </Empty>
-            <Separator className="-mx-2 my-2 w-auto!" />
-            <div className="p-1.5 text-xs text-muted-foreground">
-              Codespace usage for this repository is paid for by{" "}
-              <span className="font-medium">shadcn</span>.
-            </div>
-          </TabsContent>
-          <TabsContent value="local">
-            <Item size="sm" className="hidden p-0">
-              <ItemContent>
-                <ItemTitle className="gap-2">
-                  <TerminalIcon className="size-4" />
-                  Clone
-                </ItemTitle>
-              </ItemContent>
-              <ItemActions>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <InfoIcon />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left">
-                    Which remote URL should I use?
-                  </TooltipContent>
-                </Tooltip>
-              </ItemActions>
-            </Item>
-            <Tabs defaultValue="https">
-              <TabsList
-                variant="line"
-                className="w-full justify-start border-b *:[button]:flex-0"
-              >
-                <TabsTrigger value="https">HTTPS</TabsTrigger>
-                <TabsTrigger value="ssh">SSH</TabsTrigger>
-                <TabsTrigger value="cli">GitHub CLI</TabsTrigger>
-              </TabsList>
-              <div className="rounded-md border bg-muted/30 p-2">
-                <TabsContent value="https">
-                  <Field className="gap-2">
-                    <FieldLabel htmlFor="https-url" className="sr-only">
-                      HTTPS URL
-                    </FieldLabel>
-                    <InputGroup>
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton variant="ghost" size="icon-xs">
-                          <CopyIcon />
-                        </InputGroupButton>
-                      </InputGroupAddon>
-                      <InputGroupInput
-                        id="https-url"
-                        defaultValue="https://github.com/shadcn-ui/ui.git"
-                        readOnly
-                      />
-                    </InputGroup>
-                    <FieldDescription>
-                      Clone using the web URL.
-                    </FieldDescription>
-                  </Field>
-                </TabsContent>
-                <TabsContent value="ssh">
-                  <Field className="gap-2">
-                    <FieldLabel htmlFor="ssh-url" className="sr-only">
-                      SSH URL
-                    </FieldLabel>
-                    <InputGroup>
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton variant="ghost" size="icon-xs">
-                          <CopyIcon />
-                        </InputGroupButton>
-                      </InputGroupAddon>
-                      <InputGroupInput
-                        id="ssh-url"
-                        defaultValue="git@github.com:shadcn-ui/ui.git"
-                        readOnly
-                      />
-                    </InputGroup>
-                    <FieldDescription>
-                      Use a password-protected SSH key.
-                    </FieldDescription>
-                  </Field>
-                </TabsContent>
-                <TabsContent value="cli">
-                  <Field className="gap-2">
-                    <FieldLabel htmlFor="cli-command" className="sr-only">
-                      CLI Command
-                    </FieldLabel>
-                    <InputGroup>
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton variant="ghost" size="icon-xs">
-                          <CopyIcon />
-                        </InputGroupButton>
-                      </InputGroupAddon>
-                      <InputGroupInput
-                        id="cli-command"
-                        defaultValue="gh repo clone shadcn-ui/ui"
-                        readOnly
-                      />
-                    </InputGroup>
-                    <FieldDescription>
-                      Work fast with our official CLI.{" "}
-                      <a href="#learn-more">Learn more</a>
-                    </FieldDescription>
-                  </Field>
-                </TabsContent>
-              </div>
-            </Tabs>
-            <Separator className="-mx-2 my-2 w-auto!" />
-            <div className="flex flex-col">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start gap-1.5"
-              >
-                <MonitorIcon data-icon="inline-start" />
-                Open with GitHub Desktop
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start gap-1.5"
-              >
-                <DownloadIcon data-icon="inline-start" />
-                Download ZIP
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+      <CardHeader>
+        <CardTitle>{t('cards.codespacesCard.title')}</CardTitle>
+        <CardDescription>{t('cards.codespacesCard.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {l1 || !o ? (
+          <Skeleton className="h-6 w-48" />
+        ) : (
+          <div className="flex flex-wrap gap-3 text-sm">
+            <span className="tabular-nums">
+              <span className="font-semibold">{o.operational}</span>
+              <span className="text-muted-foreground">/{o.total_components} {t('cards.codespacesCard.operational')}</span>
+            </span>
+            {o.degraded > 0 && (
+              <Badge variant="secondary">{o.degraded} {t('cards.codespacesCard.degraded')}</Badge>
+            )}
+            {o.outage > 0 && (
+              <Badge variant="destructive">{o.outage} {t('cards.codespacesCard.outage')}</Badge>
+            )}
+            <span className="text-xs text-muted-foreground">
+              {t('cards.codespacesCard.avgUptime').replace('{pct}', String(o.avg_uptime))}
+            </span>
+          </div>
+        )}
+        <div className="flex max-h-[300px] flex-col gap-1 overflow-y-auto scrollbar-thin">
+          {l2 ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))
+          ) : (
+            (components ?? []).map((c) => (
+              <Item key={c.name} size="sm">
+                <ItemContent>
+                  <ItemTitle className="flex items-center gap-2">
+                    <span>{c.name}</span>
+                    <Badge
+                      variant={STATUS_VARIANT[c.status] ?? "outline"}
+                      className="text-[0.6rem]"
+                    >
+                      {STATUS_LABEL_KEYS[c.status] ? t(STATUS_LABEL_KEYS[c.status]) : c.status}
+                    </Badge>
+                  </ItemTitle>
+                  <ItemDescription>
+                    {c.avg_response_ms}ms · uptime {c.uptime_pct}%
+                  </ItemDescription>
+                </ItemContent>
+              </Item>
+            ))
+          )}
+        </div>
       </CardContent>
     </Card>
   )
