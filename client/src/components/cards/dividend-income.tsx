@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 
 const miniChartConfig = {
-  value: { label: "Amount", color: "var(--chart-2)" },
+  value: { label: "Volume", color: "var(--chart-2)" },
 } satisfies ChartConfig
 
 function formatAmount(n: number) {
@@ -29,13 +29,30 @@ export function DividendIncome() {
     p_from: from, p_to: to, p_limit: 5,
   })
 
+  // Fetch 5-day trend shape to use as sparkline pattern
+  const { data: trendData } = useRpc<
+    { date: string; metric_value: number }[]
+  >(["trend-5d-sparkline"], "nf_daily_trend", {
+    p_metric_key: "txn_amount", p_days: 5,
+  })
+
   const totalAmount = (data ?? []).reduce((s, d) => s + Number(d.total_amount), 0)
+
+  // Normalize trend into proportions [0..1] so we can scale per user
+  const trendValues = (trendData ?? []).map(d => Number(d.metric_value))
+  const trendMax = Math.max(...trendValues, 1)
+  const trendRatios = trendValues.map(v => v / trendMax)
 
   const items = (data ?? []).map(d => ({
     name: d.user_name,
     amount: formatAmount(Number(d.total_amount)),
     raw: Number(d.total_amount),
     txCount: Number(d.tx_count),
+    // Scale 5-day trend shape by user's total amount
+    sparkline: trendRatios.map((r, i) => ({
+      day: `D${i + 1}`,
+      value: Math.round(r * Number(d.total_amount) / (trendRatios.length || 1)),
+    })),
   }))
 
   return (
@@ -61,24 +78,21 @@ export function DividendIncome() {
           </div>
         ) : (
           <ItemGroup className="max-h-[280px] overflow-y-auto scrollbar-thin">
-            {items.map((item) => {
-              const barData = [{ q: "val", value: item.raw }]
-              return (
-                <Item key={item.name} variant="muted">
-                  <ItemContent>
-                    <ItemTitle className="capitalize">{item.name}</ItemTitle>
-                    <ItemDescription>{item.txCount} txns · {Math.round((item.raw / (totalAmount || 1)) * 100)}% of total</ItemDescription>
-                  </ItemContent>
-                  <ChartContainer config={miniChartConfig} className="hidden h-8 w-24 md:block">
-                    <BarChart data={barData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                      <Bar dataKey="value" fill="var(--color-value)" radius={[3, 3, 0, 0]} />
-                    </BarChart>
-                  </ChartContainer>
-                  <span className="hidden text-sm font-semibold tabular-nums md:block">{item.amount}</span>
-                </Item>
-              )
-            })}
+            {items.map((item) => (
+              <Item key={item.name} variant="muted">
+                <ItemContent>
+                  <ItemTitle className="capitalize">{item.name}</ItemTitle>
+                  <ItemDescription>{item.txCount} txns · {Math.round((item.raw / (totalAmount || 1)) * 100)}% of total</ItemDescription>
+                </ItemContent>
+                <ChartContainer config={miniChartConfig} className="hidden h-8 w-24 md:block">
+                  <BarChart data={item.sparkline} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <Bar dataKey="value" fill="var(--color-value)" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+                <span className="hidden text-sm font-semibold tabular-nums md:block">{item.amount}</span>
+              </Item>
+            ))}
           </ItemGroup>
         )}
       </CardContent>
