@@ -60,7 +60,7 @@ export function DividendIncome() {
             ))}
           </div>
         ) : (
-          <ItemGroup>
+          <ItemGroup className="max-h-[280px] overflow-y-auto scrollbar-thin">
             {items.map((item) => {
               const barData = [{ q: "val", value: item.raw }]
               return (
