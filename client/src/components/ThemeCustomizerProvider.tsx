@@ -33,6 +33,14 @@ export function copyToClipboard(text: string): boolean {
 
 // ── Types & Defaults ──────────────────────────────────────────────────────────
 
+export const iconLibraries = [
+  { name: 'lucide', label: 'Lucide' },
+  { name: 'tabler', label: 'Tabler' },
+  { name: 'hugeicons', label: 'Hugeicons' },
+  { name: 'phosphor', label: 'Phosphor' },
+  { name: 'remixicon', label: 'Remixicon' },
+] as const
+
 export interface ThemeConfig {
   style: string
   baseColor: string
@@ -41,6 +49,7 @@ export interface ThemeConfig {
   radius: number
   font: string
   headingFont: string
+  iconLibrary: string
 }
 
 export type ThemeConfigKey = keyof ThemeConfig
@@ -48,17 +57,19 @@ export type Locks = Record<ThemeConfigKey, boolean>
 
 const DEFAULTS: ThemeConfig = {
   style: 'vega',
-  baseColor: 'zinc',
-  themeColor: 'blue',
-  chartColor: 'blue',
+  baseColor: 'neutral',
+  themeColor: 'neutral',
+  chartColor: 'neutral',
   radius: 2,
   font: 'geist',
   headingFont: 'inherit',
+  iconLibrary: 'lucide',
 }
 
 const DEFAULT_LOCKS: Locks = {
   style: false, baseColor: false, themeColor: false,
   chartColor: false, radius: false, font: false, headingFont: false,
+  iconLibrary: false,
 }
 
 const LOCKS_KEY = 'nexus-theme-locks'
@@ -93,6 +104,7 @@ function shuffleConfig(current: ThemeConfig, locks: Locks): ThemeConfig {
   if (!locks.headingFont) {
     next.headingFont = Math.random() < 0.3 ? 'inherit' : pickRandom(fontOptions).name
   }
+  if (!locks.iconLibrary) next.iconLibrary = pickRandom(iconLibraries).name
   return next
 }
 
@@ -113,7 +125,9 @@ export function encodePreset(config: ThemeConfig, isDark: boolean): string {
     ? 0
     : indexOf(fontOptions, config.headingFont) + 1
 
-  // Pack: style, baseColor, themeColor, chartColor, radius, font, headingFont, mode
+  const iconIdx = iconLibraries.findIndex(i => i.name === config.iconLibrary)
+
+  // Pack: style, baseColor, themeColor, chartColor, radius, font, headingFont, iconLibrary, mode
   // Each value is stored with enough bits for its range
   const fields = [
     indexOf(stylePresets, config.style),      // max 6  → 3 bits
@@ -123,9 +137,10 @@ export function encodePreset(config: ThemeConfig, isDark: boolean): string {
     config.radius,                            // max 5  → 3 bits
     indexOf(fontOptions, config.font),        // max 24 → 5 bits
     headingIdx,                               // max 25 → 5 bits
+    iconIdx < 0 ? 0 : iconIdx,               // max 5  → 3 bits
     isDark ? 1 : 0,                           // 1 bit
   ]
-  const sizes = [3, 3, 5, 5, 3, 5, 5, 1]
+  const sizes = [3, 3, 5, 5, 3, 5, 5, 3, 1]
 
   let packed = BigInt(0)
   for (let i = 0; i < fields.length; i++) {
@@ -145,7 +160,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
       return acc * BigInt(36) + BigInt(v)
     }, BigInt(0))
 
-    const sizes = [3, 3, 5, 5, 3, 5, 5, 1]
+    const sizes = [3, 3, 5, 5, 3, 5, 5, 3, 1]
     const values: number[] = []
     for (let i = sizes.length - 1; i >= 0; i--) {
       const mask = (BigInt(1) << BigInt(sizes[i])) - BigInt(1)
@@ -153,7 +168,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
       packed >>= BigInt(sizes[i])
     }
 
-    const [styleIdx, baseIdx, themeIdx, chartIdx, radius, fontIdx, headingIdx, modeVal] = values
+    const [styleIdx, baseIdx, themeIdx, chartIdx, radius, fontIdx, headingIdx, iconIdx, modeVal] = values
 
     const config: ThemeConfig = { ...DEFAULTS }
     if (styleIdx < stylePresets.length) config.style = stylePresets[styleIdx].name
@@ -167,6 +182,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
     } else if (headingIdx - 1 < fontOptions.length) {
       config.headingFont = fontOptions[headingIdx - 1].name
     }
+    if (iconIdx < iconLibraries.length) config.iconLibrary = iconLibraries[iconIdx].name
 
     const mode = modeVal === 1 ? 'dark' : 'light'
     return { config, mode }
@@ -317,8 +333,9 @@ export function ThemeCustomizerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mounted || isInitialLoad.current) return
     const preset = encodePreset(config, theme === 'dark')
-    const newUrl = `${pathname}?preset=${preset}`
-    window.history.replaceState(null, '', newUrl)
+    const url = new URL(window.location.href)
+    url.searchParams.set('preset', preset)
+    window.history.replaceState(null, '', url.toString())
   }, [config, theme, mounted, pathname])
 
   const updateConfig = useCallback((patch: Partial<ThemeConfig>) => {

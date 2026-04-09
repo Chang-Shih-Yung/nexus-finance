@@ -255,6 +255,14 @@ function makeColor(
 }
 
 export const colorThemes: ColorTheme[] = [
+  makeColor('neutral', 'Neutral',
+    'oklch(0.205 0 0)','oklch(0.985 0 0)',
+    ['oklch(0.87 0 0)','oklch(0.708 0 0)','oklch(0.556 0 0)','oklch(0.439 0 0)','oklch(0.371 0 0)'],
+    'oklch(0.205 0 0)','oklch(0.985 0 0)',
+    'oklch(0.922 0 0)','oklch(0.205 0 0)',
+    ['oklch(0.87 0 0)','oklch(0.708 0 0)','oklch(0.556 0 0)','oklch(0.439 0 0)','oklch(0.371 0 0)'],
+    'oklch(0.922 0 0)','oklch(0.205 0 0)',
+  ),
   makeColor('blue', 'Blue',
     'oklch(0.488 0.243 264.376)','oklch(0.97 0.014 254.604)',
     ['oklch(0.809 0.105 251.813)','oklch(0.623 0.214 259.815)','oklch(0.546 0.245 262.881)','oklch(0.488 0.243 264.376)','oklch(0.424 0.199 265.638)'],

@@ -3,9 +3,21 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+
+function NexusLogo() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <rect width="28" height="28" rx="7" fill="currentColor" className="text-primary" />
+      <path
+        d="M8 20V8h2.4l5.6 8V8H18v12h-2.4L10 12v8H8Z"
+        fill="white"
+      />
+    </svg>
+  )
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -34,30 +46,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl text-foreground">
-            <span className="text-primary">Nexus</span> Finance
-          </CardTitle>
-          <CardDescription>存取 Supabase RPC 指標</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-6">
+      <Card className="w-full max-w-sm shadow-lg rounded-2xl">
+        <CardContent className="pt-8 pb-8 px-8 space-y-6">
+          <div className="space-y-1">
+            <NexusLogo />
+            <h1 className="text-2xl font-bold pt-1">Sign in</h1>
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1">
-              <label htmlFor="email" className="block text-sm text-muted-foreground">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium">Email</label>
               <Input
                 id="email"
                 type="email"
+                placeholder="m@example.com"
                 autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="h-10"
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="password" className="block text-sm text-muted-foreground">密碼</label>
+              <label htmlFor="password" className="block text-sm font-medium">Password</label>
               <Input
                 id="password"
                 type="password"
@@ -65,16 +75,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="h-10"
               />
             </div>
             {error && <p className="text-destructive text-sm">{error}</p>}
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-10"
+              className="w-full"
             >
-              {loading ? '登入中...' : '登入'}
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
         </CardContent>

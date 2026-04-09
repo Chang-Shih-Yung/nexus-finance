@@ -1,0 +1,194 @@
+'use client'
+
+import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis } from 'recharts'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { TrendingUp, TrendingDown, DollarSign, Activity } from '@/lib/icons'
+import ChartCard from '@/components/ChartCard'
+import { useRpc } from '@/hooks/useRpc'
+import { METRIC_KEYS } from '@/lib/metric-keys'
+
+interface TrendRow { date: string; metric_value: number }
+interface BreakdownRow { dimension_value: string; metric_value: number }
+interface PeriodCompare { current_total: number; previous_total: number; change_pct: number }
+
+const PIE_COLORS = [
+  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
+  'var(--color-chart-4)', 'var(--color-chart-5)',
+]
+
+const CATEGORY_LABELS: Record<string, string> = {
+  transfer: '轉帳', deposit: '存款', withdrawal: '提款', payment: '繳費', loan: '貸款',
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+function formatAmount(v: number) {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`
+  return v.toLocaleString()
+}
+
+function now() {
+  const d = new Date()
+  return d.toISOString().slice(0, 10)
+}
+
+function monthStart() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+}
+
+function prevMonthRange(): [string, string] {
+  const d = new Date()
+  d.setMonth(d.getMonth() - 1)
+  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10)
+  return [start, end]
+}
+
+export default function RevenueSection() {
+  const today = now()
+  const mtdStart = monthStart()
+  const [prevStart, prevEnd] = prevMonthRange()
+
+  const { data: compare } = useRpc<PeriodCompare[]>(
+    ['period-compare', METRIC_KEYS.TXN_AMOUNT, mtdStart, today],
+    'nf_period_compare',
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_current_start: mtdStart, p_current_end: today, p_previous_start: prevStart, p_previous_end: prevEnd },
+    { select: (rows: PeriodCompare[]) => rows }
+  )
+  const cmp = compare?.[0] ?? { current_total: 0, previous_total: 0, change_pct: 0 }
+
+  const { data: amountTrend } = useRpc<TrendRow[]>(
+    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, '30'],
+    'nf_daily_trend',
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: 30 }
+  )
+
+  const { data: categoryBreakdown } = useRpc<BreakdownRow[]>(
+    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'category'],
+    'nf_current_breakdown',
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'category' }
+  )
+
+  const { data: countTrend } = useRpc<TrendRow[]>(
+    ['daily-trend', METRIC_KEYS.TXN_COUNT, '30'],
+    'nf_daily_trend',
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: 30 }
+  )
+
+  const trendData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+  const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+  const pieData = (categoryBreakdown ?? []).map(d => ({
+    name: CATEGORY_LABELS[d.dimension_value] ?? d.dimension_value,
+    value: Number(d.metric_value),
+  }))
+
+  const avgDailyCount = countData.length
+    ? Math.round(countData.reduce((a, d) => a + d.value, 0) / countData.length)
+    : 0
+
+  const isUp = cmp.change_pct >= 0
+
+  return (
+    <>
+      {/* MTD Revenue KPI */}
+      <Card id="revenue" className="shadow-sm">
+        <CardContent className="pt-5 pb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="p-1.5 rounded-md bg-primary/10">
+              <DollarSign className="h-3.5 w-3.5 text-primary" />
+            </span>
+            <p className="text-xs text-muted-foreground">本月交易金額 (MTD)</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground">{formatAmount(cmp.current_total)}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <Badge variant={isUp ? 'default' : 'destructive'} className="text-xs gap-1">
+              {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {isUp ? '+' : ''}{cmp.change_pct}%
+            </Badge>
+            <span className="text-xs text-muted-foreground">vs 上月 {formatAmount(cmp.previous_total)}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Daily Revenue Trend */}
+      <ChartCard title="日交易金額趨勢 (30天)" height={240} className="lg:col-span-2">
+        {trendData.length > 0 && (
+          <ChartContainer
+            config={{ value: { label: '交易金額', color: 'var(--chart-1)' } }}
+            className="h-full w-full"
+          >
+            <AreaChart data={trendData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+              <defs>
+                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Area dataKey="value" stroke="var(--color-value)" fill="url(#fillRevenue)" strokeWidth={2} dot={false} />
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Category Breakdown Pie */}
+      <ChartCard title="交易類型佔比" height={200}>
+        {pieData.length > 0 && (
+          <ChartContainer
+            config={Object.fromEntries(pieData.map((d, i) => [
+              d.name, { label: d.name, color: `var(--chart-${(i % 5) + 1})` },
+            ]))}
+            className="h-full w-full"
+          >
+            <PieChart>
+              <Pie
+                data={pieData} cx="50%" cy="50%"
+                innerRadius="50%" outerRadius="80%"
+                dataKey="value" strokeWidth={0}
+              >
+                {pieData.map((_, i) => (
+                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                ))}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+            </PieChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Daily Transaction Count KPI + Sparkline */}
+      <Card className="shadow-sm">
+        <CardContent className="pt-5 pb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="p-1.5 rounded-md bg-chart-3/10">
+              <Activity className="h-3.5 w-3.5 text-chart-3" />
+            </span>
+            <p className="text-xs text-muted-foreground">日均交易筆數 (30天)</p>
+          </div>
+          <p className="text-2xl font-bold text-foreground">{avgDailyCount.toLocaleString()}</p>
+          {countData.length > 0 && (
+            <div className="mt-3 h-10">
+              <ChartContainer
+                config={{ value: { label: '筆數', color: 'var(--chart-3)' } }}
+                className="h-full w-full"
+              >
+                <AreaChart data={countData.slice(-14)} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+                  <Area dataKey="value" stroke="var(--color-value)" fill="var(--color-value)" fillOpacity={0.1} strokeWidth={1.5} dot={false} />
+                </AreaChart>
+              </ChartContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </>
+  )
+}

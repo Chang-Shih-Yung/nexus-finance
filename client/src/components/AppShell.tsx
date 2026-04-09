@@ -1,18 +1,18 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { Menu } from 'lucide-react'
+import { Menu } from '@/lib/icons'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 
 const sections = [
-  { id: 'overview', label: '即時總覽' },
-  { id: 'funnel', label: '使用者漏斗' },
-  { id: 'errors', label: '錯誤監控' },
-  { id: 'monitor', label: 'API 監控' },
-  { id: 'ai-query', label: 'AI 查詢' },
+  { id: 'revenue', label: '營收總覽' },
+  { id: 'transactions', label: '交易分析' },
+  { id: 'customers', label: '客群分析' },
+  { id: 'risk', label: '風險監控' },
+  { id: 'system', label: '系統與通路' },
 ]
 
 function NexusLogo() {
@@ -36,26 +36,46 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   })
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        const visible = entries.find(e => e.isIntersecting)
-        if (visible) setActiveSection(visible.target.id)
-      },
-      { rootMargin: '-20% 0px -60% 0px' }
-    )
-    sections.forEach(({ id }) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
-    return () => observer.disconnect()
+    // Delay to let DOM render
+    const timer = setTimeout(() => {
+      const mainEl = document.querySelector('main')
+      const observer = new IntersectionObserver(
+        entries => {
+          const visible = entries.find(e => e.isIntersecting)
+          if (visible) setActiveSection(visible.target.id)
+        },
+        { root: mainEl, rootMargin: '-10% 0px -70% 0px' }
+      )
+      sections.forEach(({ id }) => {
+        const el = document.getElementById(id)
+        if (el) observer.observe(el)
+      })
+      return () => observer.disconnect()
+    }, 300)
+    return () => clearTimeout(timer)
   }, [])
 
   function scrollToSection(id: string) {
     const el = document.getElementById(id)
-    if (el) {
+    if (!el) return
+
+    // Scroll the main content area (not window)
+    const main = el.closest('main') ?? el.closest('[class*="overflow-auto"]')
+    if (main) {
+      const top = el.offsetTop - main.offsetTop - 16
+      main.scrollTo({ top, behavior: 'smooth' })
+    } else {
       el.scrollIntoView({ behavior: 'smooth' })
-      setActiveSection(id)
     }
+    setActiveSection(id)
+
+    // Highlight border
+    el.classList.add('ring-2', 'ring-primary', 'transition-shadow', 'duration-500')
+    setTimeout(() => {
+      el.classList.remove('ring-2', 'ring-primary')
+      el.classList.add('ring-0')
+      setTimeout(() => el.classList.remove('ring-0', 'transition-shadow', 'duration-500'), 500)
+    }, 1500)
   }
 
   return (

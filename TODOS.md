@@ -18,14 +18,13 @@
 
 ### Rate limiting 策略
 
-**What:** 前端自動刷新（dashboard 30s、monitor 15s）+ AI 查詢無 debounce，需要評估限速方案。
+**What:** ~~前端自動刷新 + AI 查詢無 debounce，需要評估限速方案。~~
+已透過 React Query (@tanstack/react-query) 解決大部分問題：staleTime 30s 去重複、refetchOnWindowFocus 取代 setInterval、背景 tab 自動暫停。
 
-**Why:** 開多 tab 或用戶數增加時，RPC 呼叫率會很高。目前每個 tab 每分鐘最多 6 次 RPC（overview + trend 各 2 次/分鐘），10 個 tab = 60 RPC/min。
+**Status:** 大部分已解決。剩餘：AI 查詢 debounce（P3）。
 
-**Context:** 可考慮：1) 前端 tab visibility API 暫停背景 tab 的刷新；2) Supabase rate limiting（需 Pro plan）；3) 前端 debounce AI 查詢輸入。
-
-**Effort:** M
-**Priority:** P3
+**Effort:** S
+**Priority:** P4
 **Depends on:** None
 
 ## Completed

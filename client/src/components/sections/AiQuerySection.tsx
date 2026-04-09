@@ -2,26 +2,28 @@
 
 import { useState, useRef, useEffect } from 'react'
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
-  BarElement, ArcElement, Title, Tooltip, Legend, Filler,
-  type ChartData, type ChartOptions,
-} from 'chart.js'
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
-import { Bot, Send } from 'lucide-react'
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from 'recharts'
+import { Bot, Send } from '@/lib/icons'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 
-ChartJS.register(
-  CategoryScale, LinearScale, PointElement, LineElement,
-  BarElement, ArcElement, Title, Tooltip, Legend, Filler,
-)
+interface RawChartData {
+  labels?: string[]
+  datasets?: Array<{
+    label?: string
+    data?: number[]
+    backgroundColor?: string | string[]
+    borderColor?: string
+  }>
+}
 
 interface ChartConfig {
   type: 'line' | 'bar' | 'pie' | 'doughnut'
-  data: ChartData
-  options?: ChartOptions
+  data: RawChartData
 }
 
 interface AiQueryResponse {
@@ -48,14 +50,92 @@ const sampleQueries = [
   '哪些客戶超過 7 天沒有登入了？',
 ]
 
+// --color-chart-X defined globally in globals.css
+const CHART_VARS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+  'var(--color-chart-4)',
+  'var(--color-chart-5)',
+]
+
+function toRechartsData(raw: RawChartData) {
+  const labels = raw.labels ?? []
+  const datasets = raw.datasets ?? []
+  return labels.map((label, i) => {
+    const row: Record<string, string | number> = { label }
+    for (const ds of datasets) {
+      const key = ds.label ?? 'value'
+      row[key] = ds.data?.[i] ?? 0
+    }
+    return row
+  })
+}
+
 function ChartRenderer({ config }: Readonly<{ config: ChartConfig }>) {
-  switch (config.type) {
-    case 'line': return <Line data={config.data as ChartData<'line'>} options={config.options as ChartOptions<'line'>} />
-    case 'bar': return <Bar data={config.data as ChartData<'bar'>} options={config.options as ChartOptions<'bar'>} />
-    case 'pie': return <Pie data={config.data as ChartData<'pie'>} options={config.options as ChartOptions<'pie'>} />
-    case 'doughnut': return <Doughnut data={config.data as ChartData<'doughnut'>} options={config.options as ChartOptions<'doughnut'>} />
-    default: return <Bar data={config.data as ChartData<'bar'>} options={config.options as ChartOptions<'bar'>} />
+  const data = toRechartsData(config.data)
+  const datasets = config.data.datasets ?? []
+  const firstKey = datasets[0]?.label ?? 'value'
+
+  if (config.type === 'pie' || config.type === 'doughnut') {
+    const pieData = (config.data.labels ?? []).map((name, i) => ({
+      name,
+      value: datasets[0]?.data?.[i] ?? 0,
+    }))
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%" cy="50%"
+            innerRadius={config.type === 'doughnut' ? '55%' : 0}
+            outerRadius="75%"
+            strokeWidth={0}
+          >
+            {pieData.map((_, i) => (
+              <Cell key={i} fill={CHART_VARS[i % CHART_VARS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+    )
   }
+
+  if (config.type === 'bar') {
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+          <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+          <YAxis hide />
+          <Tooltip />
+          {datasets.map((ds, i) => (
+            <Bar key={i} dataKey={ds.label ?? 'value'} fill={CHART_VARS[i % CHART_VARS.length]} radius={[4, 4, 0, 0]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  // line (default)
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+        <defs>
+          <linearGradient id="fillAi" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+        <YAxis hide />
+        <Tooltip />
+        <Area dataKey={firstKey} stroke="var(--color-chart-1)" fill="url(#fillAi)" strokeWidth={2} dot={false} />
+      </AreaChart>
+    </ResponsiveContainer>
+  )
 }
 
 export default function AiQuerySection() {
@@ -103,7 +183,6 @@ export default function AiQuerySection() {
 
   return (
     <section id="ai-query" className="scroll-mt-28 py-8 border-t border-border">
-      <h2 className="text-base font-semibold text-foreground mb-4">AI 查詢</h2>
       <div className="w-full flex flex-col gap-4">
         <Card className="shadow-sm">
           <CardHeader>
@@ -114,10 +193,7 @@ export default function AiQuerySection() {
             <CardDescription>輸入自然語言後，系統會回傳指標摘要、SQL 與圖表建議</CardDescription>
           </CardHeader>
           <CardContent>
-            <div
-              ref={chatRef}
-              className="space-y-4 min-h-64 max-h-[50vh] overflow-y-auto pr-1"
-            >
+            <div ref={chatRef} className="space-y-4 min-h-64 max-h-[50vh] overflow-y-auto pr-1">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="rounded-full bg-accent p-4 mb-4">
@@ -179,7 +255,6 @@ export default function AiQuerySection() {
           </CardContent>
         </Card>
 
-        {/* 快速提示 */}
         <div className="flex flex-wrap gap-2">
           {sampleQueries.map(q => (
             <Button
@@ -195,7 +270,6 @@ export default function AiQuerySection() {
           ))}
         </div>
 
-        {/* 輸入欄 */}
         <div className="flex gap-3">
           <Input
             value={input}

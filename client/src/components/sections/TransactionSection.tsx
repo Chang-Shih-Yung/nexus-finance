@@ -1,0 +1,187 @@
+'use client'
+
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis,
+} from 'recharts'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import ChartCard from '@/components/ChartCard'
+import { useRpc } from '@/hooks/useRpc'
+import { METRIC_KEYS } from '@/lib/metric-keys'
+
+interface TrendRow { date: string; metric_value: number }
+interface BreakdownRow { dimension_value: string; metric_value: number }
+
+const PIE_COLORS = [
+  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
+  'var(--color-chart-4)', 'var(--color-chart-5)',
+]
+
+const CATEGORY_LABELS: Record<string, string> = {
+  transfer: '轉帳', deposit: '存款', withdrawal: '提款', payment: '繳費', loan: '貸款',
+}
+
+const CHANNEL_LABELS: Record<string, string> = {
+  web: '網路銀行', mobile: '行動銀行', atm: 'ATM', branch: '臨櫃',
+  'rich-seed-v1': '批次匯入', 'demo-seed-v1': '測試',
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+export default function TransactionSection() {
+  const { data: countTrend } = useRpc<TrendRow[]>(
+    ['daily-trend', METRIC_KEYS.TXN_COUNT, '30'],
+    'nf_daily_trend',
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: 30 }
+  )
+
+  const { data: amountTrend } = useRpc<TrendRow[]>(
+    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, '30'],
+    'nf_daily_trend',
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: 30 }
+  )
+
+  const { data: categoryBreakdown } = useRpc<BreakdownRow[]>(
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'category'],
+    'nf_current_breakdown',
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'category' }
+  )
+
+  const { data: channelBreakdown } = useRpc<BreakdownRow[]>(
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'channel'],
+    'nf_current_breakdown',
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'channel' }
+  )
+
+  const { data: successTrend } = useRpc<TrendRow[]>(
+    ['daily-trend', METRIC_KEYS.SUCCESS_RATE, '30'],
+    'nf_daily_trend',
+    { p_metric_key: METRIC_KEYS.SUCCESS_RATE, p_days: 30 }
+  )
+
+  const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+  const amountData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+  const successData = (successTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+
+  const catData = (categoryBreakdown ?? []).map(d => ({
+    name: CATEGORY_LABELS[d.dimension_value] ?? d.dimension_value,
+    value: Number(d.metric_value),
+  }))
+
+  const channelData = (channelBreakdown ?? []).map(d => ({
+    name: CHANNEL_LABELS[d.dimension_value] ?? d.dimension_value,
+    value: Number(d.metric_value),
+  }))
+
+  return (
+    <>
+      {/* Daily Transaction Volume (Bar) */}
+      <ChartCard id="transactions" title="每日交易量 (30天)" height={200}>
+        {countData.length > 0 && (
+          <ChartContainer
+            config={{ value: { label: '交易筆數', color: 'var(--chart-1)' } }}
+            className="h-full w-full"
+          >
+            <BarChart data={countData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="value" fill="var(--color-value)" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Daily Amount Trend (Area) */}
+      <ChartCard title="每日交易金額 (30天)" height={200}>
+        {amountData.length > 0 && (
+          <ChartContainer
+            config={{ value: { label: '交易金額', color: 'var(--chart-2)' } }}
+            className="h-full w-full"
+          >
+            <AreaChart data={amountData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+              <defs>
+                <linearGradient id="fillTxAmount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" hide />
+              <YAxis hide />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Area dataKey="value" stroke="var(--color-value)" fill="url(#fillTxAmount)" strokeWidth={2} dot={false} />
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Category Distribution (Horizontal Bar) */}
+      <ChartCard title="交易類型分佈" height={180}>
+        {catData.length > 0 && (
+          <ChartContainer
+            config={{ value: { label: '筆數', color: 'var(--chart-3)' } }}
+            className="h-full w-full"
+          >
+            <BarChart data={catData} layout="vertical" margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+              <XAxis type="number" hide />
+              <YAxis dataKey="name" type="category" width={56} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="value" fill="var(--color-value)" radius={[0, 6, 6, 0]} />
+            </BarChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Channel Distribution (Pie) */}
+      <ChartCard title="通路分佈" height={200}>
+        {channelData.length > 0 && (
+          <ChartContainer
+            config={Object.fromEntries(channelData.map((d, i) => [
+              d.name, { label: d.name, color: `var(--chart-${(i % 5) + 1})` },
+            ]))}
+            className="h-full w-full"
+          >
+            <PieChart>
+              <Pie
+                data={channelData} cx="50%" cy="50%"
+                innerRadius="50%" outerRadius="80%"
+                dataKey="value" strokeWidth={0}
+              >
+                {channelData.map((_, i) => (
+                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                ))}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+            </PieChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      {/* Success Rate Trend (Area) */}
+      <ChartCard title="交易成功率趨勢 (30天)" height={180} className="lg:col-span-2">
+        {successData.length > 0 && (
+          <ChartContainer
+            config={{ value: { label: '成功率 %', color: 'var(--chart-2)' } }}
+            className="h-full w-full"
+          >
+            <AreaChart data={successData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+              <defs>
+                <linearGradient id="fillSuccess" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" hide />
+              <YAxis hide domain={[0, 100]} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Area dataKey="value" stroke="var(--color-value)" fill="url(#fillSuccess)" strokeWidth={2} dot={false} />
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+    </>
+  )
+}

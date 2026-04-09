@@ -141,4 +141,107 @@ describe('api', () => {
       expect(mockRpc).toHaveBeenCalledWith('nf_stats_api_health', { p_minutes: 60 })
     })
   })
+
+  // ── New generic RPC wrappers ──
+
+  describe('dailyTrend', () => {
+    it('calls nf_daily_trend with metric key and days', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [{ date: '2026-04-01', metric_value: 100 }], error: null })
+
+      const result = await api.dailyTrend('txn_count', 30)
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_daily_trend', {
+        p_metric_key: 'txn_count',
+        p_days: 30,
+      })
+      expect(result).toEqual([{ date: '2026-04-01', metric_value: 100 }])
+    })
+
+    it('passes optional dimension params', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+      await api.dailyTrend('txn_count', 7, 'category', 'transfer')
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_daily_trend', {
+        p_metric_key: 'txn_count',
+        p_days: 7,
+        p_dimension: 'category',
+        p_dimension_value: 'transfer',
+      })
+    })
+  })
+
+  describe('currentBreakdown', () => {
+    it('calls nf_current_breakdown with metric and dimension', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [{ dimension_value: 'web', metric_value: 50 }], error: null })
+
+      const result = await api.currentBreakdown('txn_count', 'channel')
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_current_breakdown', {
+        p_metric_key: 'txn_count',
+        p_dimension: 'channel',
+      })
+      expect(result).toEqual([{ dimension_value: 'web', metric_value: 50 }])
+    })
+  })
+
+  describe('topN', () => {
+    it('calls nf_top_n with defaults', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+      await api.topN('txn_amount', 'user')
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_top_n', {
+        p_metric_key: 'txn_amount',
+        p_dimension: 'user',
+        p_n: 10,
+      })
+    })
+  })
+
+  describe('periodCompare', () => {
+    it('calls nf_period_compare and returns first row', async () => {
+      mockRpc.mockResolvedValueOnce({
+        data: [{ current_total: 1000, previous_total: 800, change_pct: 25 }],
+        error: null,
+      })
+
+      const result = await api.periodCompare('txn_amount', '2026-04-01', '2026-04-08', '2026-03-01', '2026-03-08')
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_period_compare', {
+        p_metric_key: 'txn_amount',
+        p_current_start: '2026-04-01',
+        p_current_end: '2026-04-08',
+        p_previous_start: '2026-03-01',
+        p_previous_end: '2026-03-08',
+      })
+      expect(result).toEqual({ current_total: 1000, previous_total: 800, change_pct: 25 })
+    })
+
+    it('returns zero defaults when empty', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+      const result = await api.periodCompare('txn_amount', '2026-04-01', '2026-04-08', '2026-03-01', '2026-03-08')
+
+      expect(result).toEqual({ current_total: 0, previous_total: 0, change_pct: 0 })
+    })
+  })
+
+  describe('anomalyCheck', () => {
+    it('calls nf_anomaly_check without date', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+      await api.anomalyCheck()
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_anomaly_check', {})
+    })
+
+    it('passes date when provided', async () => {
+      mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+      await api.anomalyCheck('2026-04-01')
+
+      expect(mockRpc).toHaveBeenCalledWith('nf_anomaly_check', { p_date: '2026-04-01' })
+    })
+  })
 })

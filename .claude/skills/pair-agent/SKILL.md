@@ -1,0 +1,1 @@
+/Users/itts/Desktop/Nexus_Finance/.claude/skills/gstack/pair-agent/SKILL.md

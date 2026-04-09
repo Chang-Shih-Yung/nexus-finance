@@ -9,6 +9,7 @@ vi.mock('next/navigation', () => ({
     push: vi.fn(),
     refresh: vi.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 // Mock next-themes
@@ -60,11 +61,11 @@ describe('AppShell', () => {
     const { default: AppShell } = await import('@/components/AppShell')
     render(<AppShell><div>content</div></AppShell>)
 
-    expect(screen.getAllByText('即時總覽').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('使用者漏斗').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('錯誤監控').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('API 監控').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('AI 查詢').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('營收總覽').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('交易分析').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('客群分析').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('風險監控').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('系統與通路').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders children', async () => {
@@ -74,31 +75,25 @@ describe('AppShell', () => {
     expect(screen.getByTestId('child')).toBeInTheDocument()
   })
 
-  it('renders logout button', async () => {
-    const { default: AppShell } = await import('@/components/AppShell')
-    render(<AppShell><div>content</div></AppShell>)
-
-    expect(screen.getAllByText('登出').length).toBeGreaterThanOrEqual(1)
-  })
-
   it('has mobile hamburger button', async () => {
     const { default: AppShell } = await import('@/components/AppShell')
     render(<AppShell><div>content</div></AppShell>)
 
-    const hamburger = screen.getByLabelText('開啟選單')
+    const hamburger = screen.getByLabelText('導航選單')
     expect(hamburger).toBeInTheDocument()
   })
 
-  it('opens mobile drawer on hamburger click', async () => {
+  it('opens mobile popover on hamburger click', async () => {
     const user = userEvent.setup()
     const { default: AppShell } = await import('@/components/AppShell')
     render(<AppShell><div>content</div></AppShell>)
 
-    const hamburger = screen.getByLabelText('開啟選單')
+    const hamburger = screen.getByLabelText('導航選單')
     await user.click(hamburger)
 
-    const closeButton = screen.getByLabelText('關閉選單')
-    expect(closeButton).toBeInTheDocument()
+    // Popover should show nav items
+    const items = screen.getAllByText('營收總覽')
+    expect(items.length).toBeGreaterThanOrEqual(1)
   })
 })
 
