@@ -8,6 +8,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
+import { useI18n } from '@/lib/i18n/context'
+import { CATEGORY_LABELS, CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface TrendRow { date: string; metric_value: number }
 interface BreakdownRow { dimension_value: string; metric_value: number }
@@ -17,21 +19,13 @@ const PIE_COLORS = [
   'var(--color-chart-4)', 'var(--color-chart-5)',
 ]
 
-const CATEGORY_LABELS: Record<string, string> = {
-  transfer: '轉帳', deposit: '存款', withdrawal: '提款', payment: '繳費', loan: '貸款',
-}
-
-const CHANNEL_LABELS: Record<string, string> = {
-  web: '網路銀行', mobile: '行動銀行', atm: 'ATM', branch: '臨櫃',
-  'rich-seed-v1': '批次匯入', 'demo-seed-v1': '測試',
-}
-
 function formatDate(iso: string) {
   const d = new Date(iso)
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
 export default function TransactionSection() {
+  const { locale, t } = useI18n()
   const { data: countTrend } = useRpc<TrendRow[]>(
     ['daily-trend', METRIC_KEYS.TXN_COUNT, '30'],
     'nf_daily_trend',
@@ -67,19 +61,19 @@ export default function TransactionSection() {
   const successData = (successTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
 
   const catData = (categoryBreakdown ?? []).map(d => ({
-    name: CATEGORY_LABELS[d.dimension_value] ?? d.dimension_value,
+    name: getLabel(CATEGORY_LABELS, locale, d.dimension_value),
     value: Number(d.metric_value),
   }))
 
   const channelData = (channelBreakdown ?? []).map(d => ({
-    name: CHANNEL_LABELS[d.dimension_value] ?? d.dimension_value,
+    name: getLabel(CHANNEL_LABELS, locale, d.dimension_value),
     value: Number(d.metric_value),
   }))
 
   return (
     <>
       {/* Daily Transaction Volume (Bar) */}
-      <ChartCard id="transactions" title="每日交易量 (30天)" height={200}>
+      <ChartCard id="transactions" title={t('sections.transactions.dailyVolume')} height={200}>
         {countData.length > 0 && (
           <ChartContainer
             config={{ value: { label: '交易筆數', color: 'var(--chart-1)' } }}
@@ -96,7 +90,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Daily Amount Trend (Area) */}
-      <ChartCard title="每日交易金額 (30天)" height={200}>
+      <ChartCard title={t('sections.transactions.dailyAmount')} height={200}>
         {amountData.length > 0 && (
           <ChartContainer
             config={{ value: { label: '交易金額', color: 'var(--chart-2)' } }}
@@ -119,7 +113,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Category Distribution (Horizontal Bar) */}
-      <ChartCard title="交易類型分佈" height={180}>
+      <ChartCard title={t('sections.transactions.categoryDist')} height={180}>
         {catData.length > 0 && (
           <ChartContainer
             config={{ value: { label: '筆數', color: 'var(--chart-3)' } }}
@@ -136,7 +130,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Channel Distribution (Pie) */}
-      <ChartCard title="通路分佈" height={200}>
+      <ChartCard title={t('sections.transactions.channelDist')} height={200}>
         {channelData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(channelData.map((d, i) => [
@@ -161,7 +155,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Success Rate Trend (Area) */}
-      <ChartCard title="交易成功率趨勢 (30天)" height={180} className="lg:col-span-2">
+      <ChartCard title={t('sections.transactions.successTrend')} height={180} className="lg:col-span-2">
         {successData.length > 0 && (
           <ChartContainer
             config={{ value: { label: '成功率 %', color: 'var(--chart-2)' } }}

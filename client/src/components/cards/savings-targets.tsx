@@ -21,14 +21,14 @@ function getDateRange(offsetMonths: number) {
   }
 }
 
-function formatCompact(n: number) {
-  return new Intl.NumberFormat("en-US", {
+function formatCompact(n: number, loc = "en-US") {
+  return new Intl.NumberFormat(loc, {
     style: "currency", currency: "TWD", notation: "compact", maximumFractionDigits: 1,
   }).format(n)
 }
 
 export function SavingsTargets() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const current = getDateRange(0)
   const previous = getDateRange(-1)
 
@@ -83,12 +83,12 @@ export function SavingsTargets() {
               <Item variant="muted" className="flex-col items-stretch">
                 <ItemContent className="gap-3">
                   <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.savingsTargets.transactionVolume')}</ItemDescription>
-                  <span className="text-3xl font-semibold tabular-nums">{formatCompact(Number(txn?.current_total ?? 0))}</span>
+                  <span className="text-3xl font-semibold tabular-nums">{formatCompact(Number(txn?.current_total ?? 0), locale)}</span>
                   <Progress value={txnPct} />
                 </ItemContent>
                 <ItemFooter>
                   <span className="text-sm text-muted-foreground">{txnPct}% {t('cards.savingsTargets.ofLastMonth')}</span>
-                  <span className="text-sm font-medium tabular-nums">{formatCompact(Number(txn?.previous_total ?? 0))}</span>
+                  <span className="text-sm font-medium tabular-nums">{formatCompact(Number(txn?.previous_total ?? 0), locale)}</span>
                 </ItemFooter>
               </Item>
               <Item variant="muted" className="flex-col items-stretch">

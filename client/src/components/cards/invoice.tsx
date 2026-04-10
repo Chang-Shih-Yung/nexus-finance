@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
+import { ERROR_CODE_LABELS } from '@/lib/i18n/labels'
 
 interface FailedTx {
   id: number
@@ -26,37 +27,10 @@ interface FailedTx {
   created_at: string
 }
 
-function formatCurrency(value: number, currency = "TWD") {
-  return new Intl.NumberFormat("en-US", {
+function formatCurrency(value: number, currency = "TWD", loc = "en-US") {
+  return new Intl.NumberFormat(loc, {
     style: "currency", currency, maximumFractionDigits: 0,
   }).format(value)
-}
-
-const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
-  "zh-TW": {
-    E_TIMEOUT: "逾時",
-    E_FRAUD: "詐欺",
-    E_BALANCE: "餘額不足",
-    E_ACCOUNT: "帳戶異常",
-    E_LIMIT: "超過限額",
-    E_AUTH: "驗證失敗",
-    E_NETWORK: "網路錯誤",
-    E_DUPLICATE: "重複交易",
-    E_INVALID: "資料無效",
-    E_MAINTENANCE: "系統維護",
-  },
-  en: {
-    E_TIMEOUT: "Timeout",
-    E_FRAUD: "Fraud",
-    E_BALANCE: "Low Balance",
-    E_ACCOUNT: "Account Error",
-    E_LIMIT: "Over Limit",
-    E_AUTH: "Auth Failed",
-    E_NETWORK: "Network Error",
-    E_DUPLICATE: "Duplicate",
-    E_INVALID: "Invalid Data",
-    E_MAINTENANCE: "Maintenance",
-  },
 }
 
 export function Invoice() {
@@ -84,7 +58,7 @@ export function Invoice() {
         <CardTitle>{t('cards.invoice.title')}</CardTitle>
         <CardDescription>{t('cards.invoice.description')} · {items.length} {t('cards.invoice.failures')}</CardDescription>
         <CardAction>
-          <Badge variant="destructive">{isLoading ? "..." : formatCurrency(totalLost)} {t('cards.invoice.lost')}</Badge>
+          <Badge variant="destructive">{isLoading ? "..." : formatCurrency(totalLost, "TWD", locale)} {t('cards.invoice.lost')}</Badge>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -110,7 +84,7 @@ export function Invoice() {
                     <Badge variant="outline" className="text-xs">{errorLabels[row.error_code] ?? row.error_code}</Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {formatCurrency(Number(row.amount), row.currency)}
+                    {formatCurrency(Number(row.amount), row.currency, locale)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {formatDate(row.created_at)}

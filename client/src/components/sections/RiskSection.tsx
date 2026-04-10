@@ -9,8 +9,6 @@ import { AlertTriangle } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
-import { api } from '@/lib/api'
-import { useQuery } from '@tanstack/react-query'
 
 interface BreakdownRow { dimension_value: string; metric_value: number }
 interface TrendRow { date: string; metric_value: number }
@@ -67,10 +65,11 @@ export default function RiskSection() {
     {}
   )
 
-  const { data: failedTx } = useQuery<TxRow[]>({
-    queryKey: ['failed-transactions'],
-    queryFn: () => api.getFailedTransactions(20) as Promise<TxRow[]>,
-  })
+  const { data: failedTx } = useRpc<TxRow[]>(
+    ['failed-transactions'],
+    'nf_stats_failed_transactions',
+    { p_limit: 20 }
+  )
 
   const pieData = (errorBreakdown ?? []).map(d => ({
     name: d.dimension_value,

@@ -15,12 +15,12 @@ const miniChartConfig = {
   value: { label: "Volume", color: "var(--chart-2)" },
 } satisfies ChartConfig
 
-function formatAmount(n: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
+function formatAmount(n: number, loc = "en-US") {
+  return new Intl.NumberFormat(loc, { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
 }
 
 export function DividendIncome() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const now = new Date()
   const from = new Date(now.getTime() - 30 * 86400000).toISOString()
   const to = now.toISOString()
@@ -47,7 +47,7 @@ export function DividendIncome() {
 
   const items = (data ?? []).map(d => ({
     name: d.user_name,
-    amount: formatAmount(Number(d.total_amount)),
+    amount: formatAmount(Number(d.total_amount), locale),
     raw: Number(d.total_amount),
     txCount: Number(d.tx_count),
     // Scale 5-day trend shape by user's total amount

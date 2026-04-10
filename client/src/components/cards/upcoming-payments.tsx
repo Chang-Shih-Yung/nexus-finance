@@ -9,6 +9,7 @@ import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/comp
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
+import { CATEGORY_LABELS } from '@/lib/i18n/labels'
 import { zhTW } from "date-fns/locale/zh-TW"
 
 const Calendar = dynamic(
@@ -25,8 +26,8 @@ interface PendingTx {
   created_at: string
 }
 
-function formatAmount(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
+function formatAmount(amount: number, currency: string, loc = "en-US") {
+  return new Intl.NumberFormat(loc, {
     style: "currency", currency: currency || "TWD", minimumFractionDigits: 2,
   }).format(amount)
 }
@@ -37,16 +38,6 @@ function formatDate(iso: string, loc: string) {
 
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-const CATEGORY_LABELS: Record<string, Record<string, string>> = {
-  "zh-TW": {
-    loan: "貸款", payment: "付款", transfer: "轉帳", deposit: "存款",
-    withdrawal: "提款", refund: "退款", fee: "手續費", interest: "利息",
-    food_drink: "餐飲", groceries: "雜貨", income: "收入",
-    transport: "交通", entertainment: "娛樂", banking: "銀行",
-    mobile: "行動支付", online: "線上",
-  },
 }
 
 export function UpcomingPayments() {
@@ -117,7 +108,7 @@ export function UpcomingPayments() {
                       {formatDate(tx.created_at, locale)} · <span className="capitalize">{catLabels[tx.category] ?? tx.category}</span>
                     </ItemDescription>
                   </ItemContent>
-                  <Badge variant="secondary">{formatAmount(tx.amount, tx.currency)}</Badge>
+                  <Badge variant="secondary">{formatAmount(tx.amount, tx.currency, locale)}</Badge>
                 </Item>
               ))
             ) : (

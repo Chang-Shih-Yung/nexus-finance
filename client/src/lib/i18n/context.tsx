@@ -63,6 +63,9 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const t = React.useCallback(
     (key: string) => {
       const flat = getFlat(locale)
+      if (process.env.NODE_ENV === 'development' && !(key in flat)) {
+        console.warn(`[i18n] Missing key "${key}" for locale "${locale}"`)
+      }
       return flat[key] ?? key
     },
     [locale]

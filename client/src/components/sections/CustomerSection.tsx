@@ -11,8 +11,6 @@ import { LogIn, ArrowLeftRight, CheckCircle2 } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
-import { api } from '@/lib/api'
-import { useQuery } from '@tanstack/react-query'
 
 interface BreakdownRow { dimension_value: string; metric_value: number }
 interface TopNRow { dimension_value: string; metric_value: number }
@@ -56,10 +54,10 @@ export default function CustomerSection() {
     { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'user', p_n: 10 }
   )
 
-  const { data: funnelData } = useQuery<FunnelRow[]>({
-    queryKey: ['funnel'],
-    queryFn: () => api.getFunnel() as Promise<FunnelRow[]>,
-  })
+  const { data: funnelData } = useRpc<FunnelRow[]>(
+    ['funnel'],
+    'nf_stats_funnel'
+  )
 
   const amountPie = (tierAmount ?? []).map(d => ({
     name: TIER_LABELS[d.dimension_value] ?? d.dimension_value,

@@ -720,5 +720,21 @@
       "recurringPayments": "定期付款",
       "recurringPaymentsDescription": "管理卡片與帳戶的定期付款。"
     }
+  },
+  "sections": {
+    "revenue": {
+      "mtdAmount": "本月交易金額 (MTD)",
+      "lastMonth": "上月",
+      "dailyTrend": "日交易金額趨勢 (30天)",
+      "categoryBreakdown": "交易類型佔比",
+      "dailyAvgCount": "日均交易筆數 (30天)"
+    },
+    "transactions": {
+      "dailyVolume": "每日交易量 (30天)",
+      "dailyAmount": "每日交易金額 (30天)",
+      "categoryDist": "交易類型分佈",
+      "channelDist": "通路分佈",
+      "successTrend": "交易成功率趨勢 (30天)"
+    }
   }
 }

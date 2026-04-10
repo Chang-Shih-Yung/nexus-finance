@@ -9,21 +9,21 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from "@/lib/i18n/context"
 
-function formatCompact(amount: number, currency: string) {
+function formatCompact(amount: number, currency: string, loc = "en-US") {
   const abs = Math.abs(amount)
   if (abs >= 1_000_000) {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(loc, {
       style: "currency", currency: currency || "TWD",
       notation: "compact", maximumFractionDigits: 1,
     }).format(amount)
   }
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(loc, {
     style: "currency", currency: currency || "TWD", maximumFractionDigits: 0,
   }).format(amount)
 }
 
 export function CardOverview() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const chartConfig = { amount: { label: t('cards.cardOverview.transactions'), color: "var(--chart-2)" } } satisfies ChartConfig
   const { data: summary, isLoading: loadingSummary } = useRpc<{
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
@@ -48,7 +48,7 @@ export function CardOverview() {
             <Skeleton className="h-8 w-32 mt-1" />
           ) : (
             <CardTitle className="text-2xl tabular-nums">
-              {formatCompact(summary?.total_balance ?? 0, cur)}
+              {formatCompact(summary?.total_balance ?? 0, cur, locale)}
             </CardTitle>
           )}
           <CardDescription className="tabular-nums">
@@ -68,7 +68,7 @@ export function CardOverview() {
               <Skeleton className="h-8 w-28 mt-1" />
             ) : (
               <CardTitle className="text-2xl tabular-nums">
-                {formatCompact(summary?.avg_balance ?? 0, cur)}
+                {formatCompact(summary?.avg_balance ?? 0, cur, locale)}
               </CardTitle>
             )}
           </div>

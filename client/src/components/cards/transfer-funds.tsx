@@ -13,14 +13,14 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useI18n } from "@/lib/i18n/context"
 
-function formatCompact(n: number) {
-  return new Intl.NumberFormat("en-US", {
+function formatCompact(n: number, loc = "en-US") {
+  return new Intl.NumberFormat(loc, {
     style: "currency", currency: "TWD", notation: "compact", maximumFractionDigits: 1,
   }).format(n)
 }
 
 export function TransferFunds() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const { data: summary, isLoading } = useRpc<{
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
   }>(
@@ -51,34 +51,34 @@ export function TransferFunds() {
             </InputGroup>
           </Field>
           <Field>
-            <FieldLabel htmlFor="from-account">{t('cards.transferFunds.fromAccount')}</FieldLabel>
+            <FieldLabel id="from-account-label">{t('cards.transferFunds.fromAccount')}</FieldLabel>
             {isLoading ? (
               <Skeleton className="h-10 w-full" />
             ) : (
               <Select defaultValue="checking">
-                <SelectTrigger id="from-account" className="w-full"><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-labelledby="from-account-label" className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3)}</SelectItem>
-                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5)}</SelectItem>
-                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2)}</SelectItem>
+                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3, locale)}</SelectItem>
+                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5, locale)}</SelectItem>
+                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2, locale)}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             )}
           </Field>
           <Field>
-            <FieldLabel htmlFor="to-account">{t('cards.transferFunds.toAccount')}</FieldLabel>
+            <FieldLabel id="to-account-label">{t('cards.transferFunds.toAccount')}</FieldLabel>
             {isLoading ? (
               <Skeleton className="h-10 w-full" />
             ) : (
               <Select defaultValue="savings">
-                <SelectTrigger id="to-account" className="w-full"><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-labelledby="to-account-label" className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3)}</SelectItem>
-                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5)}</SelectItem>
-                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2)}</SelectItem>
+                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3, locale)}</SelectItem>
+                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5, locale)}</SelectItem>
+                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2, locale)}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

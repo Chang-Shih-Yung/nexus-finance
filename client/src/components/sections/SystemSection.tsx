@@ -10,8 +10,8 @@ import { Timer, AlertCircle, Activity } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
-import { api } from '@/lib/api'
-import { useQuery } from '@tanstack/react-query'
+import { useI18n } from '@/lib/i18n/context'
+import { CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface BreakdownRow { dimension_value: string; metric_value: number }
 interface HealthRow {
@@ -23,17 +23,14 @@ const PIE_COLORS = [
   'var(--color-chart-4)', 'var(--color-chart-5)',
 ]
 
-const CHANNEL_LABELS: Record<string, string> = {
-  web: '網路銀行', mobile: '行動銀行', atm: 'ATM', branch: '臨櫃',
-  'rich-seed-v1': '批次匯入', 'demo-seed-v1': '測試',
-}
-
 export default function SystemSection() {
-  const { data: healthData } = useQuery<HealthRow[]>({
-    queryKey: ['api-health'],
-    queryFn: () => api.getApiHealth(60) as Promise<HealthRow[]>,
-    refetchInterval: 15_000,
-  })
+  const { locale } = useI18n()
+  const { data: healthData } = useRpc<HealthRow[]>(
+    ['api-health'],
+    'nf_stats_api_health',
+    { p_minutes: 60 },
+    { refetchInterval: 15_000 }
+  )
 
   const { data: branchBreakdown } = useRpc<BreakdownRow[]>(
     ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'branch'],
@@ -77,7 +74,7 @@ export default function SystemSection() {
   }))
 
   const channelPie = (channelBreakdown ?? []).map(d => ({
-    name: CHANNEL_LABELS[d.dimension_value] ?? d.dimension_value,
+    name: getLabel(CHANNEL_LABELS, locale, d.dimension_value),
     value: Number(d.metric_value),
   }))
 

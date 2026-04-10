@@ -1,8 +1,6 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
-
-type RpcParams = Record<string, unknown>
+import { invokeRpc } from '@/lib/rpc'
 
 interface AiQueryResponse {
     answer: string
@@ -23,13 +21,6 @@ interface AiQueryResponse {
         }
         options?: Record<string, unknown>
     }
-}
-
-async function invokeRpc<T>(name: string, params?: RpcParams): Promise<T> {
-    const supabase = createClient()
-    const { data, error } = await supabase.rpc(name, params ?? {})
-    if (error) throw new Error(error.message)
-    return data as T
 }
 
 function startOfMonthIso(now = new Date()) {

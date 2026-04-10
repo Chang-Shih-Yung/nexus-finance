@@ -720,5 +720,21 @@
       "recurringPayments": "Recurring Payments",
       "recurringPaymentsDescription": "Manage recurring card and account payments."
     }
+  },
+  "sections": {
+    "revenue": {
+      "mtdAmount": "MTD Transaction Amount",
+      "lastMonth": "last month",
+      "dailyTrend": "Daily Transaction Amount (30d)",
+      "categoryBreakdown": "Category Breakdown",
+      "dailyAvgCount": "Avg Daily Transactions (30d)"
+    },
+    "transactions": {
+      "dailyVolume": "Daily Volume (30d)",
+      "dailyAmount": "Daily Amount (30d)",
+      "categoryDist": "Category Distribution",
+      "channelDist": "Channel Distribution",
+      "successTrend": "Success Rate Trend (30d)"
+    }
   }
 }

@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from "@/lib/i18n/context"
+import { BRANCH_LABELS } from "@/lib/i18n/labels"
 
 type BranchRanking = {
   branch_name: string
@@ -18,19 +19,6 @@ type BranchRanking = {
   actual_value: number
   achievement_pct: number
   rank: number
-}
-
-const BRANCH_LABELS: Record<string, string> = {
-  "新竹分行": "Hsinchu",
-  "台南分行": "Tainan",
-  "桃園分行": "Taoyuan",
-  "台北南區分行": "Taipei South",
-  "高雄分行": "Kaohsiung",
-  "台中分行": "Taichung",
-  "台北北區分行": "Taipei North",
-  "板橋分行": "Banqiao",
-  "中壢分行": "Zhongli",
-  "嘉義分行": "Chiayi",
 }
 
 export function StyleOverview() {

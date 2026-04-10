@@ -10,24 +10,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
+import { ERROR_CODE_LABELS } from '@/lib/i18n/labels'
 
-function formatAmount(n: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
-}
-
-const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
-  "zh-TW": {
-    E_TIMEOUT: "逾時", E_FRAUD: "詐欺", E_BALANCE: "餘額不足",
-    E_ACCOUNT: "帳戶異常", E_LIMIT: "超過限額", E_AUTH: "驗證失敗",
-    E_NETWORK: "網路錯誤", E_DUPLICATE: "重複交易", E_INVALID: "資料無效",
-    E_MAINTENANCE: "系統維護",
-  },
-  en: {
-    E_TIMEOUT: "Timeout", E_FRAUD: "Fraud", E_BALANCE: "Insufficient Balance",
-    E_ACCOUNT: "Account Error", E_LIMIT: "Over Limit", E_AUTH: "Auth Failed",
-    E_NETWORK: "Network Error", E_DUPLICATE: "Duplicate", E_INVALID: "Invalid Data",
-    E_MAINTENANCE: "Maintenance",
-  },
+function formatAmount(n: number, loc = "en-US") {
+  return new Intl.NumberFormat(loc, { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
 }
 
 export function ReleaseCatalog() {

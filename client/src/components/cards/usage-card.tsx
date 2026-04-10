@@ -9,33 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
-
-const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
-  "zh-TW": {
-    E_TIMEOUT: "逾時",
-    E_FRAUD: "詐欺",
-    E_BALANCE: "餘額不足",
-    E_ACCOUNT: "帳戶異常",
-    E_LIMIT: "超過限額",
-    E_AUTH: "驗證失敗",
-    E_NETWORK: "網路錯誤",
-    E_DUPLICATE: "重複交易",
-    E_INVALID: "資料無效",
-    E_MAINTENANCE: "系統維護",
-  },
-  en: {
-    E_TIMEOUT: "Timeout",
-    E_FRAUD: "Fraud",
-    E_BALANCE: "Insufficient Balance",
-    E_ACCOUNT: "Account Error",
-    E_LIMIT: "Over Limit",
-    E_AUTH: "Auth Failed",
-    E_NETWORK: "Network Error",
-    E_DUPLICATE: "Duplicate",
-    E_INVALID: "Invalid Data",
-    E_MAINTENANCE: "Maintenance",
-  },
-}
+import { ERROR_CODE_LABELS } from '@/lib/i18n/labels'
 
 function useMetricLabels() {
   const { t } = useI18n()
@@ -64,10 +38,10 @@ function CircularGauge({ percentage }: { percentage: number }) {
   )
 }
 
-function formatValue(key: string, value: number): string {
+function formatValue(key: string, value: number, loc = "en-US"): string {
   if (key === "success_rate" || key === "error_rate") return `${value.toFixed(1)}%`
   if (key === "txn_amount" || key === "avg_balance") {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "TWD", notation: "compact", maximumFractionDigits: 1 }).format(value)
+    return new Intl.NumberFormat(loc, { style: "currency", currency: "TWD", notation: "compact", maximumFractionDigits: 1 }).format(value)
   }
   return value.toLocaleString()
 }
@@ -107,7 +81,7 @@ export function UsageCard() {
   const items = (data && data.length > 0)
     ? data.slice(0, 6).map(d => ({
         name: METRIC_LABELS[d.metric_key] ?? d.metric_key,
-        value: formatValue(d.metric_key, d.today_value),
+        value: formatValue(d.metric_key, d.today_value, locale),
         percentage: gaugePercent(d.metric_key, d.today_value),
       }))
     : (errorBreakdown ?? []).slice(0, 6).map(d => ({

@@ -6,6 +6,7 @@ import {
 } from "@/lib/icons"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from "@/lib/i18n/context"
+import { CATEGORY_LABELS } from "@/lib/i18n/labels"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,27 +38,14 @@ function getCategoryIcon(category: string) {
 }
 
 // ── Format helpers ──────────────────────────────────────────────────────────
-function formatAmount(amount: number, currency: string) {
+function formatAmount(amount: number, currency: string, loc = "en-US") {
   const abs = Math.abs(amount)
-  const formatted = new Intl.NumberFormat("en-US", {
+  const formatted = new Intl.NumberFormat(loc, {
     style: "currency",
     currency: currency || "USD",
     minimumFractionDigits: 2,
   }).format(abs)
   return amount >= 0 ? `+${formatted}` : `-${formatted}`
-}
-
-const CATEGORY_LABELS: Record<string, Record<string, string>> = {
-  "zh-TW": {
-    food_drink: "餐飲", groceries: "雜貨", income: "收入",
-    transport: "交通", entertainment: "娛樂", transfer: "轉帳",
-    payment: "付款", banking: "銀行", mobile: "行動支付", online: "線上",
-  },
-  en: {
-    food_drink: "Food & Drink", groceries: "Groceries", income: "Income",
-    transport: "Transport", entertainment: "Entertainment", transfer: "Transfer",
-    payment: "Payment", banking: "Banking", mobile: "Mobile", online: "Online",
-  },
 }
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -148,7 +136,7 @@ export function RecentTransactions() {
                     </TableCell>
                     <TableCell className="text-right">
                       <span className={`text-sm font-semibold tabular-nums ${positive ? "text-emerald-500" : ""}`}>
-                        {formatAmount(tx.amount, tx.currency)}
+                        {formatAmount(tx.amount, tx.currency, locale)}
                       </span>
                     </TableCell>
                     <TableCell className="w-8">

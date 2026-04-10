@@ -1,16 +1,7 @@
 'use client'
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { createClient } from '@/lib/supabase/client'
-
-type RpcParams = Record<string, unknown>
-
-async function invokeRpc<T>(name: string, params?: RpcParams): Promise<T> {
-  const supabase = createClient()
-  const { data, error } = await supabase.rpc(name, params ?? {})
-  if (error) throw new Error(error.message)
-  return data as T
-}
+import { invokeRpc, type RpcParams } from '@/lib/rpc'
 
 export function useRpc<T>(
   key: string[],

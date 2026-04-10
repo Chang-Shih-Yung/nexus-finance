@@ -8,6 +8,8 @@ import { TrendingUp, TrendingDown, DollarSign, Activity } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
+import { useI18n } from '@/lib/i18n/context'
+import { CATEGORY_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface TrendRow { date: string; metric_value: number }
 interface BreakdownRow { dimension_value: string; metric_value: number }
@@ -17,10 +19,6 @@ const PIE_COLORS = [
   'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
   'var(--color-chart-4)', 'var(--color-chart-5)',
 ]
-
-const CATEGORY_LABELS: Record<string, string> = {
-  transfer: '轉帳', deposit: '存款', withdrawal: '提款', payment: '繳費', loan: '貸款',
-}
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -52,6 +50,7 @@ function prevMonthRange(): [string, string] {
 }
 
 export default function RevenueSection() {
+  const { locale, t } = useI18n()
   const today = now()
   const mtdStart = monthStart()
   const [prevStart, prevEnd] = prevMonthRange()
@@ -85,7 +84,7 @@ export default function RevenueSection() {
   const trendData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
   const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
   const pieData = (categoryBreakdown ?? []).map(d => ({
-    name: CATEGORY_LABELS[d.dimension_value] ?? d.dimension_value,
+    name: getLabel(CATEGORY_LABELS, locale, d.dimension_value),
     value: Number(d.metric_value),
   }))
 
@@ -104,7 +103,7 @@ export default function RevenueSection() {
             <span className="p-1.5 rounded-md bg-primary/10">
               <DollarSign className="h-3.5 w-3.5 text-primary" />
             </span>
-            <p className="text-xs text-muted-foreground">本月交易金額 (MTD)</p>
+            <p className="text-xs text-muted-foreground">{t('sections.revenue.mtdAmount')}</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{formatAmount(cmp.current_total)}</p>
           <div className="mt-2 flex items-center gap-2">
@@ -112,13 +111,13 @@ export default function RevenueSection() {
               {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
               {isUp ? '+' : ''}{cmp.change_pct}%
             </Badge>
-            <span className="text-xs text-muted-foreground">vs 上月 {formatAmount(cmp.previous_total)}</span>
+            <span className="text-xs text-muted-foreground">vs {t('sections.revenue.lastMonth')} {formatAmount(cmp.previous_total)}</span>
           </div>
         </CardContent>
       </Card>
 
       {/* Daily Revenue Trend */}
-      <ChartCard title="日交易金額趨勢 (30天)" height={240} className="lg:col-span-2">
+      <ChartCard title={t('sections.revenue.dailyTrend')} height={240} className="lg:col-span-2">
         {trendData.length > 0 && (
           <ChartContainer
             config={{ value: { label: '交易金額', color: 'var(--chart-1)' } }}
@@ -141,7 +140,7 @@ export default function RevenueSection() {
       </ChartCard>
 
       {/* Category Breakdown Pie */}
-      <ChartCard title="交易類型佔比" height={200}>
+      <ChartCard title={t('sections.revenue.categoryBreakdown')} height={200}>
         {pieData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(pieData.map((d, i) => [
@@ -172,7 +171,7 @@ export default function RevenueSection() {
             <span className="p-1.5 rounded-md bg-chart-3/10">
               <Activity className="h-3.5 w-3.5 text-chart-3" />
             </span>
-            <p className="text-xs text-muted-foreground">日均交易筆數 (30天)</p>
+            <p className="text-xs text-muted-foreground">{t('sections.revenue.dailyAvgCount')}</p>
           </div>
           <p className="text-2xl font-bold text-foreground">{avgDailyCount.toLocaleString()}</p>
           {countData.length > 0 && (

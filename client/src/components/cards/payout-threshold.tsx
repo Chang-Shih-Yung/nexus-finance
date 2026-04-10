@@ -50,10 +50,10 @@ export function PayoutThreshold() {
           </Field>
           <Field>
             <div className="flex items-baseline justify-between">
-              <FieldLabel htmlFor="min-payout">{t('cards.payoutThreshold.thresholdAmount')}</FieldLabel>
+              <FieldLabel id="min-payout-label">{t('cards.payoutThreshold.thresholdAmount')}</FieldLabel>
               <span className="text-2xl font-semibold tabular-nums">NT${amount[0].toLocaleString()}</span>
             </div>
-            <Slider id="min-payout" value={amount} onValueChange={(value) => setAmount(Array.isArray(value) ? [...value] : [value])} min={10000} max={5000000} step={10000} />
+            <Slider aria-labelledby="min-payout-label" value={amount} onValueChange={(value) => setAmount(Array.isArray(value) ? [...value] : [value])} min={10000} max={5000000} step={10000} />
             <div className="flex items-center justify-between">
               <FieldDescription>{t('cards.payoutThreshold.minimum')}</FieldDescription>
               <FieldDescription>{t('cards.payoutThreshold.maximum')}</FieldDescription>

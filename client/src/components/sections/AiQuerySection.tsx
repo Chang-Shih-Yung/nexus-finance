@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { Bot, Send } from '@/lib/icons'
-import { api } from '@/lib/api'
+import { runAiTemplateQuery } from '@/lib/ai-queries'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -155,7 +155,7 @@ export default function AiQuerySection() {
     setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', content: query }])
     setLoading(true)
     try {
-      const data = await api.aiQuery(query) as AiQueryResponse
+      const data = await runAiTemplateQuery(query) as AiQueryResponse
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'assistant',
