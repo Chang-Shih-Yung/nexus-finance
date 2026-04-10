@@ -45,6 +45,18 @@ const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
     E_INVALID: "資料無效",
     E_MAINTENANCE: "系統維護",
   },
+  en: {
+    E_TIMEOUT: "Timeout",
+    E_FRAUD: "Fraud",
+    E_BALANCE: "Low Balance",
+    E_ACCOUNT: "Account Error",
+    E_LIMIT: "Over Limit",
+    E_AUTH: "Auth Failed",
+    E_NETWORK: "Network Error",
+    E_DUPLICATE: "Duplicate",
+    E_INVALID: "Invalid Data",
+    E_MAINTENANCE: "Maintenance",
+  },
 }
 
 export function Invoice() {

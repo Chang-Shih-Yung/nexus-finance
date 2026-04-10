@@ -20,8 +20,21 @@ type BranchRanking = {
   rank: number
 }
 
+const BRANCH_LABELS: Record<string, string> = {
+  "新竹分行": "Hsinchu",
+  "台南分行": "Tainan",
+  "桃園分行": "Taoyuan",
+  "台北南區分行": "Taipei South",
+  "高雄分行": "Kaohsiung",
+  "台中分行": "Taichung",
+  "台北北區分行": "Taipei North",
+  "板橋分行": "Banqiao",
+  "中壢分行": "Zhongli",
+  "嘉義分行": "Chiayi",
+}
+
 export function StyleOverview() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const { data, isLoading } = useRpc<BranchRanking[]>(
     ["branch-ranking"],
     "nf_branch_ranking",
@@ -62,7 +75,7 @@ export function StyleOverview() {
                   <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
                     <div className="flex items-center justify-between">
                       <span className="truncate text-sm font-medium">
-                        {branch.branch_name}
+                        {locale === "en" ? (BRANCH_LABELS[branch.branch_name] ?? branch.branch_name) : branch.branch_name}
                       </span>
                       <Badge
                         variant={pct >= 90 ? "default" : pct >= 70 ? "secondary" : "destructive"}
