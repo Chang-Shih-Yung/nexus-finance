@@ -32,12 +32,28 @@ function formatCurrency(value: number, currency = "TWD") {
   }).format(value)
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": {
+    E_TIMEOUT: "逾時",
+    E_FRAUD: "詐欺",
+    E_BALANCE: "餘額不足",
+    E_ACCOUNT: "帳戶異常",
+    E_LIMIT: "超過限額",
+    E_AUTH: "驗證失敗",
+    E_NETWORK: "網路錯誤",
+    E_DUPLICATE: "重複交易",
+    E_INVALID: "資料無效",
+    E_MAINTENANCE: "系統維護",
+  },
 }
 
 export function Invoice() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const errorLabels = ERROR_CODE_LABELS[locale] ?? {}
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString(locale, { month: "short", day: "numeric" })
+  }
   const now = new Date()
   const from = new Date(now.getTime() - 30 * 86400000).toISOString()
   const to = now.toISOString()
@@ -79,7 +95,7 @@ export function Invoice() {
                 <TableRow key={row.id}>
                   <TableCell className="font-medium">{row.user_name}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-xs">{row.error_code}</Badge>
+                    <Badge variant="outline" className="text-xs">{errorLabels[row.error_code] ?? row.error_code}</Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {formatCurrency(Number(row.amount), row.currency)}
