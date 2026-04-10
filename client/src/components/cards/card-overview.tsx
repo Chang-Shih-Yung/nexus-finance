@@ -9,8 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from "@/lib/i18n/context"
 
-const chartConfig = { amount: { label: "Transactions", color: "var(--chart-2)" } } satisfies ChartConfig
-
 function formatCompact(amount: number, currency: string) {
   const abs = Math.abs(amount)
   if (abs >= 1_000_000) {
@@ -26,6 +24,7 @@ function formatCompact(amount: number, currency: string) {
 
 export function CardOverview() {
   const { t } = useI18n()
+  const chartConfig = { amount: { label: t('cards.cardOverview.transactions'), color: "var(--chart-2)" } } satisfies ChartConfig
   const { data: summary, isLoading: loadingSummary } = useRpc<{
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
   }>(

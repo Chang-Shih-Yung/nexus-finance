@@ -51,9 +51,14 @@ export function StockPerformance() {
           <Field>
             <FieldLabel htmlFor="metric-select">{t('cards.stockPerformance.metricLabel')}</FieldLabel>
             <Combobox
-              items={METRICS}
-              value={metric}
-              onValueChange={(value) => { if (value !== null) setMetric(value) }}
+              items={METRICS.map(m => METRIC_LABELS[m] ?? m)}
+              value={METRIC_LABELS[metric] ?? metric}
+              onValueChange={(value) => {
+                if (value !== null) {
+                  const key = METRICS.find(m => (METRIC_LABELS[m] ?? m) === value)
+                  if (key) setMetric(key)
+                }
+              }}
             >
               <ComboboxInput id="metric-select" placeholder={t('cards.stockPerformance.searchMetric')} />
               <ComboboxContent>
@@ -61,7 +66,7 @@ export function StockPerformance() {
                 <ComboboxList>
                   {(item) => (
                     <ComboboxItem key={item} value={item}>
-                      {METRIC_LABELS[item] ?? item}
+                      {item}
                     </ComboboxItem>
                   )}
                 </ComboboxList>

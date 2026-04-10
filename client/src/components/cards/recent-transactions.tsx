@@ -47,17 +47,17 @@ function formatAmount(amount: number, currency: string) {
   return amount >= 0 ? `+${formatted}` : `-${formatted}`
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  const now = new Date()
-  const diffMs = now.getTime() - d.getTime()
-  const diffDays = Math.floor(diffMs / 86_400_000)
-  if (diffDays === 0) {
-    return `Today, ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`
-  }
-  if (diffDays === 1) return "Yesterday"
-  if (diffDays < 7) return d.toLocaleDateString("en-US", { weekday: "long" })
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": {
+    food_drink: "餐飲", groceries: "雜貨", income: "收入",
+    transport: "交通", entertainment: "娛樂", transfer: "轉帳",
+    payment: "付款", banking: "銀行", mobile: "行動支付", online: "線上",
+  },
+  en: {
+    food_drink: "Food & Drink", groceries: "Groceries", income: "Income",
+    transport: "Transport", entertainment: "Entertainment", transfer: "Transfer",
+    payment: "Payment", banking: "Banking", mobile: "Mobile", online: "Online",
+  },
 }
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -76,7 +76,23 @@ interface Transaction {
 
 // ── Component ───────────────────────────────────────────────────────────────
 export function RecentTransactions() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const catLabels = CATEGORY_LABELS[locale] ?? CATEGORY_LABELS.en ?? {}
+
+  function formatDate(iso: string) {
+    const d = new Date(iso)
+    const now = new Date()
+    const diffMs = now.getTime() - d.getTime()
+    const diffDays = Math.floor(diffMs / 86_400_000)
+    if (diffDays === 0) {
+      const time = d.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })
+      return locale === "zh-TW" ? `今天 ${time}` : `Today, ${time}`
+    }
+    if (diffDays === 1) return locale === "zh-TW" ? "昨天" : "Yesterday"
+    if (diffDays < 7) return d.toLocaleDateString(locale, { weekday: "long" })
+    return d.toLocaleDateString(locale, { month: "short", day: "numeric" })
+  }
+
   const { data, isLoading } = useRpc<Transaction[]>(
     ["recent-transactions"],
     "nf_recent_transactions",
@@ -123,7 +139,7 @@ export function RecentTransactions() {
                       <div className="flex flex-col">
                         <span className="font-medium">{tx.user_name}</span>
                         <span className="text-sm text-muted-foreground capitalize">
-                          {tx.category.replace(/_/g, " ")}
+                          {catLabels[tx.category] ?? tx.category.replace(/_/g, " ")}
                         </span>
                       </div>
                     </TableCell>

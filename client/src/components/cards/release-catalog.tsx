@@ -15,14 +15,24 @@ function formatAmount(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
 }
 
-const TIER_LABELS: Record<string, string> = {
-  general: "General",
-  vip: "VIP",
-  premium: "Premium",
+const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": {
+    E_TIMEOUT: "逾時", E_FRAUD: "詐欺", E_BALANCE: "餘額不足",
+    E_ACCOUNT: "帳戶異常", E_LIMIT: "超過限額", E_AUTH: "驗證失敗",
+    E_NETWORK: "網路錯誤", E_DUPLICATE: "重複交易", E_INVALID: "資料無效",
+    E_MAINTENANCE: "系統維護",
+  },
+  en: {
+    E_TIMEOUT: "Timeout", E_FRAUD: "Fraud", E_BALANCE: "Insufficient Balance",
+    E_ACCOUNT: "Account Error", E_LIMIT: "Over Limit", E_AUTH: "Auth Failed",
+    E_NETWORK: "Network Error", E_DUPLICATE: "Duplicate", E_INVALID: "Invalid Data",
+    E_MAINTENANCE: "Maintenance",
+  },
 }
 
 export function ReleaseCatalog() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const errorLabels = ERROR_CODE_LABELS[locale] ?? ERROR_CODE_LABELS.en ?? {}
   const { data, isLoading } = useRpc<
     { dimension_value: string; metric_value: number }[]
   >(["top-errors"], "nf_top_n", {
@@ -33,7 +43,7 @@ export function ReleaseCatalog() {
 
   const items = (data ?? []).map((d, i) => ({
     rank: String(i + 1).padStart(2, "0"),
-    name: d.dimension_value || "Unknown",
+    name: (errorLabels[d.dimension_value] ?? d.dimension_value) || "Unknown",
     amount: d.metric_value.toLocaleString(),
     rawAmount: d.metric_value,
   }))

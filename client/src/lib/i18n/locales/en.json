@@ -88,7 +88,8 @@
       "accounts": "Accounts",
       "viewAll": "View All",
       "yearlyActivity": "Yearly Activity",
-      "months": "months"
+      "months": "months",
+      "transactions": "Transactions"
     },
     "barChartCard": {
       "title": "Transaction Volume",
@@ -614,7 +615,10 @@
       "severityCritical": "Critical",
       "severityHigh": "High",
       "severityMedium": "Medium",
-      "severityLow": "Low"
+      "severityLow": "Low",
+      "minutesAgo": "min ago",
+      "hoursAgo": "hr ago",
+      "daysAgo": "days ago"
     },
     "emptyDistributeTrack": {
       "title": "Create New Report",

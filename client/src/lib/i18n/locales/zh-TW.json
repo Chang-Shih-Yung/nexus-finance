@@ -88,7 +88,8 @@
       "accounts": "帳戶",
       "viewAll": "查看全部",
       "yearlyActivity": "年度活動",
-      "months": "個月"
+      "months": "個月",
+      "transactions": "交易筆數"
     },
     "barChartCard": {
       "title": "交易量",
@@ -614,7 +615,10 @@
       "severityCritical": "緊急",
       "severityHigh": "高",
       "severityMedium": "中",
-      "severityLow": "低"
+      "severityLow": "低",
+      "minutesAgo": "分鐘前",
+      "hoursAgo": "小時前",
+      "daysAgo": "天前"
     },
     "emptyDistributeTrack": {
       "title": "建立新報表",
