@@ -89,8 +89,7 @@ export function Contributors() {
               <ItemContent>
                 <ItemTitle>{rm.rm_name}</ItemTitle>
                 <ItemDescription>
-                  {rm.client_count} {t('cards.contributors.clients')} | {t('cards.contributors.txn')}: ${formatAmount(rm.total_txn_amount)} |
-                  {t('cards.contributors.avgBal')}: ${formatAmount(rm.avg_client_balance)}
+                  {rm.client_count} {t('cards.contributors.clients')} | {t('cards.contributors.txn')}: ${formatAmount(rm.total_txn_amount)} | {t('cards.contributors.avgBal')}: ${formatAmount(rm.avg_client_balance)}
                 </ItemDescription>
               </ItemContent>
             </Item>

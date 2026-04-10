@@ -49,7 +49,7 @@ export function FeedbackForm() {
           {isLoading ? (
             <Skeleton className="h-4 w-32" />
           ) : (
-            `${t('cards.feedbackForm.totalResponses').replace('{count}', String(data?.total_responses ?? 0))}`
+            `${data?.total_responses ?? 0} ${t('cards.feedbackForm.totalResponses')}`
           )}
         </CardDescription>
       </CardHeader>

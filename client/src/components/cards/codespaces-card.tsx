@@ -85,7 +85,7 @@ export function CodespacesCard() {
               <Badge variant="destructive">{o.outage} {t('cards.codespacesCard.outage')}</Badge>
             )}
             <span className="text-xs text-muted-foreground">
-              {t('cards.codespacesCard.avgUptime').replace('{pct}', String(o.avg_uptime))}
+              {t('cards.codespacesCard.avgUptime')} {o.avg_uptime}%
             </span>
           </div>
         )}

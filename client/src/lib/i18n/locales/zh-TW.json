@@ -114,8 +114,8 @@
     },
     "upcomingPayments": {
       "title": "待處理付款",
-      "paymentsOnDate": "{count} 筆付款於 {date}",
-      "pendingTransactions": "{count} 筆待處理交易",
+      "paymentsOnDate": "筆付款",
+      "pendingTransactions": "筆待處理交易",
       "noPaymentsOnDate": "此日期無付款",
       "noPendingPayments": "無待處理付款",
       "tryAnotherDate": "請選擇其他日期。",
@@ -139,8 +139,8 @@
     "invoice": {
       "title": "失敗交易",
       "description": "過去 30 天",
-      "failures": "{count} 次失敗",
-      "lost": "{amount} 損失",
+      "failures": "次失敗",
+      "lost": "損失",
       "user": "用戶",
       "error": "錯誤",
       "amount": "金額",
@@ -176,10 +176,10 @@
     "bookAppointment": {
       "title": "休眠用戶",
       "description": "7 天以上未活動",
-      "users": "{count} 位用戶",
-      "lastSeen": "最後登入 {days} 天前",
+      "users": "位用戶",
+      "lastSeen": "最後登入",
       "highValueAtRisk": "高價值客戶流失風險",
-      "vipPremiumWarning": "{count} 位 VIP/尊貴客戶近期未登入。",
+      "vipPremiumWarning": "位 VIP/尊貴客戶近期未登入。",
       "sendCampaign": "發送喚回行銷活動"
     },
     "savingsProgress": {
@@ -192,7 +192,7 @@
       "critical": "嚴重",
       "warning": "警告",
       "info": "資訊",
-      "byFrequency": "#{rank} 依頻率排序",
+      "byFrequency": "依頻率排序",
       "error": "錯誤",
       "count": "次數"
     },
@@ -206,8 +206,8 @@
       "currentVsPrevious": "本月 vs 上月",
       "transactionVolume": "交易量",
       "loginActivity": "登入活動",
-      "ofLastMonth": "佔上月 {pct}%",
-      "txnVolumeChange": "交易量較上月{direction} {pct}%。",
+      "ofLastMonth": "佔上月",
+      "txnVolumeChange": "較上月",
       "up": "上升",
       "down": "下降",
       "buyInvestment": "投資下單",
@@ -238,7 +238,7 @@
       "viewAnalytics": "查看分析"
     },
     "usageCard": {
-      "anomaliesDetected": "{count} 項異常偵測",
+      "anomaliesDetected": "項異常偵測",
       "errorBreakdown": "錯誤分布",
       "transactions": "交易筆數",
       "volumeTwd": "交易量 (TWD)",
@@ -252,8 +252,8 @@
     "dividendIncome": {
       "title": "轉帳大戶排行",
       "description": "近 30 天轉帳量最大的用戶。",
-      "txns": "{count} 筆交易",
-      "ofTotal": "佔總量 {pct}%"
+      "txns": "筆交易",
+      "ofTotal": "佔總量"
     },
     "environmentVariables": {
       "title": "外匯匯率",
@@ -264,7 +264,7 @@
     },
     "feedbackForm": {
       "title": "客戶滿意度 (NPS)",
-      "totalResponses": "共 {count} 筆回饋",
+      "totalResponses": "筆回饋",
       "npsScore": "NPS 分數",
       "promoters": "推薦者",
       "passives": "中立者",
@@ -325,20 +325,20 @@
     "contributors": {
       "title": "理財專員績效",
       "noData": "暫無專員資料",
-      "clients": "{count} 位客戶",
+      "clients": "位客戶",
       "txn": "交易額",
       "avgBal": "平均餘額"
     },
     "typographySpecimen": {
       "title": "放款組合總覽",
       "description": "放款資產品質與分布",
-      "loans": "{count} 筆放款",
-      "avgRate": "平均利率 {rate}%",
+      "loans": "筆放款",
+      "avgRate": "平均利率",
       "npl": "逾放",
       "overdue": "逾期",
-      "overdueCount": "{count} 筆逾期",
+      "overdueCount": "筆逾期",
       "default": "違約",
-      "defaultCount": "違約 {count}",
+      "defaultCount": "違約",
       "mortgage": "房貸",
       "personal": "個人信貸",
       "business": "企業貸款",
@@ -348,8 +348,8 @@
     "indexInvesting": {
       "title": "財富管理商品",
       "description": "投資商品總覽",
-      "products": "{count} 檔",
-      "avgReturn": "平均報酬 {rate}%",
+      "products": "檔",
+      "avgReturn": "平均報酬",
       "highRisk": "高風險",
       "mediumRisk": "中風險",
       "lowRisk": "低風險"
@@ -361,8 +361,8 @@
       "degraded": "降級",
       "outage": "中斷",
       "maintenance": "維護中",
-      "avgUptime": "平均可用率 {pct}%",
-      "operationalCount": "{count}/{total} 正常"
+      "avgUptime": "平均可用率",
+      "operationalCount": "正常"
     },
     "inviteTeam": {
       "title": "法遵合規總覽",
@@ -374,9 +374,9 @@
       "liquidity": "流動性",
       "reporting": "監管報告",
       "compliant": "合規",
-      "compliantCount": "{count}/{total} 合規",
-      "warnings": "{count} 警告",
-      "violations": "{count} 違規",
+      "compliantCount": "合規",
+      "warnings": "警告",
+      "violations": "違規",
       "score": "分"
     },
     "barVisualizer": {
@@ -531,7 +531,7 @@
     "uiElements": {
       "title": "存款總覽",
       "description": "依存款商品類型的餘額",
-      "accounts": "{count} 帳戶",
+      "accounts": "帳戶",
       "avgBalance": "平均餘額",
       "weightedRate": "加權利率",
       "savings": "儲蓄存款",
@@ -568,7 +568,7 @@
       "title": "詐欺風險警報",
       "description": "近 7 日異常交易監控",
       "pending": "待處理",
-      "pendingCases": "{count} 件待處理",
+      "pendingCases": "件待處理",
       "critical": "緊急",
       "highRisk": "高風險",
       "investigating": "調查中",
@@ -577,7 +577,7 @@
       "resolved": "已結案",
       "falsePositive": "誤判",
       "total": "合計",
-      "totalAlerts": "共 {count} 件"
+      "totalAlerts": "共"
     },
     "noTeamMembers": {
       "title": "系統運行正常",

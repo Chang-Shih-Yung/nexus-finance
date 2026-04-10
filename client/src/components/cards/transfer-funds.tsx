@@ -33,8 +33,8 @@ export function TransferFunds() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transfer Funds</CardTitle>
-        <CardDescription>Move money between your connected accounts.</CardDescription>
+        <CardTitle>{t('cards.transferFunds.title')}</CardTitle>
+        <CardDescription>{t('cards.transferFunds.description')}</CardDescription>
         <CardAction>
           <Button variant="ghost" size="icon-sm" className="bg-muted">
             <X className="size-4" />
@@ -44,14 +44,14 @@ export function TransferFunds() {
       <CardContent>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="transfer-amount">Amount to Transfer</FieldLabel>
+            <FieldLabel htmlFor="transfer-amount">{t('cards.transferFunds.amountToTransfer')}</FieldLabel>
             <InputGroup>
               <InputGroupAddon><InputGroupText>$</InputGroupText></InputGroupAddon>
               <InputGroupInput id="transfer-amount" defaultValue="1,200.00" />
             </InputGroup>
           </Field>
           <Field>
-            <FieldLabel htmlFor="from-account">From Account</FieldLabel>
+            <FieldLabel htmlFor="from-account">{t('cards.transferFunds.fromAccount')}</FieldLabel>
             {isLoading ? (
               <Skeleton className="h-10 w-full" />
             ) : (
@@ -59,16 +59,16 @@ export function TransferFunds() {
                 <SelectTrigger id="from-account" className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="checking">Main Checking — {formatCompact(balance * 0.3)}</SelectItem>
-                    <SelectItem value="savings">Savings — {formatCompact(balance * 0.5)}</SelectItem>
-                    <SelectItem value="wealth">Wealth — {formatCompact(balance * 0.2)}</SelectItem>
+                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3)}</SelectItem>
+                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5)}</SelectItem>
+                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2)}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             )}
           </Field>
           <Field>
-            <FieldLabel htmlFor="to-account">To Account</FieldLabel>
+            <FieldLabel htmlFor="to-account">{t('cards.transferFunds.toAccount')}</FieldLabel>
             {isLoading ? (
               <Skeleton className="h-10 w-full" />
             ) : (
@@ -76,9 +76,9 @@ export function TransferFunds() {
                 <SelectTrigger id="to-account" className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="checking">Main Checking — {formatCompact(balance * 0.3)}</SelectItem>
-                    <SelectItem value="savings">Savings — {formatCompact(balance * 0.5)}</SelectItem>
-                    <SelectItem value="wealth">Wealth — {formatCompact(balance * 0.2)}</SelectItem>
+                    <SelectItem value="checking">{t('cards.transferFunds.mainChecking')} — {formatCompact(balance * 0.3)}</SelectItem>
+                    <SelectItem value="savings">{t('cards.transferFunds.savings')} — {formatCompact(balance * 0.5)}</SelectItem>
+                    <SelectItem value="wealth">{t('cards.transferFunds.wealth')} — {formatCompact(balance * 0.2)}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -87,17 +87,17 @@ export function TransferFunds() {
           <Item variant="muted" className="flex-col items-stretch">
             <ItemContent className="gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Estimated arrival</span>
-                <span className="text-sm font-medium">Today</span>
+                <span className="text-sm text-muted-foreground">{t('cards.transferFunds.estimatedArrival')}</span>
+                <span className="text-sm font-medium">{t('common.today')}</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Transaction fee</span>
+                <span className="text-sm text-muted-foreground">{t('cards.transferFunds.transactionFee')}</span>
                 <span className="text-sm font-medium tabular-nums">$0.00</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total amount</span>
+                <span className="text-sm font-medium">{t('cards.transferFunds.totalAmount')}</span>
                 <span className="text-sm font-semibold tabular-nums">$1,200.00</span>
               </div>
             </ItemContent>
@@ -105,7 +105,7 @@ export function TransferFunds() {
         </FieldGroup>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Confirm Transfer</Button>
+        <Button className="w-full">{t('cards.transferFunds.confirmTransfer')}</Button>
       </CardFooter>
     </Card>
   )

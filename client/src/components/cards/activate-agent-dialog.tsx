@@ -29,8 +29,8 @@ export function ActivateAgentDialog() {
       id: "anomaly-detection",
       content: (
         <>
-          <strong>{t('cards.activateAgentDialog.features.anomalyDetection')}</strong>
-          {`：${t('cards.activateAgentDialog.features.anomalyDetectionDesc')}`}
+          <strong>{t('cards.activateAgentDialog.anomalyDetection')}</strong>
+          {`：${t('cards.activateAgentDialog.anomalyDetectionDescription')}`}
         </>
       ),
     },
@@ -38,8 +38,8 @@ export function ActivateAgentDialog() {
       id: "trend-analysis",
       content: (
         <>
-          <strong>{t('cards.activateAgentDialog.features.trendAnalysis')}</strong>
-          {`：${t('cards.activateAgentDialog.features.trendAnalysisDesc')}`}
+          <strong>{t('cards.activateAgentDialog.trendAnalysis')}</strong>
+          {`：${t('cards.activateAgentDialog.trendAnalysisDescription')}`}
         </>
       ),
     },
@@ -47,9 +47,9 @@ export function ActivateAgentDialog() {
       id: "risk-assessment",
       content: (
         <>
-          <strong>{t('cards.activateAgentDialog.features.riskAssessment')}</strong>
-          {`：${t('cards.activateAgentDialog.features.riskAssessmentDesc')}`}{" "}
-          <Badge variant="secondary">{t('cards.activateAgentDialog.features.advancedModule')}</Badge>
+          <strong>{t('cards.activateAgentDialog.riskAssessment')}</strong>
+          {`：${t('cards.activateAgentDialog.riskAssessmentDescription')}`}{" "}
+          <Badge variant="secondary">{t('cards.activateAgentDialog.requiresAdvancedModule')}</Badge>
         </>
       ),
     },
@@ -80,13 +80,13 @@ export function ActivateAgentDialog() {
         </ItemGroup>
         <Alert>
           <AlertDescription>
-            {t('cards.activateAgentDialog.trialNotice')}
+            {t('cards.activateAgentDialog.trialNote')}
           </AlertDescription>
         </Alert>
       </CardContent>
       <CardFooter className="justify-end gap-2">
-        <Button variant="outline">{t('cards.activateAgentDialog.later')}</Button>
-        <Button>{t('cards.activateAgentDialog.activate')}</Button>
+        <Button variant="outline">{t('cards.activateAgentDialog.maybeLater')}</Button>
+        <Button>{t('cards.activateAgentDialog.activateNow')}</Button>
       </CardFooter>
     </Card>
   )

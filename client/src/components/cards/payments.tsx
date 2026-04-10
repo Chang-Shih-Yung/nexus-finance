@@ -40,10 +40,10 @@ export function Payments() {
   const { t } = useI18n()
 
   const items = [
-    { icon: Gauge, titleKey: "adjustLimit" as const },
-    { icon: Calendar, titleKey: "scheduledTransfer" as const },
-    { icon: Repeat, titleKey: "autoDebit" as const },
-    { icon: RefreshCw, titleKey: "recurringPayment" as const },
+    { icon: Gauge, titleKey: "adjustTransferLimits" as const, descKey: "adjustTransferLimitsDescription" as const },
+    { icon: Calendar, titleKey: "scheduledTransfer" as const, descKey: "scheduledTransferDescription" as const },
+    { icon: Repeat, titleKey: "autoDebitManagement" as const, descKey: "autoDebitManagementDescription" as const },
+    { icon: RefreshCw, titleKey: "recurringPayments" as const, descKey: "recurringPaymentsDescription" as const },
   ]
 
   return (
@@ -88,8 +88,8 @@ export function Payments() {
                   <item.icon />
                 </ItemMedia>
                 <ItemContent>
-                  <ItemTitle>{t(`cards.payments.items.${item.titleKey}.title`)}</ItemTitle>
-                  <ItemDescription>{t(`cards.payments.items.${item.titleKey}.desc`)}</ItemDescription>
+                  <ItemTitle>{t(`cards.payments.${item.titleKey}`)}</ItemTitle>
+                  <ItemDescription>{t(`cards.payments.${item.descKey}`)}</ItemDescription>
                 </ItemContent>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
               </a>

@@ -36,16 +36,14 @@
     "count": "Count",
     "score": "Score",
     "points": "pts",
-    "minutesAgo": "{count} minutes ago",
-    "hoursAgo": "{count} hours ago",
-    "daysAgo": "{count} days ago"
+    "minutesAgo": "minutes ago",
+    "hoursAgo": "hours ago",
+    "daysAgo": "days ago"
   },
-
   "metadata": {
     "title": "Nexus Finance",
     "description": "Bank Data Monitoring + AI Query Platform"
   },
-
   "login": {
     "signIn": "Sign in",
     "signingIn": "Signing in...",
@@ -57,13 +55,11 @@
     "invalidCredentials": "Incorrect email or password",
     "loginFailed": "Login failed"
   },
-
   "dashboard": {
     "title": "Nexus Finance",
     "logout": "Log Out",
     "loggingOut": "Logging out..."
   },
-
   "cards": {
     "recentTransactions": {
       "title": "Recent Transactions",
@@ -74,7 +70,6 @@
       "categorize": "Categorize",
       "dispute": "Dispute"
     },
-
     "stockPerformance": {
       "title": "Metric Trend",
       "description": "30-day daily trend.",
@@ -87,16 +82,14 @@
       "activeUsers": "Active Users",
       "avgBalance": "Avg Balance"
     },
-
     "cardOverview": {
       "totalBalance": "Total Balance",
       "avgBalance": "Avg Balance",
-      "accounts": "{count} Accounts",
+      "accounts": "Accounts",
       "viewAll": "View All",
       "yearlyActivity": "Yearly Activity",
-      "months": "{count} months"
+      "months": "months"
     },
-
     "barChartCard": {
       "title": "Transaction Volume",
       "description": "Daily successful vs failed transactions for the last 30 days -- compare volume and error rates at a glance.",
@@ -105,7 +98,6 @@
       "ratio": "Ratio",
       "viewReport": "View report"
     },
-
     "transferFunds": {
       "title": "Transfer Funds",
       "description": "Move money between your connected accounts.",
@@ -120,17 +112,15 @@
       "totalAmount": "Total amount",
       "confirmTransfer": "Confirm Transfer"
     },
-
     "upcomingPayments": {
       "title": "Upcoming Payments",
-      "paymentsOnDate": "{count} payment(s) on {date}",
-      "pendingTransactions": "{count} pending transaction(s)",
+      "paymentsOnDate": "payment(s) on",
+      "pendingTransactions": "pending transaction(s)",
       "noPaymentsOnDate": "No payments on this date",
       "noPendingPayments": "No pending payments",
       "tryAnotherDate": "Try selecting another date.",
       "allSettled": "All transactions are settled."
     },
-
     "claimableBalance": {
       "todaySummary": "Today's Summary",
       "healthy": "Healthy",
@@ -141,18 +131,16 @@
       "successRate": "Success Rate",
       "footerDescription": "Live snapshot of today's platform activity -- refreshes automatically."
     },
-
     "weeklyFitnessSummary": {
       "title": "7-Day Activity",
       "description": "Daily transaction volume this week",
       "viewDetails": "View details"
     },
-
     "invoice": {
       "title": "Failed Transactions",
       "description": "Last 30 days",
-      "failures": "{count} failures",
-      "lost": "{amount} lost",
+      "failures": "failures",
+      "lost": "lost",
       "user": "User",
       "error": "Error",
       "amount": "Amount",
@@ -160,7 +148,6 @@
       "exportCsv": "Export CSV",
       "investigate": "Investigate"
     },
-
     "powerUsage": {
       "title": "API Health",
       "description": "Last 60 minutes",
@@ -169,7 +156,6 @@
       "requests1h": "Requests (1h)",
       "healthScore": "Health Score"
     },
-
     "sleepReport": {
       "title": "Conversion Funnel",
       "description": "Last 30 days -- Login to Transfer",
@@ -182,52 +168,46 @@
       "low": "Low",
       "details": "Details"
     },
-
     "visitors": {
       "title": "Transfer Success Rate",
       "description": "Last 6 months",
       "vsLastDay": "vs last day"
     },
-
     "bookAppointment": {
       "title": "Dormant Users",
       "description": "Inactive for 7+ days",
-      "users": "{count} users",
-      "lastSeen": "Last seen {days}d ago",
+      "users": "users",
+      "lastSeen": "Last seen",
       "highValueAtRisk": "High-value users at risk",
-      "vipPremiumWarning": "{count} VIP/Premium users haven't logged in recently.",
+      "vipPremiumWarning": "VIP/Premium users haven't logged in recently.",
       "sendCampaign": "Send Re-engagement Campaign"
     },
-
     "savingsProgress": {
       "topBranch": "Top Branch",
       "totalTransactions": "Total Transactions",
       "branches": "Branches"
     },
-
     "releaseCatalog": {
       "searchErrorCodes": "Search error codes...",
       "critical": "Critical",
       "warning": "Warning",
       "info": "Info",
-      "byFrequency": "#{rank} by frequency",
+      "byFrequency": "by frequency",
       "error": "Error",
       "count": "Count"
     },
-
     "pieChartCard": {
       "title": "Tier Distribution",
       "description": "Transaction count by user tier",
       "transactions": "Transactions"
     },
-
     "savingsTargets": {
       "monthOverMonth": "Month-over-Month",
       "currentVsPrevious": "Current vs previous month",
       "transactionVolume": "Transaction Volume",
       "loginActivity": "Login Activity",
-      "ofLastMonth": "{pct}% of last month",
-      "txnVolumeChange": "Txn volume {direction} {pct}% vs last month.",
+      "ofLastMonth": "of last month",
+      "txnVolumeChange": "vs last month.",
       "up": "up",
       "down": "down",
       "buyInvestment": "Buy Investment",
@@ -242,7 +222,6 @@
       "reviewOrder": "Review Order",
       "tradeExecutionNote": "Trades are typically executed within minutes during market hours."
     },
-
     "contributionHistory": {
       "title": "Contribution History",
       "description": "Last 30 days of transaction activity",
@@ -253,15 +232,13 @@
       "scheduledDaily": "Scheduled daily",
       "viewFullReport": "View Full Report"
     },
-
     "analyticsCard": {
       "title": "Analytics",
       "logins": "Logins",
       "viewAnalytics": "View Analytics"
     },
-
     "usageCard": {
-      "anomaliesDetected": "{count} anomalies detected",
+      "anomaliesDetected": "anomalies detected",
       "errorBreakdown": "Error Breakdown",
       "transactions": "Transactions",
       "volumeTwd": "Volume (TWD)",
@@ -272,14 +249,12 @@
       "avgBalance": "Avg Balance",
       "errorRate": "Error Rate"
     },
-
     "dividendIncome": {
       "title": "Top Transfer Users",
       "description": "Highest volume transfer users (30 days).",
-      "txns": "{count} txns",
-      "ofTotal": "{pct}% of total"
+      "txns": "txns",
+      "ofTotal": "of total"
     },
-
     "environmentVariables": {
       "title": "Foreign Exchange Rates",
       "description": "Live Quotes",
@@ -287,16 +262,14 @@
       "buy": "Buy",
       "sell": "Sell"
     },
-
     "feedbackForm": {
       "title": "Customer Satisfaction (NPS)",
-      "totalResponses": "{count} responses total",
+      "totalResponses": "responses total",
       "npsScore": "NPS Score",
       "promoters": "Promoters",
       "passives": "Passives",
       "detractors": "Detractors"
     },
-
     "liveWaveform": {
       "title": "Revenue Trend",
       "description": "Last 30 days",
@@ -304,7 +277,6 @@
       "interestIncome": "Interest Income",
       "feeIncome": "Fee Income"
     },
-
     "anomalyAlert": {
       "title": "Active Anomalies",
       "description": "Anomaly Metric Detection",
@@ -315,7 +287,6 @@
       "avg7d": "7d avg",
       "zScore": "z-score"
     },
-
     "shippingAddress": {
       "title": "Branch Information",
       "description": "Configure branch details",
@@ -334,7 +305,6 @@
       "cancel": "Cancel",
       "save": "Save"
     },
-
     "styleOverview": {
       "title": "Branch Performance Ranking",
       "description": "Revenue achievement ranking by branch",
@@ -342,7 +312,6 @@
       "actual": "Actual",
       "target": "Target"
     },
-
     "iconPreviewGrid": {
       "title": "KPI Achievement",
       "description": "Key metrics achievement for this period",
@@ -353,42 +322,38 @@
       "nps": "NPS",
       "digitalAdoption": "Digital Adoption Rate"
     },
-
     "contributors": {
       "title": "Relationship Manager Performance",
       "noData": "No advisor data available",
-      "clients": "{count} clients",
+      "clients": "clients",
       "txn": "Txn",
       "avgBal": "Avg bal"
     },
-
     "typographySpecimen": {
       "title": "Loan Portfolio Overview",
       "description": "Loan asset quality and distribution",
-      "loans": "{count} loans",
-      "avgRate": "Avg rate {rate}%",
+      "loans": "loans",
+      "avgRate": "Avg rate",
       "npl": "NPL",
       "overdue": "Overdue",
-      "overdueCount": "{count} overdue",
+      "overdueCount": "overdue",
       "default": "Default",
-      "defaultCount": "Default {count}",
+      "defaultCount": "Default",
       "mortgage": "Mortgage",
       "personal": "Personal Loan",
       "business": "Business Loan",
       "auto": "Auto Loan",
       "creditLine": "Revolving Credit"
     },
-
     "indexInvesting": {
       "title": "Wealth Management Products",
       "description": "Investment Product Overview",
-      "products": "{count} products",
-      "avgReturn": "Avg return {rate}%",
+      "products": "products",
+      "avgReturn": "Avg return",
       "highRisk": "High Risk",
       "mediumRisk": "Medium Risk",
       "lowRisk": "Low Risk"
     },
-
     "codespacesCard": {
       "title": "System Health Status",
       "description": "Real-time monitoring of system components",
@@ -396,10 +361,9 @@
       "degraded": "Degraded",
       "outage": "Outage",
       "maintenance": "Maintenance",
-      "avgUptime": "Avg uptime {pct}%",
-      "operationalCount": "{count}/{total} Operational"
+      "avgUptime": "Avg uptime",
+      "operationalCount": "Operational"
     },
-
     "inviteTeam": {
       "title": "Compliance Overview",
       "description": "Compliance status by category",
@@ -410,12 +374,11 @@
       "liquidity": "Liquidity",
       "reporting": "Regulatory Reporting",
       "compliant": "compliant",
-      "compliantCount": "{count}/{total} compliant",
-      "warnings": "{count} warning(s)",
-      "violations": "{count} violation(s)",
+      "compliantCount": "compliant",
+      "warnings": "warning(s)",
+      "violations": "violation(s)",
       "score": "Score"
     },
-
     "barVisualizer": {
       "title": "Channel Activity Distribution",
       "description": "Channel usage breakdown over the last 7 days",
@@ -425,7 +388,6 @@
       "desktop": "Desktop",
       "branch": "In-Branch"
     },
-
     "assignIssue": {
       "title": "Customer Feedback Feed",
       "description": "Latest customer reviews",
@@ -434,7 +396,6 @@
       "callCenter": "Call Center",
       "web": "Online Banking"
     },
-
     "reportBug": {
       "title": "Incident Report",
       "description": "Report system anomalies or security incidents",
@@ -456,7 +417,6 @@
       "attachFile": "Attach File",
       "submitReport": "Submit Report"
     },
-
     "githubProfile": {
       "title": "Personal Information",
       "description": "Manage your account details",
@@ -474,7 +434,6 @@
       "departmentDescription": "Department info is used for report permissions and data filtering.",
       "updateProfile": "Update Profile"
     },
-
     "payoutThreshold": {
       "title": "Alert Threshold Settings",
       "description": "Automatically send alerts when metrics exceed thresholds.",
@@ -490,7 +449,6 @@
       "notificationNotesPlaceholder": "Notes to include when the alert is triggered...",
       "saveSettings": "Save Settings"
     },
-
     "preferences": {
       "title": "Dashboard Preferences",
       "description": "Manage display settings and notification preferences.",
@@ -506,7 +464,6 @@
       "reset": "Reset",
       "savePreferences": "Save Preferences"
     },
-
     "accountAccess": {
       "title": "Security Settings",
       "description": "Update login credentials and security settings.",
@@ -517,7 +474,6 @@
       "dangerZone": "Danger Zone",
       "dangerZoneDescription": "Deactivate account and remove all access permissions"
     },
-
     "receivingMethod": {
       "paymentPreferences": "Payment Preferences",
       "title": "Channel Settings",
@@ -532,7 +488,6 @@
       "accountIdPlaceholder": "Enter bank account or payment identifier",
       "saveChannelSettings": "Save Channel Settings"
     },
-
     "newMilestone": {
       "title": "Financial Goal Setting",
       "description": "Set KPI targets for branches or departments.",
@@ -543,7 +498,6 @@
       "createGoal": "Create Goal",
       "cancel": "Cancel"
     },
-
     "socialLinks": {
       "title": "System Integration Links",
       "coreBankingApi": "Core Banking API",
@@ -553,7 +507,6 @@
       "discard": "Discard",
       "saveChanges": "Save Changes"
     },
-
     "notificationSettings": {
       "title": "Notification Preferences",
       "description": "Choose the types of notifications you want to receive.",
@@ -568,7 +521,6 @@
       "marketMovementNotificationDescription": "Significant exchange rate fluctuations and major market events.",
       "savePreferences": "Save Preferences"
     },
-
     "contributionsActivity": {
       "title": "Audit Log Settings",
       "description": "Manage the visibility of activity logs.",
@@ -576,11 +528,10 @@
       "hideActivityLogDescription": "When enabled, other administrators will not be able to view your activity history, including login times, report access, and system configuration changes.",
       "saveSettings": "Save Settings"
     },
-
     "uiElements": {
       "title": "Deposit Overview",
       "description": "Balances by deposit product type",
-      "accounts": "{count} accounts",
+      "accounts": "accounts",
       "avgBalance": "Avg balance",
       "weightedRate": "Weighted rate",
       "savings": "Savings Deposits",
@@ -588,7 +539,6 @@
       "timeDeposit": "Time Deposits",
       "moneyMarket": "Money Market"
     },
-
     "kitchenIsland": {
       "title": "Branch Operations Control",
       "description": "Operations mode settings",
@@ -601,7 +551,6 @@
       "notificationFrequency": "Notification Frequency",
       "responseTimeTarget": "Response Time Target"
     },
-
     "rollerShades": {
       "title": "Risk Tolerance Settings",
       "description": "Adjust the system risk alert level",
@@ -609,19 +558,17 @@
       "balanced": "Balanced",
       "aggressive": "Aggressive"
     },
-
     "coverArt": {
       "reportTemplate": "Report Template",
       "uploadTemplate": "Upload Template",
       "recommendedSize": "Recommended size 1200 x 800 pixels",
       "supportedFormats": "JPEG or PNG format only"
     },
-
     "observabilityCard": {
       "title": "Fraud Risk Alerts",
       "description": "Suspicious transaction monitoring over the last 7 days",
       "pending": "pending",
-      "pendingCases": "{count} pending",
+      "pendingCases": "pending",
       "critical": "Critical",
       "highRisk": "High Risk",
       "investigating": "Investigating",
@@ -630,15 +577,13 @@
       "resolved": "Resolved",
       "falsePositive": "False positive",
       "total": "Total",
-      "totalAlerts": "Total {count}"
+      "totalAlerts": "Total"
     },
-
     "noTeamMembers": {
       "title": "All Systems Normal",
       "description": "No active alerts at this time. All metrics are within normal range.",
       "viewAlertHistory": "View Alert History"
     },
-
     "fileUpload": {
       "title": "Export Report",
       "description": "Generate and download analytics reports",
@@ -646,7 +591,6 @@
       "supportedFormats": "Supports PDF, Excel, CSV formats",
       "exportReport": "Export Report"
     },
-
     "shortcuts": {
       "title": "Keyboard Shortcuts",
       "quickSearch": "Quick Search",
@@ -655,14 +599,12 @@
       "exportReport": "Export Report",
       "toggleSidebar": "Toggle Sidebar"
     },
-
     "notFound": {
       "title": "No Results Found",
       "description": "No data matches your criteria. Please adjust your search.",
       "searchPlaceholder": "Search transactions, customers, reports...",
       "backToDashboard": "Back to Dashboard"
     },
-
     "frontDoor": {
       "title": "Fraud Alert Feed",
       "description": "Suspicious transactions in the last 7 days",
@@ -672,25 +614,21 @@
       "severityMedium": "Medium",
       "severityLow": "Low"
     },
-
     "emptyDistributeTrack": {
       "title": "Create New Report",
       "description": "Upload or create your first analytics report to start tracking branch performance and revenue trends.",
       "createReport": "Create Report"
     },
-
     "qrConnect": {
       "title": "Scan to Connect Mobile Device",
       "description": "Open the Mobile Banking App and scan this QR Code to quickly log into the dashboard.",
       "dismiss": "Got it"
     },
-
     "syncingState": {
       "title": "Syncing Data",
       "description": "Fetching the latest transaction and account data. This usually takes a few seconds.",
       "cancel": "Cancel"
     },
-
     "sidebarNav": {
       "overview": "Overview",
       "dashboard": "Dashboard",
@@ -711,7 +649,6 @@
       "contactUs": "Contact Us",
       "systemStatus": "System Status"
     },
-
     "faq": {
       "general": "General",
       "transactions": "Transactions",
@@ -737,19 +674,16 @@
       "riskQ3": "How do I set up custom alert rules?",
       "riskA3": "Go to Alert Threshold Settings, select the metric to monitor and adjust the threshold. Supported metrics include transaction amount, NPL ratio, NPS, and more."
     },
-
     "emptyConnectBank": {
       "title": "Connect Data Source",
       "description": "Connect to the core banking system to automatically import transaction and account data to the dashboard.",
       "setupConnection": "Set Up Connection"
     },
-
     "emptyExploreCatalog": {
       "title": "Explore Financial Products",
       "description": "Browse the full catalog of funds, bonds, structured products, and more. Compare performance and risk levels.",
       "browseProducts": "Browse Products"
     },
-
     "activateAgentDialog": {
       "title": "Activate AI Analytics",
       "description": "Once activated, real-time insights and recommendations will be provided based on your dashboard data.",
@@ -764,7 +698,6 @@
       "maybeLater": "Maybe Later",
       "activateNow": "Activate Now"
     },
-
     "payments": {
       "home": "Home",
       "accountOptions": "Account Options",

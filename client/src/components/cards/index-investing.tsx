@@ -84,7 +84,7 @@ export function IndexInvesting() {
               AUM NT${fmtAum(s.total_aum)}
             </span>
             <span className="text-xs text-muted-foreground">
-              {t('cards.indexInvesting.products').replace('{count}', String(s.product_count))} · {t('cards.indexInvesting.avgReturn').replace('{rate}', String(s.avg_return))}
+              {s.product_count} {t('cards.indexInvesting.products')} · {t('cards.indexInvesting.avgReturn')} {s.avg_return}%
             </span>
           </div>
         )}

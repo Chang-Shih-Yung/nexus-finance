@@ -78,7 +78,7 @@ export function TypographySpecimen() {
                 NT${fmt(p.total_outstanding)}
               </span>
               <span className="text-xs text-muted-foreground">
-                {p.loan_count} {t('cards.typographySpecimen.loans').replace('{count} ', '')} · {t('cards.typographySpecimen.avgRate').replace('{rate}', String(p.avg_rate))}
+                {p.loan_count} {t('cards.typographySpecimen.loans')} · {t('cards.typographySpecimen.avgRate')} {p.avg_rate}%
               </span>
             </div>
             <div className="flex gap-3">

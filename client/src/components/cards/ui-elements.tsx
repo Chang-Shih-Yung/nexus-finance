@@ -71,7 +71,7 @@ export function UIElements() {
               NT${fmt(s.total_deposits)}
             </span>
             <span className="text-xs text-muted-foreground">
-              {s.account_count} {t('cards.uiElements.accounts').replace('{count} ', '')} · {t('cards.uiElements.avgBalance')} {fmt(s.avg_balance)} · {t('cards.uiElements.weightedRate')}{" "}
+              {s.account_count} {t('cards.uiElements.accounts')} · {t('cards.uiElements.avgBalance')} {fmt(s.avg_balance)} · {t('cards.uiElements.weightedRate')}{" "}
               {s.weighted_rate}%
             </span>
           </div>
@@ -111,7 +111,7 @@ export function UIElements() {
                   </div>
                   <div className="flex items-center gap-3 tabular-nums text-muted-foreground">
                     <span className="text-xs">
-                      {p.account_count} {t('cards.uiElements.accounts').replace('{count} ', '')} · {p.avg_rate}%
+                      {p.account_count} {t('cards.uiElements.accounts')} · {p.avg_rate}%
                     </span>
                     <span className="font-medium text-foreground">
                       {fmt(p.total_balance)}
