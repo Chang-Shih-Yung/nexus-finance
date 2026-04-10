@@ -375,7 +375,9 @@
       "reporting": "監管報告",
       "compliant": "合規",
       "compliantCount": "合規",
+      "warning": "警告",
       "warnings": "警告",
+      "violation": "違規",
       "violations": "違規",
       "score": "分"
     },

@@ -108,7 +108,7 @@ export function CodespacesCard() {
                     </Badge>
                   </ItemTitle>
                   <ItemDescription>
-                    {c.avg_response_ms}ms · uptime {c.uptime_pct}%
+                    {c.avg_response_ms}ms · {t('cards.codespacesCard.avgUptime')} {c.uptime_pct}%
                   </ItemDescription>
                 </ItemContent>
               </Item>

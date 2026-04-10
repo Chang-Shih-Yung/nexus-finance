@@ -375,7 +375,9 @@
       "reporting": "Regulatory Reporting",
       "compliant": "compliant",
       "compliantCount": "compliant",
+      "warning": "warning(s)",
       "warnings": "warning(s)",
+      "violation": "violation(s)",
       "violations": "violation(s)",
       "score": "Score"
     },

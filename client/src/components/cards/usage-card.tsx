@@ -10,6 +10,33 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
 
+const ERROR_CODE_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": {
+    E_TIMEOUT: "逾時",
+    E_FRAUD: "詐欺",
+    E_BALANCE: "餘額不足",
+    E_ACCOUNT: "帳戶異常",
+    E_LIMIT: "超過限額",
+    E_AUTH: "驗證失敗",
+    E_NETWORK: "網路錯誤",
+    E_DUPLICATE: "重複交易",
+    E_INVALID: "資料無效",
+    E_MAINTENANCE: "系統維護",
+  },
+  en: {
+    E_TIMEOUT: "Timeout",
+    E_FRAUD: "Fraud",
+    E_BALANCE: "Insufficient Balance",
+    E_ACCOUNT: "Account Error",
+    E_LIMIT: "Over Limit",
+    E_AUTH: "Auth Failed",
+    E_NETWORK: "Network Error",
+    E_DUPLICATE: "Duplicate",
+    E_INVALID: "Invalid Data",
+    E_MAINTENANCE: "Maintenance",
+  },
+}
+
 function useMetricLabels() {
   const { t } = useI18n()
   return {
@@ -56,8 +83,9 @@ function gaugePercent(key: string, value: number): number {
 }
 
 export function UsageCard() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const METRIC_LABELS = useMetricLabels()
+  const errorLabels = ERROR_CODE_LABELS[locale] ?? ERROR_CODE_LABELS.en ?? {}
   const { data, isLoading } = useRpc<
     { metric_key: string; dimension: string; dimension_value: string; today_value: number; avg_7d: number; stddev_7d: number; z_score: number }[]
   >(["anomaly-check"], "nf_anomaly_check", {})
@@ -83,7 +111,7 @@ export function UsageCard() {
         percentage: gaugePercent(d.metric_key, d.today_value),
       }))
     : (errorBreakdown ?? []).slice(0, 6).map(d => ({
-        name: d.error_code || "Unknown",
+        name: (errorLabels[d.error_code] ?? d.error_code) || "Unknown",
         value: Number(d.count).toLocaleString(),
         percentage: Math.min((Number(d.count) / ((errorBreakdown ?? []).reduce((s, x) => s + Number(x.count), 0) || 1)) * 100, 100),
       }))
