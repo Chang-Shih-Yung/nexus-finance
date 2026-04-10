@@ -9,6 +9,7 @@ import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/comp
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
+import { zhTW } from "date-fns/locale/zh-TW"
 
 const Calendar = dynamic(
   () => import("@/components/ui/calendar").then((mod) => mod.Calendar),
@@ -30,16 +31,28 @@ function formatAmount(amount: number, currency: string) {
   }).format(amount)
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+function formatDate(iso: string, loc: string) {
+  return new Date(iso).toLocaleDateString(loc, { month: "short", day: "numeric", year: "numeric" })
 }
 
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": {
+    loan: "貸款", payment: "付款", transfer: "轉帳", deposit: "存款",
+    withdrawal: "提款", refund: "退款", fee: "手續費", interest: "利息",
+    food_drink: "餐飲", groceries: "雜貨", income: "收入",
+    transport: "交通", entertainment: "娛樂", banking: "銀行",
+    mobile: "行動支付", online: "線上",
+  },
+}
+
 export function UpcomingPayments() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const calendarLocale = locale === "zh-TW" ? zhTW : undefined
+  const catLabels = CATEGORY_LABELS[locale] ?? {}
   const [date, setDate] = React.useState<Date | undefined>(undefined)
 
   const { data, isLoading } = useRpc<PendingTx[]>(
@@ -62,7 +75,7 @@ export function UpcomingPayments() {
     : items
 
   const description = date
-    ? `${filtered.length} ${t('cards.upcomingPayments.paymentsOnDate')} ${formatDate(date.toISOString())}`
+    ? `${filtered.length} ${t('cards.upcomingPayments.paymentsOnDate')} ${formatDate(date.toISOString(), locale)}`
     : `${items.length} ${t('cards.upcomingPayments.pendingTransactions')}`
 
   return (
@@ -78,6 +91,7 @@ export function UpcomingPayments() {
             selected={date}
             onSelect={(d) => setDate(prev => prev && d && isSameDay(prev, d) ? undefined : d)}
             className="w-full"
+            locale={calendarLocale}
             modifiers={{ pending: pendingDates }}
             modifiersClassNames={{ pending: "bg-primary/15 font-semibold text-primary" }}
           />
@@ -100,7 +114,7 @@ export function UpcomingPayments() {
                   <ItemContent>
                     <ItemTitle>{tx.user_name}</ItemTitle>
                     <ItemDescription>
-                      {formatDate(tx.created_at)} · <span className="capitalize">{tx.category}</span>
+                      {formatDate(tx.created_at, locale)} · <span className="capitalize">{catLabels[tx.category] ?? tx.category}</span>
                     </ItemDescription>
                   </ItemContent>
                   <Badge variant="secondary">{formatAmount(tx.amount, tx.currency)}</Badge>
