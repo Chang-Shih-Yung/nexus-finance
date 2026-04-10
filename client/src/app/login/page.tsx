@@ -48,7 +48,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-6" style={{ '--primary': 'oklch(0.205 0 0)', '--primary-foreground': 'oklch(0.985 0 0)', '--ring': 'oklch(0.205 0 0)' } as React.CSSProperties}>
       <Card className="w-full max-w-sm shadow-lg rounded-2xl">
         <CardContent className="pt-8 pb-8 px-8 space-y-6">
           <div className="space-y-1">
