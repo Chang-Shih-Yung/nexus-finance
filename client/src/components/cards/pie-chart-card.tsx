@@ -16,8 +16,14 @@ import { useI18n } from '@/lib/i18n/context'
 
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
+const TIER_LABELS: Record<string, Record<string, string>> = {
+  "zh-TW": { general: "一般", premium: "尊貴", vip: "VIP" },
+  en: { general: "General", premium: "Premium", vip: "VIP" },
+}
+
 export function PieChartCard() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const tierLabels = TIER_LABELS[locale] ?? TIER_LABELS.en
   const { data, isLoading } = useRpc<
     { dimension_value: string; metric_value: number }[]
   >(["txn-by-tier"], "nf_current_breakdown", {
@@ -27,6 +33,7 @@ export function PieChartCard() {
 
   const items = (data ?? []).map((d, i) => ({
     tier: d.dimension_value,
+    tierLabel: tierLabels[d.dimension_value] ?? d.dimension_value,
     count: d.metric_value,
     fill: COLORS[i % COLORS.length],
   }))
@@ -38,9 +45,9 @@ export function PieChartCard() {
   const topShare = top && totalCount > 0 ? Math.round((top.count / totalCount) * 100) : 0
 
   const pieChartConfig: ChartConfig = {
-    count: { label: "Transactions" },
+    count: { label: t('cards.pieChartCard.transactions') },
     ...Object.fromEntries(items.map((d, i) => [
-      d.tier, { label: d.tier, color: COLORS[i % COLORS.length] },
+      d.tier, { label: d.tierLabel, color: COLORS[i % COLORS.length] },
     ])),
   }
 
@@ -50,7 +57,7 @@ export function PieChartCard() {
         <CardTitle>{t('cards.pieChartCard.title')}</CardTitle>
         <CardDescription>{t('cards.pieChartCard.description')}</CardDescription>
         <CardAction>
-          {top && <Badge variant="outline" className="capitalize">{top.tier}</Badge>}
+          {top && <Badge variant="outline" className="capitalize">{top.tierLabel}</Badge>}
         </CardAction>
       </CardHeader>
       <CardContent className="pt-0">
@@ -87,7 +94,7 @@ export function PieChartCard() {
       </CardContent>
       <CardFooter className="flex-col items-stretch gap-2">
         <div className="flex items-center text-xs">
-          <span className="font-medium capitalize">{top?.tier ?? "—"}</span>
+          <span className="font-medium capitalize">{top?.tierLabel ?? "—"}</span>
           <span className="ml-auto text-muted-foreground tabular-nums">{topShare}%</span>
         </div>
         <Progress value={topShare} className="**:data-[slot=progress-indicator]:bg-chart-3" />

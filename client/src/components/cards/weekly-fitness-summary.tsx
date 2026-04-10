@@ -10,10 +10,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
 
-const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"]
+const DAY_LABELS_EN = ["M", "T", "W", "T", "F", "S", "S"]
+const DAY_LABELS_ZH = ["一", "二", "三", "四", "五", "六", "日"]
 
 export function WeeklyFitnessSummary() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const DAY_LABELS = locale === "zh-TW" ? DAY_LABELS_ZH : DAY_LABELS_EN
   const { data, isLoading } = useRpc<
     { date: string; logins: number; transactions: number; success_rate: number }[]
   >(["stats-trend-7"], "nf_stats_trend", { p_days: 7 })

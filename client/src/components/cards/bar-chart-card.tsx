@@ -13,13 +13,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from "@/lib/i18n/context"
 
-const barChartConfig = {
-  success: { label: "Success", color: "var(--chart-1)" },
-  failed: { label: "Failed", color: "var(--chart-2)" },
-} satisfies ChartConfig
-
 export function BarChartCard() {
   const { t } = useI18n()
+
+  const barChartConfig = {
+    success: { label: t('cards.barChartCard.success'), color: "var(--chart-1)" },
+    failed: { label: t('cards.barChartCard.failed'), color: "var(--chart-2)" },
+  } satisfies ChartConfig
   const { data: successData, isLoading: l1 } = useRpc<
     { date: string; metric_value: number }[]
   >(["success-trend-30"], "nf_daily_trend", {
