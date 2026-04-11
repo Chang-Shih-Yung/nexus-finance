@@ -63,6 +63,25 @@
       "open": "Open AI assistant",
       "title": "AI Data Assistant",
       "description": "Ask in natural language, get summaries, SQL and charts."
+    },
+    "aiSettings": {
+      "open": "AI settings",
+      "title": "AI model tuning",
+      "description": "Tune model, timeouts and token limits for nf_ai_ask and nf_ai_ask_deep. Writes require the service_role key; normal users get read-only access.",
+      "readOnly": "Read-only",
+      "loading": "Loading...",
+      "loadFailed": "Failed to load",
+      "retry": "Retry",
+      "empty": "No settings found.",
+      "save": "Save",
+      "saving": "Saving",
+      "saved": "Saved",
+      "readOnlyError": "Read-only: this browser session is not authenticated as service_role.",
+      "groups": {
+        "ask": "nf_ai_ask (quick Q&A)",
+        "deep": "nf_ai_ask_deep (deep analysis)",
+        "other": "Other"
+      }
     }
   },
   "cards": {

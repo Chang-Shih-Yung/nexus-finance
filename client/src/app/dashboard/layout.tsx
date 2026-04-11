@@ -7,6 +7,7 @@ import { ThemeCustomizerProvider, useThemeCustomizer } from '@/components/ThemeC
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 import AiAssistantButton from '@/components/AiAssistantButton'
+import AiSettingsPanel from '@/components/ai-settings/AiSettingsPanel'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useI18n } from '@/lib/i18n/context'
 
@@ -55,6 +56,7 @@ function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
         <div className="ml-auto flex items-center gap-2">
           <AiAssistantButton />
           <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">{today}</div>
+          <AiSettingsPanel />
           <LogoutButton />
         </div>
       </header>

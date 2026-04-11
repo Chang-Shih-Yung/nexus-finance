@@ -63,6 +63,25 @@
       "open": "打開 AI 助手",
       "title": "AI 數據助手",
       "description": "用自然語言查詢資料，系統會回傳摘要、SQL 與圖表建議"
+    },
+    "aiSettings": {
+      "open": "AI 設定",
+      "title": "AI 模型調校",
+      "description": "調整 nf_ai_ask 與 nf_ai_ask_deep 的模型名稱、超時、token 上限等參數。儲存需要 service_role 權限；一般登入帳號僅能瀏覽。",
+      "readOnly": "唯讀",
+      "loading": "載入中...",
+      "loadFailed": "載入失敗",
+      "retry": "重試",
+      "empty": "無設定項目。",
+      "save": "儲存",
+      "saving": "儲存中",
+      "saved": "已儲存",
+      "readOnlyError": "唯讀模式：此瀏覽器未使用 service_role，無法寫入。",
+      "groups": {
+        "ask": "nf_ai_ask（快速問答）",
+        "deep": "nf_ai_ask_deep（深度分析）",
+        "other": "其他"
+      }
     }
   },
   "cards": {

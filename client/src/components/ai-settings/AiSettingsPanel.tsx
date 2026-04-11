@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Settings, Lock, RefreshCw } from '@/lib/icons'
+import { useI18n } from '@/lib/i18n/context'
 import {
   listAiConfig,
   setAiConfig,
@@ -21,10 +22,12 @@ import {
 } from '@/lib/ai-config'
 
 // Group keys by the two AI entry points so the panel stays readable even as
-// we add more tunables later. Keys that don't match a prefix fall into "其他".
-const GROUPS: Array<{ title: string; prefix: string }> = [
-  { title: 'nf_ai_ask (快速問答)', prefix: 'ask.' },
-  { title: 'nf_ai_ask_deep (深度分析)', prefix: 'deep.' },
+// we add more tunables later. Keys that don't match a prefix fall into the
+// "other" bucket. Group labels come from i18n, but the prefix matching is
+// fixed at the code layer.
+const GROUPS: Array<{ id: 'ask' | 'deep'; prefix: string }> = [
+  { id: 'ask', prefix: 'ask.' },
+  { id: 'deep', prefix: 'deep.' },
 ]
 
 type RowState = {
@@ -36,22 +39,20 @@ type RowState = {
 }
 
 function groupRows(rows: AiConfigRow[]) {
-  const grouped: Record<string, AiConfigRow[]> = {}
-  const others: AiConfigRow[] = []
+  const grouped: Record<string, AiConfigRow[]> = { ask: [], deep: [], other: [] }
   for (const row of rows) {
     const g = GROUPS.find(g => row.key.startsWith(g.prefix))
     if (g) {
-      grouped[g.title] = grouped[g.title] ?? []
-      grouped[g.title].push(row)
+      grouped[g.id].push(row)
     } else {
-      others.push(row)
+      grouped.other.push(row)
     }
   }
-  if (others.length > 0) grouped['其他'] = others
   return grouped
 }
 
 export default function AiSettingsPanel() {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -81,8 +82,8 @@ export default function AiSettingsPanel() {
     }
   }
 
-  // Lazy-load: only fetch when the sheet is opened so we don't hammer
-  // the RPC on every page mount.
+  // Lazy-load: only fetch when the sheet is opened so we don't hammer the
+  // RPC on every page mount.
   useEffect(() => {
     if (open && Object.keys(states).length === 0 && !loading) {
       void load()
@@ -126,9 +127,7 @@ export default function AiSettingsPanel() {
         [key]: {
           ...prev[key],
           saving: false,
-          error: isPermission
-            ? '唯讀模式：此瀏覽器未使用 service_role，無法寫入。'
-            : msg,
+          error: isPermission ? t('dashboard.aiSettings.readOnlyError') : msg,
           savedAt: null,
         },
       }))
@@ -139,13 +138,23 @@ export default function AiSettingsPanel() {
   const rows = Object.values(states).map(s => s.row)
   const grouped = groupRows(rows)
 
+  // Render group sections in a stable order; hide empty buckets so "other"
+  // never shows up unless we actually add an un-prefixed key later.
+  const sections = (
+    [
+      { id: 'ask', rows: grouped.ask },
+      { id: 'deep', rows: grouped.deep },
+      { id: 'other', rows: grouped.other },
+    ] as const
+  ).filter(s => s.rows.length > 0)
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
           type="button"
-          aria-label="AI 設定"
-          title="AI 設定"
+          aria-label={t('dashboard.aiSettings.open')}
+          title={t('dashboard.aiSettings.open')}
           className="rounded-full bg-muted text-muted-foreground p-1.5 hover:text-foreground hover:bg-muted/80 transition-colors"
         >
           <Settings className="h-4 w-4" />
@@ -158,17 +167,16 @@ export default function AiSettingsPanel() {
       >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            AI 模型調校
+            {t('dashboard.aiSettings.title')}
             {readOnly && (
               <Badge variant="outline" className="gap-1 text-xs font-normal">
                 <Lock className="h-3 w-3" />
-                唯讀
+                {t('dashboard.aiSettings.readOnly')}
               </Badge>
             )}
           </SheetTitle>
           <SheetDescription>
-            調整 nf_ai_ask 與 nf_ai_ask_deep 的模型名稱、超時、token 上限等參數。
-            儲存需要 service_role 權限；一般登入帳號僅能瀏覽。
+            {t('dashboard.aiSettings.description')}
           </SheetDescription>
         </SheetHeader>
 
@@ -176,13 +184,13 @@ export default function AiSettingsPanel() {
           {loading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <RefreshCw className="h-4 w-4 animate-spin" />
-              載入中...
+              {t('dashboard.aiSettings.loading')}
             </div>
           )}
 
           {loadError && (
             <div className="text-sm text-destructive">
-              載入失敗：{loadError}
+              {t('dashboard.aiSettings.loadFailed')}：{loadError}
               <Button
                 type="button"
                 variant="outline"
@@ -190,22 +198,24 @@ export default function AiSettingsPanel() {
                 className="ml-2"
                 onClick={() => void load()}
               >
-                重試
+                {t('dashboard.aiSettings.retry')}
               </Button>
             </div>
           )}
 
           {!loading && !loadError && rows.length === 0 && (
-            <div className="text-sm text-muted-foreground">無設定項目。</div>
+            <div className="text-sm text-muted-foreground">
+              {t('dashboard.aiSettings.empty')}
+            </div>
           )}
 
-          {Object.entries(grouped).map(([title, groupRows]) => (
-            <section key={title} className="space-y-3">
+          {sections.map(({ id, rows: groupRowsList }) => (
+            <section key={id} className="space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {title}
+                {t(`dashboard.aiSettings.groups.${id}`)}
               </h3>
               <div className="space-y-3">
-                {groupRows.map(row => {
+                {groupRowsList.map(row => {
                   const state = states[row.key]
                   if (!state) return null
                   const dirty = state.draft !== state.row.value
@@ -243,14 +253,18 @@ export default function AiSettingsPanel() {
                           disabled={!dirty || state.saving}
                           onClick={() => void save(row.key)}
                         >
-                          {state.saving ? '儲存中' : '儲存'}
+                          {state.saving
+                            ? t('dashboard.aiSettings.saving')
+                            : t('dashboard.aiSettings.save')}
                         </Button>
                       </div>
                       {state.error && (
                         <p className="text-xs text-destructive">{state.error}</p>
                       )}
                       {state.savedAt && !dirty && !state.error && (
-                        <p className="text-xs text-emerald-600">已儲存</p>
+                        <p className="text-xs text-emerald-600">
+                          {t('dashboard.aiSettings.saved')}
+                        </p>
                       )}
                     </div>
                   )
