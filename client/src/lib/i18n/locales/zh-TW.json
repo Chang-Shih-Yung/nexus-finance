@@ -66,21 +66,42 @@
     },
     "aiSettings": {
       "open": "AI 設定",
-      "title": "AI 模型調校",
-      "description": "調整 nf_ai_ask 與 nf_ai_ask_deep 的模型名稱、超時、token 上限等參數。儲存需要 service_role 權限；一般登入帳號僅能瀏覽。",
+      "title": "AI 模型設定",
+      "description": "目前 AI 助手使用的模型與回覆限制，僅供查看。",
       "readOnly": "唯讀",
-      "loading": "載入中...",
+      "loading": "載入中…",
       "loadFailed": "載入失敗",
       "retry": "重試",
-      "empty": "無設定項目。",
-      "save": "儲存",
-      "saving": "儲存中",
-      "saved": "已儲存",
-      "readOnlyError": "唯讀模式：此瀏覽器未使用 service_role，無法寫入。",
+      "empty": "目前沒有任何設定。",
+      "close": "關閉",
       "groups": {
-        "ask": "nf_ai_ask（快速問答）",
-        "deep": "nf_ai_ask_deep（深度分析）",
+        "ask": "快速問答",
+        "askHint": "首頁右下角的 AI 助手用這組設定",
+        "deep": "深度分析",
+        "deepHint": "點圖表「請 AI 解讀」時會用這組設定",
         "other": "其他"
+      },
+      "units": {
+        "seconds": "秒",
+        "chars": "字元",
+        "rows": "筆資料",
+        "tokens": "個 token"
+      },
+      "labels": {
+        "ask.model_call1": "問答模型 · 解析階段",
+        "ask.model_call2": "問答模型 · 回覆階段",
+        "ask.timeout_call1_ms": "解析階段最長等待時間",
+        "ask.timeout_call2_ms": "回覆階段最長等待時間",
+        "ask.max_tokens_call1": "解析階段最多輸出",
+        "ask.max_tokens_call2": "回覆階段最多輸出",
+        "ask.temperature_call1": "解析階段創意度",
+        "ask.temperature_call2": "回覆階段創意度",
+        "deep.model": "深度分析模型",
+        "deep.timeout_ms": "深度分析最長等待時間",
+        "deep.max_tokens": "深度分析最多輸出",
+        "deep.temperature": "深度分析創意度",
+        "deep.max_rows": "深度分析讀取資料列上限",
+        "deep.data_blob_chars": "深度分析讀取文字上限"
       }
     }
   },

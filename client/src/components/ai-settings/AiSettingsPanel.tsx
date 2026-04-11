@@ -2,79 +2,90 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Settings, Lock, RefreshCw } from '@/lib/icons'
 import { useI18n } from '@/lib/i18n/context'
-import {
-  listAiConfig,
-  setAiConfig,
-  type AiConfigRow,
-} from '@/lib/ai-config'
+import { listAiConfig, type AiConfigRow } from '@/lib/ai-config'
 
-// Group keys by the two AI entry points so the panel stays readable even as
-// we add more tunables later. Keys that don't match a prefix fall into the
-// "other" bucket. Group labels come from i18n, but the prefix matching is
-// fixed at the code layer.
-const GROUPS: Array<{ id: 'ask' | 'deep'; prefix: string }> = [
-  { id: 'ask', prefix: 'ask.' },
-  { id: 'deep', prefix: 'deep.' },
-]
+// Group keys by the two AI entry points.
+type GroupId = 'ask' | 'deep' | 'other'
 
-type RowState = {
-  row: AiConfigRow
-  draft: string
-  saving: boolean
-  error: string | null
-  savedAt: number | null
+const GROUP_OF: Record<string, GroupId> = {}
+function groupFor(key: string): GroupId {
+  if (GROUP_OF[key]) return GROUP_OF[key]
+  const id: GroupId = key.startsWith('ask.')
+    ? 'ask'
+    : key.startsWith('deep.')
+      ? 'deep'
+      : 'other'
+  GROUP_OF[key] = id
+  return id
 }
 
-function groupRows(rows: AiConfigRow[]) {
-  const grouped: Record<string, AiConfigRow[]> = { ask: [], deep: [], other: [] }
-  for (const row of rows) {
-    const g = GROUPS.find(g => row.key.startsWith(g.prefix))
-    if (g) {
-      grouped[g.id].push(row)
-    } else {
-      grouped.other.push(row)
-    }
+// Humanize raw DB values for non-technical readers:
+//   90000  (ms) → "90 秒"
+//   1200   (chars) → "1,200 字元"
+//   8      (rows) → "8 筆資料"
+//   120    (tokens, any *_tokens* / max_tokens key) → "120 個 token"
+//   "gemma-4-26b-a4b-it" (text) → shown as-is in code font
+//   0.2    (numeric temperature) → shown as-is
+//
+// Unit picking keys off the row key suffix so we don't need a per-row
+// dictionary. Numbers get locale-aware thousands separators.
+function formatValue(
+  row: AiConfigRow,
+  t: (key: string) => string,
+  locale: string,
+): { display: string; mono: boolean } {
+  if (row.value_type === 'text') {
+    return { display: row.value, mono: true }
   }
-  return grouped
+  if (row.value_type === 'numeric') {
+    return { display: row.value, mono: false }
+  }
+  if (row.value_type === 'int') {
+    const n = Number(row.value)
+    const nf = new Intl.NumberFormat(locale)
+    if (row.key.endsWith('_ms')) {
+      return { display: `${nf.format(n / 1000)} ${t('dashboard.aiSettings.units.seconds')}`, mono: false }
+    }
+    if (row.key.endsWith('_chars')) {
+      return { display: `${nf.format(n)} ${t('dashboard.aiSettings.units.chars')}`, mono: false }
+    }
+    if (row.key.endsWith('_rows') || row.key.includes('max_rows')) {
+      return { display: `${nf.format(n)} ${t('dashboard.aiSettings.units.rows')}`, mono: false }
+    }
+    if (row.key.includes('tokens')) {
+      return { display: `${nf.format(n)} ${t('dashboard.aiSettings.units.tokens')}`, mono: false }
+    }
+    return { display: nf.format(n), mono: false }
+  }
+  // bool or unknown — just show as-is.
+  return { display: row.value, mono: false }
 }
 
 export default function AiSettingsPanel() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [readOnly, setReadOnly] = useState(true)
-  const [states, setStates] = useState<Record<string, RowState>>({})
+  const [rows, setRows] = useState<AiConfigRow[]>([])
 
   async function load() {
     setLoading(true)
     setLoadError(null)
     try {
-      const rows = await listAiConfig()
-      const next: Record<string, RowState> = {}
-      for (const row of rows) {
-        next[row.key] = {
-          row,
-          draft: row.value,
-          saving: false,
-          error: null,
-          savedAt: null,
-        }
-      }
-      setStates(next)
+      setRows(await listAiConfig())
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -82,75 +93,30 @@ export default function AiSettingsPanel() {
     }
   }
 
-  // Lazy-load: only fetch when the sheet is opened so we don't hammer the
-  // RPC on every page mount.
+  // Lazy-load on first open so non-admins don't pay the RPC cost every
+  // page load.
   useEffect(() => {
-    if (open && Object.keys(states).length === 0 && !loading) {
+    if (open && rows.length === 0 && !loading && !loadError) {
       void load()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  function updateDraft(key: string, draft: string) {
-    setStates(prev => ({
-      ...prev,
-      [key]: { ...prev[key], draft, error: null, savedAt: null },
-    }))
-  }
-
-  async function save(key: string) {
-    const state = states[key]
-    if (!state || state.draft === state.row.value) return
-    setStates(prev => ({
-      ...prev,
-      [key]: { ...prev[key], saving: true, error: null },
-    }))
-    try {
-      const updated = await setAiConfig(key, state.draft)
-      setStates(prev => ({
-        ...prev,
-        [key]: {
-          row: updated,
-          draft: updated.value,
-          saving: false,
-          error: null,
-          savedAt: Date.now(),
-        },
-      }))
-      setReadOnly(false)
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
-      const isPermission =
-        msg.includes('only service_role') || msg.includes('permission denied')
-      setStates(prev => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          saving: false,
-          error: isPermission ? t('dashboard.aiSettings.readOnlyError') : msg,
-          savedAt: null,
-        },
-      }))
-      if (isPermission) setReadOnly(true)
-    }
-  }
-
-  const rows = Object.values(states).map(s => s.row)
-  const grouped = groupRows(rows)
-
-  // Render group sections in a stable order; hide empty buckets so "other"
-  // never shows up unless we actually add an un-prefixed key later.
+  // Bucket rows into the two known groups.
+  const askRows = rows.filter(r => groupFor(r.key) === 'ask')
+  const deepRows = rows.filter(r => groupFor(r.key) === 'deep')
+  const otherRows = rows.filter(r => groupFor(r.key) === 'other')
   const sections = (
     [
-      { id: 'ask', rows: grouped.ask },
-      { id: 'deep', rows: grouped.deep },
-      { id: 'other', rows: grouped.other },
-    ] as const
+      { id: 'ask' as const, rows: askRows },
+      { id: 'deep' as const, rows: deepRows },
+      { id: 'other' as const, rows: otherRows },
+    ]
   ).filter(s => s.rows.length > 0)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <Drawer open={open} onOpenChange={setOpen} direction="right">
+      <DrawerTrigger asChild>
         <button
           type="button"
           aria-label={t('dashboard.aiSettings.open')}
@@ -159,28 +125,25 @@ export default function AiSettingsPanel() {
         >
           <Settings className="h-4 w-4" />
         </button>
-      </SheetTrigger>
+      </DrawerTrigger>
 
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-lg overflow-y-auto"
-      >
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            {t('dashboard.aiSettings.title')}
-            {readOnly && (
-              <Badge variant="outline" className="gap-1 text-xs font-normal">
-                <Lock className="h-3 w-3" />
-                {t('dashboard.aiSettings.readOnly')}
-              </Badge>
-            )}
-          </SheetTitle>
-          <SheetDescription>
+      <DrawerContent className="h-full sm:max-w-md">
+        <DrawerHeader className="border-b border-border/60">
+          <div className="flex items-center gap-2">
+            <DrawerTitle className="text-base">
+              {t('dashboard.aiSettings.title')}
+            </DrawerTitle>
+            <Badge variant="secondary" className="gap-1 text-[10px] font-normal">
+              <Lock className="h-3 w-3" />
+              {t('dashboard.aiSettings.readOnly')}
+            </Badge>
+          </div>
+          <DrawerDescription>
             {t('dashboard.aiSettings.description')}
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
-        <div className="p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
           {loading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -188,14 +151,15 @@ export default function AiSettingsPanel() {
             </div>
           )}
 
-          {loadError && (
-            <div className="text-sm text-destructive">
-              {t('dashboard.aiSettings.loadFailed')}：{loadError}
+          {loadError && !loading && (
+            <div className="space-y-2 text-sm">
+              <p className="text-destructive">
+                {t('dashboard.aiSettings.loadFailed')}
+              </p>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="ml-2"
                 onClick={() => void load()}
               >
                 {t('dashboard.aiSettings.retry')}
@@ -204,76 +168,66 @@ export default function AiSettingsPanel() {
           )}
 
           {!loading && !loadError && rows.length === 0 && (
-            <div className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t('dashboard.aiSettings.empty')}
-            </div>
+            </p>
           )}
 
-          {sections.map(({ id, rows: groupRowsList }) => (
+          {sections.map(({ id, rows: groupRows }) => (
             <section key={id} className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t(`dashboard.aiSettings.groups.${id}`)}
-              </h3>
-              <div className="space-y-3">
-                {groupRowsList.map(row => {
-                  const state = states[row.key]
-                  if (!state) return null
-                  const dirty = state.draft !== state.row.value
+              <div className="space-y-0.5">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t(`dashboard.aiSettings.groups.${id}`)}
+                </h3>
+                {(id === 'ask' || id === 'deep') && (
+                  <p className="text-xs text-muted-foreground">
+                    {t(`dashboard.aiSettings.groups.${id}Hint`)}
+                  </p>
+                )}
+              </div>
+
+              <dl className="rounded-lg border border-border/60 bg-muted/30 divide-y divide-border/60">
+                {groupRows.map(row => {
+                  const labelKey = `dashboard.aiSettings.labels.${row.key}`
+                  const label = t(labelKey)
+                  // If no friendly label exists, fall back to the raw key
+                  // so an added-but-not-i18n'd row still renders.
+                  const friendly = label !== labelKey ? label : row.key
+                  const { display, mono } = formatValue(row, t, locale)
                   return (
-                    <div key={row.key} className="space-y-1">
-                      <Label
-                        htmlFor={`ai-cfg-${row.key}`}
-                        className="flex items-center justify-between gap-2"
+                    <div
+                      key={row.key}
+                      className="flex items-center justify-between gap-3 px-4 py-3"
+                    >
+                      <dt className="text-sm text-muted-foreground">
+                        {friendly}
+                      </dt>
+                      <dd
+                        className={
+                          mono
+                            ? 'font-mono text-xs text-foreground truncate max-w-[60%]'
+                            : 'text-sm font-medium text-foreground tabular-nums'
+                        }
+                        title={mono ? row.value : undefined}
                       >
-                        <span className="font-mono text-xs">{row.key}</span>
-                        <Badge
-                          variant="secondary"
-                          className="text-[10px] font-normal"
-                        >
-                          {row.value_type}
-                        </Badge>
-                      </Label>
-                      {row.description && (
-                        <p className="text-xs text-muted-foreground">
-                          {row.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id={`ai-cfg-${row.key}`}
-                          value={state.draft}
-                          onChange={e => updateDraft(row.key, e.target.value)}
-                          disabled={state.saving}
-                          className="font-mono text-sm"
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant={dirty ? 'default' : 'outline'}
-                          disabled={!dirty || state.saving}
-                          onClick={() => void save(row.key)}
-                        >
-                          {state.saving
-                            ? t('dashboard.aiSettings.saving')
-                            : t('dashboard.aiSettings.save')}
-                        </Button>
-                      </div>
-                      {state.error && (
-                        <p className="text-xs text-destructive">{state.error}</p>
-                      )}
-                      {state.savedAt && !dirty && !state.error && (
-                        <p className="text-xs text-emerald-600">
-                          {t('dashboard.aiSettings.saved')}
-                        </p>
-                      )}
+                        {display}
+                      </dd>
                     </div>
                   )
                 })}
-              </div>
+              </dl>
             </section>
           ))}
         </div>
-      </SheetContent>
-    </Sheet>
+
+        <DrawerFooter className="border-t border-border/60">
+          <DrawerClose asChild>
+            <Button variant="outline" size="sm">
+              {t('dashboard.aiSettings.close')}
+            </Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   )
 }
