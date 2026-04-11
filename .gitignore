@@ -4,4 +4,6 @@ dist/
 .pnpm-store/
 .vite/
 supabase/.temp/
+supabase/migrations/supabase/
 .gstack/
+.next/
