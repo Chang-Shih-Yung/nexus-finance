@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/compone
 import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
+import AiSettingsPanel from '@/components/ai-settings/AiSettingsPanel'
 
 const sections = [
   { id: 'revenue', label: '營收總覽' },
@@ -155,11 +156,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          {/* Date + Logout — push to right */}
+          {/* Date + AI settings + Logout — push to right */}
           <div className="ml-auto flex items-center gap-2 shrink-0">
             <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">
               {today}
             </div>
+            <AiSettingsPanel />
             <button
               type="button"
               onClick={handleLogout}
