@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { I18nProvider } from '@/lib/i18n/context'
+
+// AppShell + its children (ThemeCustomizerContent) call useI18n, so any test
+// that mounts AppShell must wrap it in I18nProvider or the hook throws.
+function renderWithI18n(ui: React.ReactElement) {
+  return render(<I18nProvider>{ui}</I18nProvider>)
+}
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -59,7 +66,7 @@ describe('StatCard', () => {
 describe('AppShell', () => {
   it('renders all nav items', async () => {
     const { default: AppShell } = await import('@/components/AppShell')
-    render(<AppShell><div>content</div></AppShell>)
+    renderWithI18n(<AppShell><div>content</div></AppShell>)
 
     expect(screen.getAllByText('營收總覽').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('交易分析').length).toBeGreaterThanOrEqual(1)
@@ -70,14 +77,14 @@ describe('AppShell', () => {
 
   it('renders children', async () => {
     const { default: AppShell } = await import('@/components/AppShell')
-    render(<AppShell><div data-testid="child">hello</div></AppShell>)
+    renderWithI18n(<AppShell><div data-testid="child">hello</div></AppShell>)
 
     expect(screen.getByTestId('child')).toBeInTheDocument()
   })
 
   it('has mobile hamburger button', async () => {
     const { default: AppShell } = await import('@/components/AppShell')
-    render(<AppShell><div>content</div></AppShell>)
+    renderWithI18n(<AppShell><div>content</div></AppShell>)
 
     const hamburger = screen.getByLabelText('導航選單')
     expect(hamburger).toBeInTheDocument()
@@ -86,7 +93,7 @@ describe('AppShell', () => {
   it('opens mobile popover on hamburger click', async () => {
     const user = userEvent.setup()
     const { default: AppShell } = await import('@/components/AppShell')
-    render(<AppShell><div>content</div></AppShell>)
+    renderWithI18n(<AppShell><div>content</div></AppShell>)
 
     const hamburger = screen.getByLabelText('導航選單')
     await user.click(hamburger)
