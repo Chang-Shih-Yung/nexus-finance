@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ThemeCustomizerProvider, useThemeCustomizer } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
+import AiAssistantButton from '@/components/AiAssistantButton'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useI18n } from '@/lib/i18n/context'
 
@@ -50,8 +51,9 @@ function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
           <rect width="28" height="28" rx="7" fill="currentColor" className="text-primary" />
           <path d="M8 20V8h2.4l5.6 8V8H18v12h-2.4L10 12v8H8Z" fill="white" />
         </svg>
-        <span className="text-sm font-semibold">Nexus Finance</span>
+        <span className="hidden sm:inline text-sm font-semibold">Nexus Finance</span>
         <div className="ml-auto flex items-center gap-2">
+          <AiAssistantButton />
           <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">{today}</div>
           <LogoutButton />
         </div>

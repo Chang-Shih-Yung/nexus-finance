@@ -1,6 +1,6 @@
 'use client'
 
-import { runAiTemplateQuery } from '@/lib/ai-queries'
+import { runAiQuery } from '@/lib/ai-queries'
 import { invokeRpc } from '@/lib/rpc'
 
 export const api = {
@@ -26,7 +26,7 @@ export const api = {
         invokeRpc('nf_stats_failed_transactions', { p_limit: limit, p_from: from ?? null, p_to: to ?? null }),
     getApiHealth: (minutes = 60) =>
         invokeRpc('nf_stats_api_health', { p_minutes: minutes }),
-    aiQuery: (query: string) => runAiTemplateQuery(query),
+    aiQuery: (query: string) => runAiQuery(query),
 
     // ── Generic dashboard RPCs ──────────────────────────────
     dailyTrend: (metricKey: string, days = 30, dimension?: string, dimensionValue?: string) =>

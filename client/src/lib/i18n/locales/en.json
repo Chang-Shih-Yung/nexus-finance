@@ -58,7 +58,12 @@
   "dashboard": {
     "title": "Nexus Finance",
     "logout": "Log Out",
-    "loggingOut": "Logging out..."
+    "loggingOut": "Logging out...",
+    "aiAssistant": {
+      "open": "Open AI assistant",
+      "title": "AI Data Assistant",
+      "description": "Ask in natural language, get summaries, SQL and charts."
+    }
   },
   "cards": {
     "recentTransactions": {

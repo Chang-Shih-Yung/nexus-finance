@@ -58,7 +58,12 @@
   "dashboard": {
     "title": "Nexus Finance",
     "logout": "登出",
-    "loggingOut": "登出中..."
+    "loggingOut": "登出中...",
+    "aiAssistant": {
+      "open": "打開 AI 助手",
+      "title": "AI 數據助手",
+      "description": "用自然語言查詢資料，系統會回傳摘要、SQL 與圖表建議"
+    }
   },
   "cards": {
     "recentTransactions": {
