@@ -307,7 +307,8 @@
       "title": "轉帳大戶排行",
       "description": "近 {{days}} 天轉帳量最大的用戶",
       "txns": "筆交易",
-      "ofTotal": "佔總量"
+      "ofTotal": "佔總量",
+      "volume": "交易量"
     },
     "environmentVariables": {
       "title": "外匯匯率",
@@ -710,6 +711,8 @@
       "systemStatus": "系統狀態"
     },
     "faq": {
+      "title": "常見問題",
+      "description": "儀表板操作與功能說明",
       "general": "一般",
       "transactions": "交易",
       "riskControl": "風控",

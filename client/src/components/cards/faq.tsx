@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useI18n } from "@/lib/i18n/context"
 
@@ -45,6 +45,10 @@ export function Faq() {
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>{t('cards.faq.title')}</CardTitle>
+        <CardDescription>{t('cards.faq.description')}</CardDescription>
+      </CardHeader>
       <CardContent>
         <Tabs defaultValue="general">
           <TabsList className="w-full">

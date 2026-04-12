@@ -17,10 +17,6 @@ import { Item, ItemContent, ItemDescription } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useI18n } from '@/lib/i18n/context'
 
-const chartConfig = {
-  metric_value: { label: "Transactions", color: "var(--chart-2)" },
-} satisfies ChartConfig
-
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 function getDateRange(offsetMonths: number) {
@@ -32,6 +28,9 @@ function getDateRange(offsetMonths: number) {
 
 export function ContributionHistory() {
   const { t } = useI18n()
+  const chartConfig = {
+    metric_value: { label: t('cards.contributionHistory.transactions'), color: "var(--chart-2)" },
+  } satisfies ChartConfig
   const { days } = useDateRange()
   const { data: rawData, isLoading } = useRpc<Array<{ date: string; metric_value: number }>>(
     ["daily_trend", METRIC_KEYS.TXN_COUNT, String(days)],

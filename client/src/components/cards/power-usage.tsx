@@ -10,12 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
 import { useI18n } from '@/lib/i18n/context'
 
-const chartConfig = {
-  avg_latency: { label: "Avg Latency (ms)", color: "var(--chart-2)" },
-} satisfies ChartConfig
-
 export function PowerUsage() {
   const { t } = useI18n()
+  const chartConfig = {
+    avg_latency: { label: t('cards.powerUsage.avgLatency'), color: "var(--chart-2)" },
+  } satisfies ChartConfig
   const { data, isLoading } = useRpc<
     { minute: string; avg_latency: number; total_requests: number; error_count: number; error_rate: number }[]
   >(["api-health-60"], "nf_stats_api_health", { p_minutes: 60 })

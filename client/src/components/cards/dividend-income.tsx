@@ -12,16 +12,15 @@ import { useRpc } from "@/hooks/useRpc"
 import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
-const miniChartConfig = {
-  value: { label: "Volume", color: "var(--chart-2)" },
-} satisfies ChartConfig
-
 function formatAmount(n: number, loc = "en-US") {
   return new Intl.NumberFormat(loc, { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(n)
 }
 
 export function DividendIncome() {
   const { t, locale } = useI18n()
+  const miniChartConfig = {
+    value: { label: t('cards.dividendIncome.volume'), color: "var(--chart-2)" },
+  } satisfies ChartConfig
   const { fromISO, toISO, days } = useDateRange()
 
   const { data, isLoading } = useRpc<

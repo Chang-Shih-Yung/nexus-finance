@@ -307,7 +307,8 @@
       "title": "Top Transfer Users",
       "description": "Highest volume transfer users ({{days}} days)",
       "txns": "txns",
-      "ofTotal": "of total"
+      "ofTotal": "of total",
+      "volume": "Volume"
     },
     "environmentVariables": {
       "title": "Foreign Exchange Rates",
@@ -710,6 +711,8 @@
       "systemStatus": "System Status"
     },
     "faq": {
+      "title": "FAQ",
+      "description": "Dashboard operations & features",
       "general": "General",
       "transactions": "Transactions",
       "riskControl": "Risk Control",
