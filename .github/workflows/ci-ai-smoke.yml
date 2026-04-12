@@ -7,6 +7,12 @@
 # Runs on:
 #   - push to main  (when supabase/migrations changed)
 #   - any PR         (when supabase/migrations changed)
+#
+# Why two-phase startup:
+#   Supabase hosted pre-installs the `http` extension in the
+#   `extensions` schema, but the local Docker image does not.
+#   We disable auto-migration in config.toml, start Postgres bare,
+#   CREATE EXTENSION http, then apply migrations manually via psql.
 
 name: AI Smoke Tests
 
@@ -29,6 +35,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    env:
+      DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
     steps:
       - uses: actions/checkout@v4
 
@@ -37,31 +46,47 @@ jobs:
         with:
           version: latest
 
-      - name: Start local Supabase (Postgres + Kong only)
+      # Phase 1: start Postgres only (migrations disabled in config.toml)
+      - name: Start Postgres
         run: |
           supabase start \
             -x realtime,studio,imgproxy,edge-runtime,logflare,vector,supavisor,storage-api,gotrue,mailpit,postgres-meta
 
-      - name: Wait for Postgres to be ready
+      - name: Wait for Postgres
         run: |
           for i in $(seq 1 30); do
-            pg_isready -h 127.0.0.1 -p 54322 && break
-            echo "Waiting for Postgres... ($i/30)"
+            pg_isready -h 127.0.0.1 -p 54322 && exit 0
+            echo "Waiting... ($i/30)"
             sleep 2
           done
+          echo "Postgres did not start in time" && exit 1
 
-      - name: Run A+B layer test SQL
+      # Phase 2: bootstrap hosted-only extensions, then apply migrations
+      - name: Bootstrap extensions
         run: |
-          DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-          echo "=== Running test files ==="
+          psql "$DB_URL" -v ON_ERROR_STOP=1 <<'SQL'
+            CREATE EXTENSION IF NOT EXISTS http WITH SCHEMA extensions;
+          SQL
+
+      - name: Apply migrations
+        run: |
+          for f in supabase/migrations/[0-9]*.sql; do
+            echo "→ $(basename $f)"
+            psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+          echo "✓ All migrations applied"
+
+      # Phase 3: run test assertions
+      - name: Run A+B layer tests
+        run: |
           FAIL=0
           for f in supabase/tests/*.sql; do
             echo ""
             echo "── $f ──"
             if psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f" 2>&1; then
-              echo "✓ $f passed"
+              echo "✓ PASSED"
             else
-              echo "✗ $f FAILED"
+              echo "✗ FAILED"
               FAIL=1
             fi
           done

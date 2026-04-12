@@ -1,78 +1,87 @@
 -- ============================================================================
 -- B Layer — AI function error path smoke
 --
--- Calls nf_ai_ask and nf_ai_ask_deep with intentionally bad inputs and
--- verifies they raise the correct error codes. No API key is set, so
--- any call that gets past input validation will hit missing_api_key or
--- http_failed — both are expected and asserted.
---
--- These tests also verify the ai_ask_errors ledger is written to on
--- failure, catching typos in INSERT statements from Wave 3.
+-- Both nf_ai_ask and nf_ai_ask_deep return JSON with error info on
+-- failure (they do NOT raise exceptions). We verify:
+--   1. The error_code / error field in the returned JSON
+--   2. The ai_ask_errors ledger table gets rows inserted
 -- ============================================================================
 
--- Helper: call a function and assert the error message contains a substring.
-CREATE OR REPLACE FUNCTION pg_temp.assert_raises(
+-- Helper: assert a jsonb result contains a key with a specific value.
+CREATE OR REPLACE FUNCTION pg_temp.assert_json_field(
   p_label    text,
-  p_sql      text,
-  p_contains text
+  p_result   jsonb,
+  p_key      text,
+  p_expected text
 ) RETURNS void LANGUAGE plpgsql AS $$
 DECLARE
-  v_msg text;
+  v_actual text;
 BEGIN
-  BEGIN
-    EXECUTE p_sql;
-    -- If we get here, no error was raised.
-    RAISE EXCEPTION 'ASSERT FAIL [%]: expected error containing "%" but call succeeded',
-      p_label, p_contains;
-  EXCEPTION WHEN OTHERS THEN
-    GET STACKED DIAGNOSTICS v_msg = MESSAGE_TEXT;
-    IF v_msg NOT ILIKE '%' || p_contains || '%' THEN
-      RAISE EXCEPTION 'ASSERT FAIL [%]: error "%" does not contain "%"',
-        p_label, v_msg, p_contains;
-    END IF;
-  END;
+  v_actual := p_result ->> p_key;
+  IF v_actual IS DISTINCT FROM p_expected THEN
+    RAISE EXCEPTION 'ASSERT FAIL [%]: $.% = "%" (expected "%")',
+      p_label, p_key, COALESCE(v_actual, 'NULL'), p_expected;
+  END IF;
 END;
 $$;
 
 -- ── nf_ai_ask: missing API key ───────────────────────────────────
--- No GEMMA_API_KEY vault secret exists in local Supabase, so any
--- call should fail with missing_api_key.
+-- No vault secret in local instance → returns error_code = 'missing_api_key'
 
-SELECT pg_temp.assert_raises(
-  'nf_ai_ask missing key',
-  $$SELECT public.nf_ai_ask('今天成功率多少？')$$,
-  'missing_api_key'
-);
+DO $$
+DECLARE v_result jsonb;
+BEGIN
+  SELECT public.nf_ai_ask('今天成功率多少？') INTO v_result;
+  PERFORM pg_temp.assert_json_field(
+    'nf_ai_ask missing_api_key',
+    v_result, 'error_code', 'missing_api_key'
+  );
+END;
+$$;
 
 -- ── nf_ai_ask_deep: empty question ──────────────────────────────
+-- Returns JSON with error = 'missing_question'
 
-SELECT pg_temp.assert_raises(
-  'nf_ai_ask_deep empty question',
-  $$SELECT public.nf_ai_ask_deep('', 'test_rpc', '[]'::jsonb)$$,
-  'missing_question'
-);
+DO $$
+DECLARE v_result jsonb;
+BEGIN
+  SELECT public.nf_ai_ask_deep('', 'test_rpc', '[]'::jsonb) INTO v_result;
+  PERFORM pg_temp.assert_json_field(
+    'nf_ai_ask_deep missing_question',
+    v_result, 'error', 'missing_question'
+  );
+END;
+$$;
 
 -- ── nf_ai_ask_deep: empty data ──────────────────────────────────
 
-SELECT pg_temp.assert_raises(
-  'nf_ai_ask_deep empty data',
-  $$SELECT public.nf_ai_ask_deep('test question', 'test_rpc', '[]'::jsonb)$$,
-  'empty_data'
-);
+DO $$
+DECLARE v_result jsonb;
+BEGIN
+  SELECT public.nf_ai_ask_deep('test question', 'test_rpc', '[]'::jsonb) INTO v_result;
+  PERFORM pg_temp.assert_json_field(
+    'nf_ai_ask_deep empty_data',
+    v_result, 'error', 'empty_data'
+  );
+END;
+$$;
 
--- ── nf_ai_ask_deep: no API key (gets past validation) ───────────
--- Pass valid question + non-empty data → should fail at the HTTP
--- call with missing_api_key (no vault secret in local instance).
+-- ── nf_ai_ask_deep: no API key (past input validation) ──────────
 
-SELECT pg_temp.assert_raises(
-  'nf_ai_ask_deep missing key',
-  $$SELECT public.nf_ai_ask_deep('test question', 'test_rpc', '[{"x":1}]'::jsonb)$$,
-  'missing_api_key'
-);
+DO $$
+DECLARE v_result jsonb;
+BEGIN
+  SELECT public.nf_ai_ask_deep('test question', 'test_rpc', '[{"x":1}]'::jsonb) INTO v_result;
+  PERFORM pg_temp.assert_json_field(
+    'nf_ai_ask_deep missing_api_key',
+    v_result, 'error', 'missing_api_key'
+  );
+END;
+$$;
 
 -- ── Verify ai_ask_errors ledger was written ──────────────────────
--- The calls above should have inserted error rows. Check that at
--- least one row exists (proving the INSERT paths work).
+-- The calls above should have inserted error rows (proving the
+-- INSERT INTO ai_ask_errors paths work).
 
 DO $$
 DECLARE v_count int;

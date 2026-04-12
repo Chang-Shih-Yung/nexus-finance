@@ -19,7 +19,9 @@ major_version = 15
 enabled = false
 
 [db.migrations]
-enabled = true
+# Disabled so CI can bootstrap extensions before applying migrations.
+# Migrations are applied manually via psql in the CI workflow.
+enabled = false
 
 [db.seed]
 enabled = true
@@ -30,6 +32,8 @@ enabled = false
 
 [studio]
 enabled = false
+port = 54323
+api_url = "http://127.0.0.1"
 
 [inbucket]
 enabled = false
@@ -39,9 +43,11 @@ enabled = false
 
 [auth]
 enabled = false
+site_url = "http://127.0.0.1:3000"
 
 [edge_runtime]
 enabled = false
+policy = "per_worker"
 
 [analytics]
 enabled = false
