@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
 const areaChartConfig = {
@@ -19,14 +20,12 @@ const areaChartConfig = {
 
 export function Visitors() {
   const { t } = useI18n()
-  const now = new Date()
-  const from = new Date(now.getTime() - 180 * 86400000).toISOString()
-  const to = now.toISOString()
+  const { fromISO, toISO } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { date: string; total: number; success_count: number; success_rate: number }[]
-  >(["transfer-success-rate-180"], "nf_stats_transfer_success_rate", {
-    p_from: from, p_to: to,
+  >(["transfer-success-rate", fromISO, toISO], "nf_stats_transfer_success_rate", {
+    p_from: fromISO, p_to: toISO,
   })
 
   const items = data ?? []

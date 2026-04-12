@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 import { ERROR_CODE_LABELS } from '@/lib/i18n/labels'
 
@@ -35,18 +36,16 @@ function formatCurrency(value: number, currency = "TWD", loc = "en-US") {
 
 export function Invoice() {
   const { t, locale } = useI18n()
+  const { fromISO, toISO } = useDateRange()
   const errorLabels = ERROR_CODE_LABELS[locale] ?? {}
 
   function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(locale, { month: "short", day: "numeric" })
   }
-  const now = new Date()
-  const from = new Date(now.getTime() - 30 * 86400000).toISOString()
-  const to = now.toISOString()
 
   const { data, isLoading } = useRpc<FailedTx[]>(
-    ["failed-transactions"], "nf_stats_failed_transactions",
-    { p_limit: 8, p_from: from, p_to: to },
+    ["failed-transactions", fromISO, toISO], "nf_stats_failed_transactions",
+    { p_limit: 8, p_from: fromISO, p_to: toISO },
   )
 
   const items = data ?? []

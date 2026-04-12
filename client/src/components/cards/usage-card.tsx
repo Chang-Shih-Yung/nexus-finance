@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 import { ERROR_CODE_LABELS } from '@/lib/i18n/labels'
 
@@ -58,21 +59,18 @@ function gaugePercent(key: string, value: number): number {
 
 export function UsageCard() {
   const { t, locale } = useI18n()
+  const { fromISO, toISO } = useDateRange()
   const METRIC_LABELS = useMetricLabels()
   const errorLabels = ERROR_CODE_LABELS[locale] ?? ERROR_CODE_LABELS.en ?? {}
   const { data, isLoading } = useRpc<
     { metric_key: string; dimension: string; dimension_value: string; today_value: number; avg_7d: number; stddev_7d: number; z_score: number }[]
   >(["anomaly-check"], "nf_anomaly_check", {})
 
-  const now = new Date()
-  const from = new Date(now.getTime() - 30 * 86400000).toISOString()
-  const to = now.toISOString()
-
   // If no anomalies, fall back to error breakdown
   const { data: errorBreakdown, isLoading: loadingErrors } = useRpc<
     { error_code: string; count: number }[]
-  >(["error-breakdown"], "nf_stats_error_breakdown", {
-    p_from: from, p_to: to,
+  >(["error-breakdown", fromISO, toISO], "nf_stats_error_breakdown", {
+    p_from: fromISO, p_to: toISO,
   })
 
   const loading = isLoading || loadingErrors

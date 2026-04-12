@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
 const chartConfig = {
@@ -20,14 +21,12 @@ const chartConfig = {
 
 export function AnalyticsCard() {
   const { t } = useI18n()
-  const now = new Date()
-  const from = new Date(now.getTime() - 180 * 86400000).toISOString()
-  const to = now.toISOString()
+  const { fromISO, toISO } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { date: string; count: number }[]
-  >(["daily-logins-180"], "nf_stats_daily_logins", {
-    p_from: from, p_to: to,
+  >(["daily-logins", fromISO, toISO], "nf_stats_daily_logins", {
+    p_from: fromISO, p_to: toISO,
   })
 
   const chartData = (data ?? []).map(d => ({

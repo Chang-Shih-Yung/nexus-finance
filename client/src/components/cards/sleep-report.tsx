@@ -10,6 +10,7 @@ import {
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
 const funnelChartConfig = {
@@ -20,13 +21,11 @@ const funnelChartConfig = {
 
 export function SleepReport() {
   const { t } = useI18n()
-  const now = new Date()
-  const from = new Date(now.getTime() - 30 * 86400000).toISOString()
-  const to = now.toISOString()
+  const { fromISO, toISO } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { step: string; users: number; conversion_rate: number; drop_off_rate: number }[]
-  >(["stats-funnel"], "nf_stats_funnel", { p_from: from, p_to: to, p_window_hours: 24 })
+  >(["stats-funnel", fromISO, toISO], "nf_stats_funnel", { p_from: fromISO, p_to: toISO, p_window_hours: 24 })
 
   const steps = data ?? []
 

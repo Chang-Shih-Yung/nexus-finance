@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from "@/lib/i18n/context"
 
 export function BarChartCard() {
   const { t } = useI18n()
+  const { days } = useDateRange()
 
   const barChartConfig = {
     success: { label: t('cards.barChartCard.success'), color: "var(--chart-1)" },
@@ -22,16 +24,16 @@ export function BarChartCard() {
   } satisfies ChartConfig
   const { data: successData, isLoading: l1 } = useRpc<
     { date: string; metric_value: number }[]
-  >(["success-trend-30"], "nf_daily_trend", {
+  >(["success-trend", String(days)], "nf_daily_trend", {
     p_metric_key: "txn_count",
-    p_days: 30,
+    p_days: days,
   })
 
   const { data: errorData, isLoading: l2 } = useRpc<
     { date: string; metric_value: number }[]
-  >(["error-trend-30"], "nf_daily_trend", {
+  >(["error-trend", String(days)], "nf_daily_trend", {
     p_metric_key: "error_count",
-    p_days: 30,
+    p_days: days,
   })
 
   const isLoading = l1 || l2

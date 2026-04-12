@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from "@/lib/i18n/context"
 
 type ChannelDist = {
@@ -19,6 +20,7 @@ type ChannelDist = {
 
 export function BarVisualizer() {
   const { t } = useI18n()
+  const { days } = useDateRange()
 
   const CHANNEL_LABELS: Record<string, string> = {
     web: t('cards.barVisualizer.web'),
@@ -29,9 +31,9 @@ export function BarVisualizer() {
   }
 
   const { data, isLoading } = useRpc<ChannelDist[]>(
-    ["channel-distribution"],
+    ["channel-distribution", String(days)],
     "nf_channel_distribution",
-    { p_days: 7 }
+    { p_days: days }
   )
 
   return (

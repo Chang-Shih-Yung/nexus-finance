@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from "@/lib/i18n/context"
 
 function formatCompact(amount: number, locale: string) {
@@ -26,6 +27,7 @@ function formatCompact(amount: number, locale: string) {
 
 export function LiveWaveformCard() {
   const { t, locale } = useI18n()
+  const { days } = useDateRange()
 
   const chartConfig = {
     total_revenue: { label: t('cards.liveWaveform.revenue'), color: "var(--chart-1)" },
@@ -39,16 +41,16 @@ export function LiveWaveformCard() {
     prev_total: number
     change_pct: number
   }>(
-    ["revenue-summary"],
+    ["revenue-summary", String(days)],
     "nf_revenue_summary",
-    { p_days: 30 },
+    { p_days: days },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { select: (rows: any) => (Array.isArray(rows) ? rows[0] : rows) ?? null },
   )
 
   const { data: trend, isLoading: loadingTrend } = useRpc<
     { date: string; total_revenue: number }[]
-  >(["revenue-trend"], "nf_revenue_trend", { p_days: 30 })
+  >(["revenue-trend", String(days)], "nf_revenue_trend", { p_days: days })
 
   const chartData = (trend ?? []).map((d) => ({
     date: d.date,

@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, XAxis } from "recharts"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { METRIC_KEYS } from "@/lib/metric-keys"
 
 import { Badge } from "@/components/ui/badge"
@@ -31,10 +32,11 @@ function getDateRange(offsetMonths: number) {
 
 export function ContributionHistory() {
   const { t } = useI18n()
+  const { days } = useDateRange()
   const { data: rawData, isLoading } = useRpc<Array<{ date: string; metric_value: number }>>(
-    ["daily_trend", METRIC_KEYS.TXN_COUNT, "30"],
+    ["daily_trend", METRIC_KEYS.TXN_COUNT, String(days)],
     "nf_daily_trend",
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: days }
   )
 
   // Period compare for precise badge

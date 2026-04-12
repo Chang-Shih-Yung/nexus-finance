@@ -9,6 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
 const miniChartConfig = {
@@ -21,21 +22,19 @@ function formatAmount(n: number, loc = "en-US") {
 
 export function DividendIncome() {
   const { t, locale } = useI18n()
-  const now = new Date()
-  const from = new Date(now.getTime() - 30 * 86400000).toISOString()
-  const to = now.toISOString()
+  const { fromISO, toISO, days } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { user_name: string; tx_count: number; total_amount: number }[]
-  >(["top-transfer-users"], "nf_ai_top_transfer_users", {
-    p_from: from, p_to: to, p_limit: 5,
+  >(["top-transfer-users", fromISO, toISO], "nf_ai_top_transfer_users", {
+    p_from: fromISO, p_to: toISO, p_limit: 5,
   })
 
-  // Fetch 5-day trend shape to use as sparkline pattern
+  // Fetch trend shape to use as sparkline pattern
   const { data: trendData } = useRpc<
     { date: string; metric_value: number }[]
-  >(["trend-5d-sparkline"], "nf_daily_trend", {
-    p_metric_key: "txn_amount", p_days: 5,
+  >(["trend-sparkline", String(days)], "nf_daily_trend", {
+    p_metric_key: "txn_amount", p_days: Math.min(days, 5),
   })
 
   const totalAmount = (data ?? []).reduce((s, d) => s + Number(d.total_amount), 0)

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@/components/ui/item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from '@/lib/i18n/context'
 
 interface DormantUser {
@@ -26,8 +27,9 @@ const TIER_COLORS: Record<string, "default" | "secondary" | "outline" | "destruc
 
 export function BookAppointment() {
   const { t } = useI18n()
+  const { days } = useDateRange()
   const { data, isLoading } = useRpc<DormantUser[]>(
-    ["dormant-users"], "nf_ai_dormant_users", { p_days: 7, p_limit: 6 },
+    ["dormant-users", String(days)], "nf_ai_dormant_users", { p_days: days, p_limit: 6 },
   )
 
   const users = data ?? []

@@ -10,6 +10,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRpc } from "@/hooks/useRpc"
+import { useDateRange } from "@/hooks/useDateRange"
 import { useI18n } from "@/lib/i18n/context"
 
 const METRICS = ["txn_amount", "txn_count", "login_count", "active_users", "avg_balance"]
@@ -18,6 +19,7 @@ const chartConfig = { value: { label: "Value", color: "var(--chart-1)" } } satis
 
 export function StockPerformance() {
   const { t } = useI18n()
+  const { days } = useDateRange()
   const [metric, setMetric] = React.useState("txn_amount")
 
   const METRIC_LABELS: Record<string, string> = {
@@ -30,9 +32,9 @@ export function StockPerformance() {
 
   const { data, isLoading } = useRpc<
     { date: string; metric_value: number }[]
-  >(["daily-trend", metric], "nf_daily_trend", {
+  >(["daily-trend", metric, String(days)], "nf_daily_trend", {
     p_metric_key: metric,
-    p_days: 30,
+    p_days: days,
   })
 
   const chartData = (data ?? []).map(d => ({
