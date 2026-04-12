@@ -1,0 +1,72 @@
+# AI Smoke Tests — A+B Layer
+#
+# Scope: only AI-related functions, PII masking, and config getters.
+# Does NOT test dashboard RPCs (nf_stats_*, nf_daily_trend, etc.)
+# so adding new tables or dashboard cards never triggers CI changes.
+#
+# Runs on:
+#   - push to main  (when supabase/migrations changed)
+#   - any PR         (when supabase/migrations changed)
+
+name: AI Smoke Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - '.github/workflows/ci-ai-smoke.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - '.github/workflows/ci-ai-smoke.yml'
+
+jobs:
+  ai-smoke:
+    name: A+B layer smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase (Postgres + Kong only)
+        run: |
+          supabase start \
+            -x realtime,studio,imgproxy,edge-runtime,logflare,vector,supavisor,storage-api,gotrue,mailpit,postgres-meta
+
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in $(seq 1 30); do
+            pg_isready -h 127.0.0.1 -p 54322 && break
+            echo "Waiting for Postgres... ($i/30)"
+            sleep 2
+          done
+
+      - name: Run A+B layer test SQL
+        run: |
+          DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+          echo "=== Running test files ==="
+          FAIL=0
+          for f in supabase/tests/*.sql; do
+            echo ""
+            echo "── $f ──"
+            if psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f" 2>&1; then
+              echo "✓ $f passed"
+            else
+              echo "✗ $f FAILED"
+              FAIL=1
+            fi
+          done
+          exit $FAIL
+
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop --no-backup
