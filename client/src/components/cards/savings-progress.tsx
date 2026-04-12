@@ -2,7 +2,7 @@
 
 import { Label, Pie, PieChart } from "recharts"
 
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -20,7 +20,7 @@ export function SavingsProgress() {
     { dimension_value: string; metric_value: number }[]
   >(["branch-breakdown"], "nf_current_breakdown", {
     p_metric_key: "txn_count",
-    p_dimension: "branch",
+    p_dimension: "channel",
   })
 
   const total = (breakdown ?? []).reduce((s, d) => s + d.metric_value, 0)
@@ -38,6 +38,10 @@ export function SavingsProgress() {
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>{t('cards.savingsProgress.title')}</CardTitle>
+        <CardDescription>{t('cards.savingsProgress.description')}</CardDescription>
+      </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="mx-auto flex aspect-square max-h-[220px] items-center justify-center">
@@ -71,7 +75,7 @@ export function SavingsProgress() {
       </CardContent>
       <CardFooter className="flex-col gap-0">
         <div className="flex w-full items-center justify-between py-3">
-          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.topBranch')}</span>
+          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.topChannel')}</span>
           <span className="text-sm font-semibold capitalize">
             {isLoading ? <Skeleton className="h-4 w-20" /> : (topCategory?.dimension_value ?? "—")}
           </span>
@@ -85,7 +89,7 @@ export function SavingsProgress() {
         </div>
         <Separator />
         <div className="flex w-full items-center justify-between py-3">
-          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.branches')}</span>
+          <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.channels')}</span>
           <span className="text-sm font-semibold">
             {isLoading ? <Skeleton className="h-4 w-10" /> : (breakdown?.length ?? 0)}
           </span>

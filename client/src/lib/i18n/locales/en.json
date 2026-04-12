@@ -229,9 +229,11 @@
       "sendCampaign": "Send Re-engagement Campaign"
     },
     "savingsProgress": {
-      "topBranch": "Top Branch",
+      "title": "Channel Transaction Distribution",
+      "description": "Transaction volume by channel",
+      "topChannel": "Top Channel",
       "totalTransactions": "Total Transactions",
-      "branches": "Branches"
+      "channels": "Channels"
     },
     "releaseCatalog": {
       "searchErrorCodes": "Search error codes...",

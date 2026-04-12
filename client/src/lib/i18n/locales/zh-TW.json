@@ -229,9 +229,11 @@
       "sendCampaign": "發送喚回行銷活動"
     },
     "savingsProgress": {
-      "topBranch": "排名第一分行",
+      "title": "通路交易分佈",
+      "description": "各通路交易量佔比",
+      "topChannel": "最大通路",
       "totalTransactions": "交易總數",
-      "branches": "分行數"
+      "channels": "通路數"
     },
     "releaseCatalog": {
       "searchErrorCodes": "搜尋錯誤代碼...",
