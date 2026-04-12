@@ -76,8 +76,8 @@ export function SavingsProgress() {
       <CardFooter className="flex-col gap-0">
         <div className="flex w-full items-center justify-between py-3">
           <span className="text-sm text-muted-foreground">{t('cards.savingsProgress.topChannel')}</span>
-          <span className="text-sm font-semibold capitalize">
-            {isLoading ? <Skeleton className="h-4 w-20" /> : (topCategory?.dimension_value ?? "—")}
+          <span className="text-sm font-semibold">
+            {isLoading ? <Skeleton className="h-4 w-20" /> : (topCategory ? t(`cards.savingsProgress.channelNames.${topCategory.dimension_value}`) : "—")}
           </span>
         </div>
         <Separator />

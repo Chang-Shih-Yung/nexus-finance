@@ -233,7 +233,13 @@
       "description": "各通路交易量佔比",
       "topChannel": "最大通路",
       "totalTransactions": "交易總數",
-      "channels": "通路數"
+      "channels": "通路數",
+      "channelNames": {
+        "mobile": "行動裝置",
+        "web": "網路銀行",
+        "atm": "自動櫃員機",
+        "branch": "臨櫃"
+      }
     },
     "releaseCatalog": {
       "searchErrorCodes": "搜尋錯誤代碼...",

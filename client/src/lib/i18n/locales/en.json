@@ -233,7 +233,13 @@
       "description": "Transaction volume by channel",
       "topChannel": "Top Channel",
       "totalTransactions": "Total Transactions",
-      "channels": "Channels"
+      "channels": "Channels",
+      "channelNames": {
+        "mobile": "Mobile",
+        "web": "Web Banking",
+        "atm": "ATM",
+        "branch": "Branch"
+      }
     },
     "releaseCatalog": {
       "searchErrorCodes": "Search error codes...",
