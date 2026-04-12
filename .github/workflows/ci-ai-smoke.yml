@@ -22,11 +22,13 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/tests/**'
+      - 'supabase/config.toml'
       - '.github/workflows/ci-ai-smoke.yml'
   pull_request:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/tests/**'
+      - 'supabase/config.toml'
       - '.github/workflows/ci-ai-smoke.yml'
 
 jobs:
