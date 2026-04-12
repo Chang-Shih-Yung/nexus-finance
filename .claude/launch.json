@@ -4,7 +4,7 @@
     {
       "name": "nexus-client",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "export NVM_DIR=$HOME/.nvm && source $NVM_DIR/nvm.sh && nvm use 22 && cd /Users/itts/Desktop/Nexus_Finance/client && npm run dev"],
+      "runtimeArgs": ["-c", "cd /Users/itts/Desktop/Nexus_Finance/client && npx next dev --port $PORT"],
       "port": 3000,
       "autoPort": true
     }

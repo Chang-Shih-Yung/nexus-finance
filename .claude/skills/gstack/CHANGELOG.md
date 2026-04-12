@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.16.3.0] - 2026-04-09
+
+### Changed
+- **AI slop cleanup.** Ran [slop-scan](https://github.com/benvinegar/slop-scan) and dropped from 100 findings (2.38 score/file) to 90 findings (1.96 score/file). The good part: `safeUnlink()` and `safeKill()` utilities that catch real bugs (swallowed EPERM in shutdown was a silent data loss risk). `safeUnlinkQuiet()` for cleanup paths where throwing is worse than swallowing. `isProcessAlive()` extracted to a shared module with Windows support. Redundant `return await` removed. Typed exception catches (TypeError, DOMException, ENOENT) replace empty catches in system boundary code. The part we tried and reverted: string-matching on error messages was brittle, extension catch-and-log was correct as-is, pass-through wrapper comments were linter gaming. We are AI-coded and proud of it. The goal is code quality, not hiding.
+
+### Added
+- **`bun run slop:diff`** shows only NEW slop-scan findings introduced on your branch vs main. Line-number-insensitive comparison so shifted code doesn't create false positives. Runs automatically after `bun test`.
+- **Slop-scan usage guidelines** in CLAUDE.md: what to fix (genuine quality) vs what NOT to fix (linter gaming). Includes utility function reference table.
+- **Design doc** for future slop-scan integration in `/review` and `/ship` skills (`docs/designs/SLOP_SCAN_FOR_REVIEW_SHIP.md`).
+
+## [0.16.2.0] - 2026-04-09
+
+### Added
+- **Office hours now remembers you.** The closing experience adapts based on how many sessions you've done. First time: full YC plea and founder resources. Sessions 2-3: "Welcome back. Last time you were working on [your project]. How's it going?" Sessions 4-7: arc-level callbacks across your whole journey, accumulated signal visibility, and an auto-generated Builder Journey narrative. Sessions 8+: the data speaks for itself.
+- **Builder profile** tracks your office hours journey in a single append-only session log. Signals, design docs, assignments, topics, and resources shown, all in one file. No split-brain state, no separate config keys.
+- **Builder-to-founder nudge** for repeat builder-mode users who accumulate founder signals. Evidence-gated: only triggers when you've shown 5+ signals across 3+ builder sessions. Not a pitch. An observation.
+- **Journey-matched resources.** Instead of category-matching from the static pool, resources now match your accumulated session context. "You've been iterating on a fintech idea for 3 sessions... Tom Blomfield built Monzo from exactly this kind of persistence."
+- **Builder Journey Summary** auto-generates at session 5+ and opens in your browser. A narrative arc of your journey, not a data table. Written in second person, referencing specific things you said across sessions.
+- **Global resource dedup.** Resource links now dedup globally (not per-project), so switching repos doesn't reset your watch history. Each link shows only once, ever.
+
+### Fixed
+- package.json version now stays in sync with VERSION file.
+
+## [0.16.1.0] - 2026-04-08
+
+### Fixed
+- Cookie picker no longer leaks the browse server auth token. Previously, opening the cookie picker page exposed the master bearer token in the HTML source, letting any local process extract it and execute arbitrary JavaScript in your browser session. Now uses a one-time code exchange with an HttpOnly session cookie. The token never appears in HTML, URLs, or browser history. (Reported by Horoshi at Vagabond Research, CVSS 7.8)
+
 ## [0.16.0.0] - 2026-04-07
 
 ### Added
