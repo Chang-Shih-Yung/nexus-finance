@@ -330,6 +330,7 @@
       "critical": "緊急",
       "warning": "警告",
       "today": "今日",
+      "todayValue": "今日值",
       "avg7d": "7日均值",
       "zScore": "z-score"
     },
