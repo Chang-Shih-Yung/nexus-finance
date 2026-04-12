@@ -11,26 +11,9 @@ import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
 import { useDateRange } from '@/hooks/useDateRange'
 import { CATEGORY_LABELS, getLabel } from '@/lib/i18n/labels'
-
-interface TrendRow { date: string; metric_value: number }
-interface BreakdownRow { dimension_value: string; metric_value: number }
-interface PeriodCompare { current_total: number; previous_total: number; change_pct: number }
-
-const PIE_COLORS = [
-  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
-  'var(--color-chart-4)', 'var(--color-chart-5)',
-]
-
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
-
-function formatAmount(v: number) {
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
-  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`
-  return v.toLocaleString()
-}
+import type { TrendRow, BreakdownRow, PeriodCompare } from '@/types/rpc'
+import { PIE_COLORS } from '@/lib/chart-constants'
+import { formatAmount, toChartData, toBreakdownData } from '@/lib/format'
 
 
 export default function RevenueSection() {
@@ -71,12 +54,9 @@ export default function RevenueSection() {
     { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: days }
   )
 
-  const trendData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
-  const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
-  const pieData = (categoryBreakdown ?? []).map(d => ({
-    name: getLabel(CATEGORY_LABELS, locale, d.dimension_value),
-    value: Number(d.metric_value),
-  }))
+  const trendData = toChartData(amountTrend ?? [])
+  const countData = toChartData(countTrend ?? [])
+  const pieData = toBreakdownData(categoryBreakdown ?? [], key => getLabel(CATEGORY_LABELS, locale, key))
 
   const avgDailyCount = countData.length
     ? Math.round(countData.reduce((a, d) => a + d.value, 0) / countData.length)
@@ -110,7 +90,7 @@ export default function RevenueSection() {
       <ChartCard title={t('sections.revenue.dailyTrend')} height={240} className="lg:col-span-2">
         {trendData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '交易金額', color: 'var(--chart-1)' } }}
+            config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-1)' } }}
             className="h-full w-full"
           >
             <AreaChart data={trendData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -167,7 +147,7 @@ export default function RevenueSection() {
           {countData.length > 0 && (
             <div className="mt-3 h-10">
               <ChartContainer
-                config={{ value: { label: '筆數', color: 'var(--chart-3)' } }}
+                config={{ value: { label: t('sections.chartLabels.count'), color: 'var(--chart-3)' } }}
                 className="h-full w-full"
               >
                 <AreaChart data={countData.slice(-14)} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>

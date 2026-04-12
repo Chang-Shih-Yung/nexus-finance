@@ -11,19 +11,9 @@ import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
 import { useDateRange } from '@/hooks/useDateRange'
 import { CATEGORY_LABELS, CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
-
-interface TrendRow { date: string; metric_value: number }
-interface BreakdownRow { dimension_value: string; metric_value: number }
-
-const PIE_COLORS = [
-  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
-  'var(--color-chart-4)', 'var(--color-chart-5)',
-]
-
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
+import type { TrendRow, BreakdownRow } from '@/types/rpc'
+import { PIE_COLORS } from '@/lib/chart-constants'
+import { toChartData, toBreakdownData } from '@/lib/format'
 
 export default function TransactionSection() {
   const { locale, t } = useI18n()
@@ -59,19 +49,13 @@ export default function TransactionSection() {
     { p_metric_key: METRIC_KEYS.SUCCESS_RATE, p_days: days }
   )
 
-  const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
-  const amountData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
-  const successData = (successTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))
+  const countData = toChartData(countTrend ?? [])
+  const amountData = toChartData(amountTrend ?? [])
+  const successData = toChartData(successTrend ?? [])
 
-  const catData = (categoryBreakdown ?? []).map(d => ({
-    name: getLabel(CATEGORY_LABELS, locale, d.dimension_value),
-    value: Number(d.metric_value),
-  }))
+  const catData = toBreakdownData(categoryBreakdown ?? [], k => getLabel(CATEGORY_LABELS, locale, k))
 
-  const channelData = (channelBreakdown ?? []).map(d => ({
-    name: getLabel(CHANNEL_LABELS, locale, d.dimension_value),
-    value: Number(d.metric_value),
-  }))
+  const channelData = toBreakdownData(channelBreakdown ?? [], k => getLabel(CHANNEL_LABELS, locale, k))
 
   return (
     <>
@@ -79,7 +63,7 @@ export default function TransactionSection() {
       <ChartCard id="transactions" title={t('sections.transactions.dailyVolume')} height={200}>
         {countData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '交易筆數', color: 'var(--chart-1)' } }}
+            config={{ value: { label: t('sections.chartLabels.txnCount'), color: 'var(--chart-1)' } }}
             className="h-full w-full"
           >
             <BarChart data={countData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -96,7 +80,7 @@ export default function TransactionSection() {
       <ChartCard title={t('sections.transactions.dailyAmount')} height={200}>
         {amountData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '交易金額', color: 'var(--chart-2)' } }}
+            config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-2)' } }}
             className="h-full w-full"
           >
             <AreaChart data={amountData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -119,7 +103,7 @@ export default function TransactionSection() {
       <ChartCard title={t('sections.transactions.categoryDist')} height={180}>
         {catData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '筆數', color: 'var(--chart-3)' } }}
+            config={{ value: { label: t('sections.chartLabels.count'), color: 'var(--chart-3)' } }}
             className="h-full w-full"
           >
             <BarChart data={catData} layout="vertical" margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -161,7 +145,7 @@ export default function TransactionSection() {
       <ChartCard title={t('sections.transactions.successTrend')} height={180} className="lg:col-span-2">
         {successData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '成功率 %', color: 'var(--chart-2)' } }}
+            config={{ value: { label: t('sections.chartLabels.successRate'), color: 'var(--chart-2)' } }}
             className="h-full w-full"
           >
             <AreaChart data={successData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>

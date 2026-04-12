@@ -13,19 +13,12 @@ import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
 import { useDateRange } from '@/hooks/useDateRange'
 import { CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
-
-interface BreakdownRow { dimension_value: string; metric_value: number }
-interface HealthRow {
-  minute: string; avg_latency: number; error_count: number; error_rate: number; total_requests: number
-}
-
-const PIE_COLORS = [
-  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
-  'var(--color-chart-4)', 'var(--color-chart-5)',
-]
+import type { BreakdownRow, HealthRow } from '@/types/rpc'
+import { PIE_COLORS } from '@/lib/chart-constants'
+import { toBreakdownData } from '@/lib/format'
 
 export default function SystemSection() {
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
   const { toISO } = useDateRange()
 
   const { data: healthData } = useRpc<HealthRow[]>(
@@ -71,15 +64,9 @@ export default function SystemSection() {
     }
   })
 
-  const branchData = (branchBreakdown ?? []).map(d => ({
-    name: d.dimension_value,
-    value: Number(d.metric_value),
-  }))
+  const branchData = toBreakdownData(branchBreakdown ?? [])
 
-  const channelPie = (channelBreakdown ?? []).map(d => ({
-    name: getLabel(CHANNEL_LABELS, locale, d.dimension_value),
-    value: Number(d.metric_value),
-  }))
+  const channelPie = toBreakdownData(channelBreakdown ?? [], key => getLabel(CHANNEL_LABELS, locale, key))
 
   return (
     <>
@@ -88,7 +75,7 @@ export default function SystemSection() {
         <CardHeader className="pb-3">
           <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
             <Activity className="h-3.5 w-3.5" />
-            API 健康 · 過去 60 分鐘
+            {t('sections.system.apiHealth')}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
@@ -98,31 +85,31 @@ export default function SystemSection() {
                 <Timer className={`h-4 w-4 ${latencyOk ? 'text-chart-2' : 'text-destructive'}`} />
               </div>
               <p className={`text-lg font-bold leading-none ${latencyOk ? 'text-foreground' : 'text-destructive'}`}>{avgLatency}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">ms 延遲</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{t('sections.system.msLatency')}</p>
             </div>
             <div className="border-x border-border/60">
               <div className={`mx-auto mb-1.5 w-9 h-9 rounded-full flex items-center justify-center ${errorRateOk ? 'bg-chart-2/10' : 'bg-destructive/10'}`}>
                 <AlertCircle className={`h-4 w-4 ${errorRateOk ? 'text-chart-2' : 'text-destructive'}`} />
               </div>
               <p className={`text-lg font-bold leading-none ${errorRateOk ? 'text-foreground' : 'text-destructive'}`}>{errorRate}%</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">錯誤率</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{t('sections.system.errorRate')}</p>
             </div>
             <div>
               <div className="mx-auto mb-1.5 w-9 h-9 rounded-full flex items-center justify-center bg-primary/10">
                 <Activity className="h-4 w-4 text-primary" />
               </div>
               <p className="text-lg font-bold leading-none text-foreground">{totalRequests.toLocaleString()}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">請求總數</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{t('sections.system.totalRequests')}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Branch Performance Ranking */}
-      <ChartCard title="分行交易金額排名" height={200}>
+      <ChartCard title={t('sections.system.branchRanking')} height={200}>
         {branchData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '交易金額', color: 'var(--chart-1)' } }}
+            config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-1)' } }}
             className="h-full w-full"
           >
             <BarChart data={branchData} layout="vertical" margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -136,7 +123,7 @@ export default function SystemSection() {
       </ChartCard>
 
       {/* Digital vs Branch Pie */}
-      <ChartCard title="數位 vs 臨櫃佔比" height={200}>
+      <ChartCard title={t('sections.system.digitalVsBranch')} height={200}>
         {channelPie.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(channelPie.map((d, i) => [
@@ -161,12 +148,12 @@ export default function SystemSection() {
       </ChartCard>
 
       {/* API Latency Trend */}
-      <ChartCard title="API 平均延遲 (每分鐘)" height={200} className="lg:col-span-2">
+      <ChartCard title={t('sections.system.apiLatencyTrend')} height={200} className="lg:col-span-2">
         {latencyData.length > 0 && (
           <ChartContainer
             config={{
-              avg_latency: { label: '延遲 (ms)', color: 'var(--chart-3)' },
-              threshold: { label: '閾值 500ms', color: 'var(--chart-4)' },
+              avg_latency: { label: t('sections.system.chartLatency'), color: 'var(--chart-3)' },
+              threshold: { label: t('sections.system.chartThreshold'), color: 'var(--chart-4)' },
             }}
             className="h-full w-full"
           >

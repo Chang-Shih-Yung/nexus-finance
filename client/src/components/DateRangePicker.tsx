@@ -9,26 +9,17 @@ import { useDateRange } from '@/hooks/useDateRange'
 import { useI18n } from '@/lib/i18n/context'
 import type { DateRange as RDPRange } from 'react-day-picker'
 
-const PRESETS_ZH = [
-  { label: '今天', days: 0 },
-  { label: '近 7 天', days: 6 },
-  { label: '近 30 天', days: 29 },
-  { label: '近 90 天', days: 89 },
-] as const
-
-const PRESETS_EN = [
-  { label: 'Today', days: 0 },
-  { label: 'Last 7d', days: 6 },
-  { label: 'Last 30d', days: 29 },
-  { label: 'Last 90d', days: 89 },
-] as const
-
 export default function DateRangePicker() {
   const { range, setRange } = useDateRange()
   const { locale, t } = useI18n()
   const [open, setOpen] = useState(false)
 
-  const presets = locale === 'zh-TW' ? PRESETS_ZH : PRESETS_EN
+  const presets = [
+    { label: t('sections.dateRange.today'), days: 0 },
+    { label: t('sections.dateRange.last7d'), days: 6 },
+    { label: t('sections.dateRange.last30d'), days: 29 },
+    { label: t('sections.dateRange.last90d'), days: 89 },
+  ] as const
 
   function applyPreset(days: number) {
     const to = new Date()

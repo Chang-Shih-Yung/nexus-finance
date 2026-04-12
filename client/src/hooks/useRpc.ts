@@ -12,6 +12,10 @@ export function useRpc<T>(
   return useQuery<T, Error>({
     queryKey: key,
     queryFn: () => invokeRpc<T>(rpcName, params),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    retry: 1,
+    refetchOnWindowFocus: false,
     ...options,
   })
 }

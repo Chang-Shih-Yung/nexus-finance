@@ -14,6 +14,7 @@ import {
   type AiRenderHint, type AiDeepAnalysis,
 } from '@/lib/ai-queries'
 import { fieldLabel, formatValue, rowColumns } from '@/lib/ai-format'
+import { useI18n } from '@/lib/i18n/context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -76,52 +77,36 @@ interface Message {
 }
 
 /**
- * Human-readable zh-TW explanation of each `degrade_reason` enum value.
- * Backend reasons are short enum-like strings so they can double as i18n
- * keys; we centralise the zh-TW mapping here. Unknown reasons fall back
- * to a generic message so we never show a raw enum to execs.
+ * Known degrade_reason codes. Used to check if a code has a dedicated
+ * i18n key under `sections.ai.degrade.<code>`.
  */
-const DEGRADE_REASON_ZH: Record<string, string> = {
-  call1_http_failed:        'AI 服務連線失敗，改用備用文字回答。',
-  call1_not_json:           'AI 回應格式不符，改用備用文字回答。',
-  call2_http_failed:        '分析模型連線逾時，改以模板回覆。',
-  call2_not_json:           '分析模型回傳格式錯誤，改以模板回覆。',
-  call2_empty:              '分析模型沒有產生任何內容，改以模板回覆。',
-  call2_schema_decode_failed: '分析模型回傳的 JSON 格式不正確，改以模板回覆。',
-  call2_parse_failed:       '分析模型未依指定格式輸出，改以模板回覆。',
-  chart_derivation_failed:  '原本預期顯示圖表，但欄位不符，改用表格呈現。',
-  rpc_not_in_catalog:       '模型選到的函式不在目錄中。',
-  rpc_exec_failed:          'RPC 執行失敗。',
-  missing_api_key:          '尚未設定 AI 金鑰。',
-  empty_catalog:            'AI 工具目錄為空。',
-  rpc_invoke_failed:        '無法連線到資料庫，請稍後再試。',
-  // Deep analysis reasons
-  http_failed:              '深度分析模型連線失敗。',
-  invalid_json:             '深度分析模型回傳格式錯誤。',
-  empty_response:           '深度分析模型沒有產生任何內容。',
-  parse_failed:              '深度分析未依格式輸出，下方為未整理的原始內容。',
-  sections_incomplete:      '深度分析的部分段落缺漏。',
-  empty_data:               '沒有資料可做深度分析。',
-  degeneration_detected:    '分析模型輸出不穩定（token 重複循環），請點「重試」。',
-  schema_decode_failed:     '分析模型回傳的 JSON 格式不正確，請點「重試」。',
-}
+const KNOWN_DEGRADE_CODES = new Set([
+  'call1_http_failed', 'call1_not_json',
+  'call2_http_failed', 'call2_not_json', 'call2_empty',
+  'call2_schema_decode_failed', 'call2_parse_failed',
+  'chart_derivation_failed', 'rpc_not_in_catalog', 'rpc_exec_failed',
+  'missing_api_key', 'empty_catalog', 'rpc_invoke_failed',
+  'http_failed', 'invalid_json', 'empty_response',
+  'parse_failed', 'sections_incomplete', 'empty_data',
+  'degeneration_detected', 'schema_decode_failed',
+])
 
-function describeDegradeReason(code?: string): string {
-  if (!code) return '此次輸出的品質可能不如預期，請留意內容正確性。'
-  return DEGRADE_REASON_ZH[code]
-    ?? `此次輸出使用了備用路徑（${code}），內容可能不如預期。`
+function describeDegradeReason(t: (k: string) => string, code?: string): string {
+  if (!code) return t('sections.ai.degrade.fallbackGeneric')
+  if (KNOWN_DEGRADE_CODES.has(code)) return t(`sections.ai.degrade.${code}`)
+  return t('sections.ai.degrade.fallbackWithCode').replace('{{code}}', code)
 }
 
 /** Dynamic match for call2_status_<code> / http_status_<code> etc. */
-function describeDegradeReasonSmart(code?: string): string {
-  if (!code) return describeDegradeReason(code)
+function describeDegradeReasonSmart(t: (k: string) => string, code?: string): string {
+  if (!code) return describeDegradeReason(t, code)
   if (code.startsWith('call2_status_')) {
-    return `分析模型回應異常（HTTP ${code.replace('call2_status_', '')}），改以模板回覆。`
+    return t('sections.ai.degrade.call2StatusHttp').replace('{{code}}', code.replace('call2_status_', ''))
   }
   if (code.startsWith('http_status_')) {
-    return `深度分析模型回應異常（HTTP ${code.replace('http_status_', '')}）。`
+    return t('sections.ai.degrade.httpStatusDeep').replace('{{code}}', code.replace('http_status_', ''))
   }
-  return describeDegradeReason(code)
+  return describeDegradeReason(t, code)
 }
 
 /**
@@ -130,34 +115,35 @@ function describeDegradeReasonSmart(code?: string): string {
  * reveals the specific reason while keeping the bubble compact.
  */
 function DegradedBadge({ reason }: Readonly<{ reason?: string }>) {
+  const { t } = useI18n()
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
           <span
             className="inline-flex items-center gap-1 rounded-full border border-amber-300/60 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300 cursor-help"
-            aria-label="模型輸出品質降低"
+            aria-label={t('sections.ai.degradedBadgeLabel')}
           >
             <AlertTriangle className="size-3" />
-            模型輸出品質降低
+            {t('sections.ai.degradedBadgeLabel')}
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs text-xs">
-          {describeDegradeReasonSmart(reason)}
+          {describeDegradeReasonSmart(t, reason)}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )
 }
 
-const sampleQueries = [
-  '最近 30 天的營收總覽',
-  '各產品線營收佔比',
-  '目前放款組合與 NPL 比率',
-  '本季分行營收排名',
-  '過去 7 天詐欺警報統計',
-  '數位銀行普及率怎樣？',
-]
+const sampleQueryKeys = [
+  'sections.ai.sample1',
+  'sections.ai.sample2',
+  'sections.ai.sample3',
+  'sections.ai.sample4',
+  'sections.ai.sample5',
+  'sections.ai.sample6',
+] as const
 
 function toRechartsData(raw: RawChartData) {
   const labels = raw.labels ?? []
@@ -349,6 +335,7 @@ function KpiGrid({ row }: Readonly<{ row: AiDataRow }>) {
  * when the chosen RPC returns a list (render = 'table' or 'both').
  */
 function DataTable({ rows }: Readonly<{ rows: AiDataRow[] }>) {
+  const { t } = useI18n()
   const cols = rowColumns(rows)
   if (cols.length === 0) return null
 
@@ -385,7 +372,7 @@ function DataTable({ rows }: Readonly<{ rows: AiDataRow[] }>) {
         </Table>
       </div>
       <div className="px-3 py-1.5 text-[11px] text-muted-foreground bg-muted/30 border-t border-border">
-        共 {rows.length} 筆
+        {t('sections.ai.totalRows').replace('{{count}}', String(rows.length))}
       </div>
     </div>
   )
@@ -501,6 +488,7 @@ function DeepAnalysisPanel({
   onToggle: () => void
   onFetch: () => void
 }>) {
+  const { t } = useI18n()
   // Only offer deep analysis when there's structured data to reason over
   // AND the backend successfully dispatched to a whitelisted RPC.
   if (!msg.rpcCalled || !msg.data || msg.data.length === 0) return null
@@ -529,11 +517,11 @@ function DeepAnalysisPanel({
         {msg.deepLoading ? (
           <>
             <Spinner className="size-3" />
-            <span className="ml-1.5">分析中…</span>
+            <span className="ml-1.5">{t('sections.ai.analyzing')}</span>
           </>
         ) : (
           <>
-            <span>重點解讀</span>
+            <span>{t('sections.ai.deepInsight')}</span>
             {isOpen
               ? <ChevronUp className="ml-1 size-3" />
               : <ChevronDown className="ml-1 size-3" />}
@@ -557,7 +545,7 @@ function DeepAnalysisPanel({
                 disabled={msg.deepLoading}
                 className="h-7 text-xs"
               >
-                重試
+                {t('sections.ai.retry')}
               </Button>
             </div>
           ) : (
@@ -565,7 +553,7 @@ function DeepAnalysisPanel({
               {msg.deep?.trend && (
                 <DeepSection
                   icon={TrendingUp}
-                  title="重點摘要"
+                  title={t('sections.ai.deepSummary')}
                   body={msg.deep.trend}
                   tone="default"
                 />
@@ -573,7 +561,7 @@ function DeepAnalysisPanel({
               {msg.deep?.observations && (
                 <DeepSection
                   icon={Target}
-                  title="重點觀察"
+                  title={t('sections.ai.deepObservations')}
                   body={msg.deep.observations}
                   tone="default"
                 />
@@ -581,7 +569,7 @@ function DeepAnalysisPanel({
               {msg.deep?.recommendations && (
                 <DeepSection
                   icon={CheckCircle2}
-                  title="行動建議"
+                  title={t('sections.ai.deepRecommendations')}
                   body={msg.deep.recommendations}
                   tone="default"
                 />
@@ -589,7 +577,7 @@ function DeepAnalysisPanel({
               {msg.deep?.risks && (
                 <DeepSection
                   icon={AlertTriangle}
-                  title="潛在風險"
+                  title={t('sections.ai.deepRisks')}
                   body={msg.deep.risks}
                   tone="warning"
                 />
@@ -599,7 +587,7 @@ function DeepAnalysisPanel({
                 && !msg.deep?.recommendations
                 && !msg.deep?.risks && (
                 <p className="text-xs text-muted-foreground">
-                  模型沒有產出可解析的內容，請稍後再試。
+                  {t('sections.ai.deepEmpty')}
                 </p>
               )}
             </>
@@ -667,6 +655,7 @@ function ResultBody({ msg }: Readonly<{ msg: Message }>) {
 }
 
 export default function AiQuerySection() {
+  const { t } = useI18n()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -702,7 +691,7 @@ export default function AiQuerySection() {
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: err instanceof Error ? err.message : '查詢失敗，請稍後再試。',
+        content: err instanceof Error ? err.message : t('sections.ai.queryFailed'),
       }])
     } finally {
       setLoading(false)
@@ -754,8 +743,8 @@ export default function AiQuerySection() {
               <EmptyMedia variant="icon">
                 <Bot />
               </EmptyMedia>
-              <EmptyTitle>你可以直接問業務問題</EmptyTitle>
-              <EmptyDescription>點擊下方提示，或在輸入框輸入問題</EmptyDescription>
+              <EmptyTitle>{t('sections.ai.emptyTitle')}</EmptyTitle>
+              <EmptyDescription>{t('sections.ai.emptyDescription')}</EmptyDescription>
             </EmptyHeader>
           </Empty>
         )}
@@ -813,7 +802,7 @@ export default function AiQuerySection() {
           <div className="flex justify-start">
             <div className="bg-muted border border-border rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2">
               <Spinner className="size-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">思考中…</span>
+              <span className="text-xs text-muted-foreground">{t('sections.ai.thinking')}</span>
             </div>
           </div>
         )}
@@ -821,18 +810,21 @@ export default function AiQuerySection() {
 
       {/* Sample queries */}
       <div className="flex flex-wrap gap-2 shrink-0">
-        {sampleQueries.map(q => (
-          <Button
-            key={q}
-            variant="outline"
-            size="sm"
-            onClick={() => sendMessage(q)}
-            disabled={loading}
-            className="text-xs h-8"
-          >
-            {q}
-          </Button>
-        ))}
+        {sampleQueryKeys.map(key => {
+          const label = t(key)
+          return (
+            <Button
+              key={key}
+              variant="outline"
+              size="sm"
+              onClick={() => sendMessage(label)}
+              disabled={loading}
+              className="text-xs h-8"
+            >
+              {label}
+            </Button>
+          )
+        })}
       </div>
 
       {/* Input */}
@@ -842,7 +834,7 @@ export default function AiQuerySection() {
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !loading && sendMessage()}
           type="text"
-          placeholder="輸入查詢，例如：最近 30 天的營收總覽"
+          placeholder={t('sections.ai.inputPlaceholder')}
           disabled={loading}
           className="flex-1 h-11"
         />
@@ -852,7 +844,7 @@ export default function AiQuerySection() {
           className="h-11 px-5"
         >
           <Send className="h-4 w-4" />
-          <span className="hidden sm:inline ml-2">送出</span>
+          <span className="hidden sm:inline ml-2">{t('sections.ai.send')}</span>
         </Button>
       </div>
     </div>

@@ -6,38 +6,30 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { LogIn, ArrowLeftRight, CheckCircle2 } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
+import { useI18n } from '@/lib/i18n/context'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useDateRange } from '@/hooks/useDateRange'
-
-interface BreakdownRow { dimension_value: string; metric_value: number }
-interface TopNRow { dimension_value: string; metric_value: number }
-interface FunnelRow { step: string; users: number; conversion_rate: number; drop_off_rate: number }
-
-const PIE_COLORS = [
-  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)',
-  'var(--color-chart-4)', 'var(--color-chart-5)',
-]
-
-const TIER_LABELS: Record<string, string> = {
-  general: '一般', vip: 'VIP', premium: '尊榮',
-}
-
-const tierVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-  premium: 'default', vip: 'secondary', general: 'outline',
-}
-
-const stepLabels: Record<string, string> = {
-  login: '登入', transfer_init: '發起轉帳', transfer_success: '轉帳成功',
-}
+import type { BreakdownRow, TopNRow, FunnelRow } from '@/types/rpc'
+import { PIE_COLORS } from '@/lib/chart-constants'
+import { toBreakdownData } from '@/lib/format'
 
 const FUNNEL_COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)']
 
 export default function CustomerSection() {
+  const { t } = useI18n()
   const { fromISO, toISO } = useDateRange()
+
+  const tierLabel = (k: string) => {
+    const map: Record<string, string> = { general: t('sections.customers.tierGeneral'), vip: t('sections.customers.tierVip'), premium: t('sections.customers.tierPremium') }
+    return map[k] ?? k
+  }
+
+  const stepLabels: Record<string, string> = {
+    login: t('sections.customers.stepLogin'), transfer_init: t('sections.customers.stepTransferInit'), transfer_success: t('sections.customers.stepTransferSuccess'),
+  }
 
   const { data: tierAmount } = useRpc<BreakdownRow[]>(
     ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'tier', toISO],
@@ -63,15 +55,9 @@ export default function CustomerSection() {
     { p_from: fromISO, p_to: toISO }
   )
 
-  const amountPie = (tierAmount ?? []).map(d => ({
-    name: TIER_LABELS[d.dimension_value] ?? d.dimension_value,
-    value: Number(d.metric_value),
-  }))
+  const amountPie = toBreakdownData(tierAmount ?? [], tierLabel)
 
-  const countBar = (tierCount ?? []).map(d => ({
-    name: TIER_LABELS[d.dimension_value] ?? d.dimension_value,
-    value: Number(d.metric_value),
-  }))
+  const countBar = toBreakdownData(tierCount ?? [], tierLabel)
 
   const funnelChartData = (funnelData ?? []).map(d => ({
     step: stepLabels[d.step] ?? d.step,
@@ -81,7 +67,7 @@ export default function CustomerSection() {
   return (
     <>
       {/* Tier Amount Pie */}
-      <ChartCard id="customers" title="客群交易金額分佈" height={200}>
+      <ChartCard id="customers" title={t('sections.customers.tierAmountDist')} height={200}>
         {amountPie.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(amountPie.map((d, i) => [
@@ -106,10 +92,10 @@ export default function CustomerSection() {
       </ChartCard>
 
       {/* Tier Count Bar */}
-      <ChartCard title="客群交易筆數" height={180}>
+      <ChartCard title={t('sections.customers.tierCountDist')} height={180}>
         {countBar.length > 0 && (
           <ChartContainer
-            config={{ value: { label: '筆數', color: 'var(--chart-5)' } }}
+            config={{ value: { label: t('sections.chartLabels.count'), color: 'var(--chart-5)' } }}
             className="h-full w-full"
           >
             <BarChart data={countBar} layout="vertical" margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -126,14 +112,14 @@ export default function CustomerSection() {
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <LogIn className="h-3.5 w-3.5" /> 轉帳漏斗
+            <LogIn className="h-3.5 w-3.5" /> {t('sections.customers.funnelTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {funnelChartData.length > 0 && (
             <div style={{ height: 160 }}>
               <ChartContainer
-                config={{ users: { label: '使用者數', color: 'var(--chart-1)' } }}
+                config={{ users: { label: t('sections.chartLabels.users'), color: 'var(--chart-1)' } }}
                 className="h-full w-full"
               >
                 <BarChart data={funnelChartData} layout="vertical" margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -153,9 +139,9 @@ export default function CustomerSection() {
             <div key={row.step} className="flex gap-3 text-xs mt-2">
               <span className="text-chart-2 font-medium">
                 {row.step === 'transfer_init' ? <ArrowLeftRight className="h-3 w-3 inline mr-1" /> : <CheckCircle2 className="h-3 w-3 inline mr-1" />}
-                轉換 {row.conversion_rate}%
+                {t('sections.customers.funnelConversion')} {row.conversion_rate}%
               </span>
-              <span className="text-destructive font-medium">流失 {row.drop_off_rate}%</span>
+              <span className="text-destructive font-medium">{t('sections.customers.funnelDropOff')} {row.drop_off_rate}%</span>
             </div>
           ))}
         </CardContent>
@@ -164,7 +150,7 @@ export default function CustomerSection() {
       {/* VIP Top N Table */}
       <Card className="shadow-sm lg:col-span-2">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">交易金額 Top 10 客戶</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.customers.topUsers')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto max-h-56 overflow-y-auto">
@@ -172,8 +158,8 @@ export default function CustomerSection() {
               <TableHeader>
                 <TableRow>
                   <TableHead>#</TableHead>
-                  <TableHead>客戶</TableHead>
-                  <TableHead className="text-right">金額</TableHead>
+                  <TableHead>{t('common.user')}</TableHead>
+                  <TableHead className="text-right">{t('common.amount')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

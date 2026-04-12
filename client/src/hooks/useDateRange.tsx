@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 
 export interface DateRange {
   from: Date
@@ -41,13 +41,13 @@ export function DateRangeProvider({ children }: { children: ReactNode }) {
     setRangeRaw({ from: r.from, to: r.to })
   }, [])
 
-  const ctx: DateRangeCtx = {
+  const ctx = useMemo<DateRangeCtx>(() => ({
     range,
     setRange,
     fromISO: toISO(range.from),
     toISO: toISO(range.to),
     days: daysBetween(range.from, range.to),
-  }
+  }), [range, setRange])
 
   return <Ctx value={ctx}>{children}</Ctx>
 }

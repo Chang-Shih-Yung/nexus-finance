@@ -16,9 +16,11 @@ export function downloadCsv(
     ...rows.map(row =>
       keys.map(k => {
         const v = row[k]
-        const s = v == null ? '' : String(v)
-        // Escape quotes and wrap if contains comma/quote/newline
-        return s.includes(',') || s.includes('"') || s.includes('\n')
+        let s = v == null ? '' : String(v)
+        // Prevent formula injection in Excel (=, +, -, @, \t, \r)
+        if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
+        // Escape quotes and wrap if contains comma/quote/newline/CR
+        return s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')
           ? `"${s.replace(/"/g, '""')}"`
           : s
       }).join(',')

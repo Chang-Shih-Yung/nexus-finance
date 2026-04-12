@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,66 +20,36 @@ import { METRIC_KEYS } from '@/lib/metric-keys'
 import { api } from '@/lib/api'
 import { downloadCsv } from '@/lib/csv-export'
 import { useQueryClient } from '@tanstack/react-query'
-
-interface BreakdownRow { dimension_value: string; metric_value: number }
-interface TrendRow { date: string; metric_value: number }
-interface AnomalyRow {
-  metric_key: string; dimension: string; dimension_value: string
-  today_value: number; avg_7d: number; stddev_7d: number; z_score: number
-}
-interface TxRow {
-  id: number; created_at: string; user_name: string; tier: string
-  amount: number; channel: string; error_code: string; error_message: string
-  reviewed_at?: string | null; review_note?: string | null
-}
-interface AckRow { metric_key: string; dimension: string; dim_value: string }
-
-const PIE_COLORS = [
-  'var(--color-chart-4)', 'var(--color-chart-1)', 'var(--color-chart-3)',
-  'var(--color-chart-5)', 'var(--color-chart-2)',
-]
-
-const tierVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-  premium: 'default', vip: 'secondary', general: 'outline',
-}
-
-const METRIC_LABELS: Record<string, Record<string, string>> = {
-  'zh-TW': {
-    txn_count: '交易筆數', txn_amount: '交易金額', success_rate: '成功率',
-    error_count: '錯誤數', error_rate: '錯誤率', login_count: '登入數',
-    active_users: '活躍用戶', avg_balance: '平均餘額',
-  },
-  'en': {
-    txn_count: 'Txn Count', txn_amount: 'Txn Amount', success_rate: 'Success Rate',
-    error_count: 'Error Count', error_rate: 'Error Rate', login_count: 'Logins',
-    active_users: 'Active Users', avg_balance: 'Avg Balance',
-  },
-}
-
-function formatTime(iso: string) {
-  const d = new Date(iso)
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
+import type { BreakdownRow, TrendRow, AnomalyRow, FailedTxRow, AckRow } from '@/types/rpc'
+import { PIE_COLORS_ALT, TIER_VARIANT } from '@/lib/chart-constants'
+import { formatTime, toChartData } from '@/lib/format'
 
 export default function RiskSection() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const { fromISO, toISO, days } = useDateRange()
   const qc = useQueryClient()
 
   // ── Review dialog state ──
-  const [reviewTx, setReviewTx] = useState<TxRow | null>(null)
+  const [reviewTx, setReviewTx] = useState<FailedTxRow | null>(null)
   const [reviewNote, setReviewNote] = useState('')
   const [reviewBusy, setReviewBusy] = useState(false)
 
   // ── Anomaly ack state ──
   const [ackBusy, setAckBusy] = useState<string | null>(null)
 
-  const metricLabel = METRIC_LABELS[locale] ?? METRIC_LABELS['en']
+  const metricLabel = (k: string) => {
+    const map: Record<string, string> = {
+      txn_count: t('sections.risk.metricTxnCount'),
+      txn_amount: t('sections.risk.metricTxnAmount'),
+      success_rate: t('sections.risk.metricSuccessRate'),
+      error_count: t('sections.risk.metricErrorCount'),
+      error_rate: t('sections.risk.metricErrorRate'),
+      login_count: t('sections.risk.metricLoginCount'),
+      active_users: t('sections.risk.metricActiveUsers'),
+      avg_balance: t('sections.risk.metricAvgBalance'),
+    }
+    return map[k] ?? k
+  }
 
   // ── Data queries ──
   const { data: errorBreakdown } = useRpc<BreakdownRow[]>(
@@ -100,7 +70,7 @@ export default function RiskSection() {
     { p_date: toISO }
   )
 
-  const { data: failedTx } = useRpc<TxRow[]>(
+  const { data: failedTx } = useRpc<FailedTxRow[]>(
     ['failed-transactions', fromISO, toISO],
     'nf_stats_failed_transactions',
     { p_limit: 50, p_from: fromISO, p_to: toISO }
@@ -111,19 +81,16 @@ export default function RiskSection() {
     'nf_anomaly_acks_today'
   )
 
-  const ackedSet = new Set(
+  const ackedSet = useMemo(() => new Set(
     (acks ?? []).map(a => `${a.metric_key}|${a.dimension}|${a.dim_value}`)
-  )
+  ), [acks])
 
   const pieData = (errorBreakdown ?? []).map(d => ({
     name: d.dimension_value,
     value: Number(d.metric_value),
   }))
 
-  const errorData = (errorTrend ?? []).map(d => ({
-    date: formatDate(d.date),
-    value: Number(d.metric_value),
-  }))
+  const errorData = toChartData(errorTrend ?? [])
 
   const anomalyList = anomalies ?? []
 
@@ -155,9 +122,12 @@ export default function RiskSection() {
   function handleExportCsv() {
     const rows = failedTx ?? []
     if (!rows.length) return
-    const headers: Record<string, string> = locale === 'zh-TW'
-      ? { id: 'ID', created_at: '時間', user_name: '客戶', tier: '等級', amount: '金額', error_code: '錯誤碼', error_message: '錯誤訊息', channel: '通路' }
-      : { id: 'ID', created_at: 'Time', user_name: 'Customer', tier: 'Tier', amount: 'Amount', error_code: 'Error Code', error_message: 'Error Message', channel: 'Channel' }
+    const headers: Record<string, string> = {
+      id: 'ID', created_at: t('sections.risk.csvTime'), user_name: t('sections.risk.csvCustomer'),
+      tier: t('sections.risk.csvTier'), amount: t('sections.risk.csvAmount'),
+      error_code: t('sections.risk.csvErrorCode'), error_message: t('sections.risk.csvErrorMessage'),
+      channel: t('sections.risk.csvChannel'),
+    }
     downloadCsv(rows as unknown as Record<string, unknown>[], `failed-transactions-${fromISO}-${toISO}`, headers)
   }
 
@@ -167,7 +137,7 @@ export default function RiskSection() {
   return (
     <>
       {/* Error Type Pie */}
-      <ChartCard id="risk" title={locale === 'zh-TW' ? '錯誤類型分佈' : 'Error Type Distribution'} height={200}>
+      <ChartCard id="risk" title={t('sections.risk.errorTypeDist')} height={200}>
         {pieData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(pieData.map((d, i) => [
@@ -182,7 +152,7 @@ export default function RiskSection() {
                 dataKey="value" strokeWidth={0}
               >
                 {pieData.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  <Cell key={i} fill={PIE_COLORS_ALT[i % PIE_COLORS_ALT.length]} />
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
@@ -195,10 +165,10 @@ export default function RiskSection() {
       <Card className="shadow-sm lg:col-span-2">
         <CardHeader className="pb-2 flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            {locale === 'zh-TW' ? '失敗交易明細' : 'Failed Transactions'}
+            {t('sections.risk.failedTransactions')}
             {reviewedCount > 0 && (
               <Badge variant="secondary" className="ml-2 text-[10px]">
-                {reviewedCount} {locale === 'zh-TW' ? '已處理' : 'reviewed'}
+                {reviewedCount} {t('sections.risk.reviewed')}
               </Badge>
             )}
           </CardTitle>
@@ -212,9 +182,9 @@ export default function RiskSection() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{locale === 'zh-TW' ? '時間' : 'Time'}</TableHead>
-                  <TableHead>{locale === 'zh-TW' ? '客戶' : 'Customer'}</TableHead>
-                  <TableHead>{locale === 'zh-TW' ? '等級' : 'Tier'}</TableHead>
+                  <TableHead>{t('sections.risk.time')}</TableHead>
+                  <TableHead>{t('sections.risk.customer')}</TableHead>
+                  <TableHead>{t('sections.risk.tier')}</TableHead>
                   <TableHead className="text-right">{t('common.amount')}</TableHead>
                   <TableHead>{t('common.error')}</TableHead>
                   <TableHead className="text-center">{t('common.status')}</TableHead>
@@ -226,7 +196,7 @@ export default function RiskSection() {
                     <TableCell className="text-muted-foreground text-xs">{formatTime(tx.created_at)}</TableCell>
                     <TableCell className="font-medium">{tx.user_name}</TableCell>
                     <TableCell>
-                      <Badge variant={tierVariant[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
+                      <Badge variant={TIER_VARIANT[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs">{Number(tx.amount).toLocaleString()}</TableCell>
                     <TableCell><span className="text-destructive font-mono text-xs">{tx.error_code}</span></TableCell>
@@ -234,7 +204,7 @@ export default function RiskSection() {
                       {tx.reviewed_at ? (
                         <Badge variant="outline" className="text-[10px] gap-1">
                           <CheckCircle2 className="h-3 w-3 text-chart-2" />
-                          {locale === 'zh-TW' ? '已處理' : 'Done'}
+                          {t('sections.risk.reviewed')}
                         </Badge>
                       ) : (
                         <Button
@@ -243,7 +213,7 @@ export default function RiskSection() {
                           className="h-6 text-[10px] px-2"
                           onClick={() => { setReviewTx(tx); setReviewNote('') }}
                         >
-                          {locale === 'zh-TW' ? '標記處理' : 'Review'}
+                          {t('sections.risk.markReview')}
                         </Button>
                       )}
                     </TableCell>
@@ -260,13 +230,13 @@ export default function RiskSection() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <AlertTriangle className="h-3.5 w-3.5" />
-            {locale === 'zh-TW' ? '異常偵測' : 'Anomaly Detection'}
+            {t('sections.risk.anomalyDetection')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {anomalyList.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
-              {locale === 'zh-TW' ? '今日未偵測到異常指標' : 'No anomalies detected'}
+              {t('sections.risk.noAnomalies')}
             </p>
           ) : (
             <div className="space-y-2">
@@ -276,7 +246,7 @@ export default function RiskSection() {
                 return (
                   <div key={i} className={`flex items-center justify-between py-1.5 border-b border-border/50 last:border-0 ${isAcked ? 'opacity-40' : ''}`}>
                     <div>
-                      <p className="text-xs font-medium">{metricLabel[a.metric_key] ?? a.metric_key}</p>
+                      <p className="text-xs font-medium">{metricLabel(a.metric_key)}</p>
                       <p className="text-[10px] text-muted-foreground">{a.dimension}: {a.dimension_value}</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -285,7 +255,7 @@ export default function RiskSection() {
                           z={a.z_score}
                         </Badge>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {locale === 'zh-TW' ? '今日' : 'Today'} {Number(a.today_value).toLocaleString()} / {locale === 'zh-TW' ? '均值' : 'avg'} {Number(a.avg_7d).toLocaleString()}
+                          {t('sections.risk.today')} {Number(a.today_value).toLocaleString()} / {t('sections.risk.avg')} {Number(a.avg_7d).toLocaleString()}
                         </p>
                       </div>
                       {!isAcked && (
@@ -309,10 +279,10 @@ export default function RiskSection() {
       </Card>
 
       {/* Error Rate Trend */}
-      <ChartCard title={locale === 'zh-TW' ? `每日錯誤率趨勢 (${days}天)` : `Daily Error Rate (${days}d)`} height={180} className="lg:col-span-2">
+      <ChartCard title={`${t('sections.risk.errorRateTrend')} (${days}d)`} height={180} className="lg:col-span-2">
         {errorData.length > 0 && (
           <ChartContainer
-            config={{ value: { label: locale === 'zh-TW' ? '錯誤率 %' : 'Error Rate %', color: 'var(--chart-4)' } }}
+            config={{ value: { label: t('sections.chartLabels.errorRate'), color: 'var(--chart-4)' } }}
             className="h-full w-full"
           >
             <AreaChart data={errorData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
@@ -335,7 +305,7 @@ export default function RiskSection() {
       <Dialog open={!!reviewTx} onOpenChange={open => { if (!open) setReviewTx(null) }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{locale === 'zh-TW' ? '標記失敗交易為已處理' : 'Mark Transaction as Reviewed'}</DialogTitle>
+            <DialogTitle>{t('sections.risk.dialogTitle')}</DialogTitle>
             <DialogDescription>
               {reviewTx && (
                 <>
@@ -345,7 +315,7 @@ export default function RiskSection() {
             </DialogDescription>
           </DialogHeader>
           <Textarea
-            placeholder={locale === 'zh-TW' ? '備註（選填）' : 'Notes (optional)'}
+            placeholder={t('sections.risk.dialogNotes')}
             value={reviewNote}
             onChange={e => setReviewNote(e.target.value)}
             rows={3}
@@ -354,8 +324,8 @@ export default function RiskSection() {
             <Button variant="outline" onClick={() => setReviewTx(null)}>{t('common.cancel')}</Button>
             <Button onClick={handleReview} disabled={reviewBusy}>
               {reviewBusy
-                ? (locale === 'zh-TW' ? '處理中...' : 'Saving...')
-                : (locale === 'zh-TW' ? '確認處理' : 'Confirm')}
+                ? t('sections.risk.dialogSaving')
+                : t('sections.risk.dialogConfirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
