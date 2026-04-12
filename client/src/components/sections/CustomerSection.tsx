@@ -11,6 +11,7 @@ import { LogIn, ArrowLeftRight, CheckCircle2 } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
+import { useDateRange } from '@/hooks/useDateRange'
 
 interface BreakdownRow { dimension_value: string; metric_value: number }
 interface TopNRow { dimension_value: string; metric_value: number }
@@ -36,27 +37,30 @@ const stepLabels: Record<string, string> = {
 const FUNNEL_COLORS = ['var(--color-chart-1)', 'var(--color-chart-3)', 'var(--color-chart-2)']
 
 export default function CustomerSection() {
+  const { fromISO, toISO } = useDateRange()
+
   const { data: tierAmount } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'tier'],
+    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'tier', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'tier' }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'tier', p_date: toISO }
   )
 
   const { data: tierCount } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_COUNT, 'tier'],
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'tier', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'tier' }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'tier', p_date: toISO }
   )
 
   const { data: topUsers } = useRpc<TopNRow[]>(
-    ['top-n', METRIC_KEYS.TXN_AMOUNT, 'user'],
+    ['top-n', METRIC_KEYS.TXN_AMOUNT, 'user', toISO],
     'nf_top_n',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'user', p_n: 10 }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'user', p_n: 10, p_date: toISO }
   )
 
   const { data: funnelData } = useRpc<FunnelRow[]>(
-    ['funnel'],
-    'nf_stats_funnel'
+    ['funnel', fromISO, toISO],
+    'nf_stats_funnel',
+    { p_from: fromISO, p_to: toISO }
   )
 
   const amountPie = (tierAmount ?? []).map(d => ({

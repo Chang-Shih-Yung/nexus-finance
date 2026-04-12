@@ -65,10 +65,20 @@ SELECT pg_temp.assert_fn_exists('nf_ai_config_get_text',    ARRAY['text','text']
 SELECT pg_temp.assert_fn_exists('nf_mask_name',    ARRAY['text']);
 SELECT pg_temp.assert_fn_exists('nf_mask_account', ARRAY['text']);
 
+-- ── CRUD interaction functions ───────────────────────────────────
+
+SELECT pg_temp.assert_fn_exists('nf_review_failed_transaction', ARRAY['int','text']);
+SELECT pg_temp.assert_fn_exists('nf_acknowledge_anomaly',       ARRAY['text','text','text','text']);
+SELECT pg_temp.assert_fn_exists('nf_anomaly_acks_today',        ARRAY[]::text[]);
+SELECT pg_temp.assert_fn_exists('nf_update_user_tier',          ARRAY['int','text','text']);
+SELECT pg_temp.assert_fn_exists('nf_user_detail',               ARRAY['int']);
+
 -- ── Tables ───────────────────────────────────────────────────────
 
 SELECT pg_temp.assert_table_exists('nf_ai_config');
 SELECT pg_temp.assert_table_exists('ai_ask_errors');
+SELECT pg_temp.assert_table_exists('anomaly_acks');
+SELECT pg_temp.assert_table_exists('tier_audit_log');
 
 -- ── Config seed count ────────────────────────────────────────────
 -- If someone adds a key, bump this number. If someone deletes one

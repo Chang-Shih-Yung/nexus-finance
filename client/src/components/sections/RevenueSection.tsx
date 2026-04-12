@@ -2,13 +2,14 @@
 
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, TrendingDown, DollarSign, Activity } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
+import { useDateRange } from '@/hooks/useDateRange'
 import { CATEGORY_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface TrendRow { date: string; metric_value: number }
@@ -31,54 +32,43 @@ function formatAmount(v: number) {
   return v.toLocaleString()
 }
 
-function now() {
-  const d = new Date()
-  return d.toISOString().slice(0, 10)
-}
-
-function monthStart() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
-}
-
-function prevMonthRange(): [string, string] {
-  const d = new Date()
-  d.setMonth(d.getMonth() - 1)
-  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
-  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10)
-  return [start, end]
-}
 
 export default function RevenueSection() {
   const { locale, t } = useI18n()
-  const today = now()
-  const mtdStart = monthStart()
-  const [prevStart, prevEnd] = prevMonthRange()
+  const { fromISO, toISO, days } = useDateRange()
+
+  // Previous period = same-length window immediately before selected range
+  const prevEnd = new Date(fromISO)
+  prevEnd.setDate(prevEnd.getDate() - 1)
+  const prevStart = new Date(prevEnd)
+  prevStart.setDate(prevStart.getDate() - days + 1)
+  const prevStartISO = prevStart.toISOString().slice(0, 10)
+  const prevEndISO = prevEnd.toISOString().slice(0, 10)
 
   const { data: compare } = useRpc<PeriodCompare[]>(
-    ['period-compare', METRIC_KEYS.TXN_AMOUNT, mtdStart, today],
+    ['period-compare', METRIC_KEYS.TXN_AMOUNT, fromISO, toISO],
     'nf_period_compare',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_current_start: mtdStart, p_current_end: today, p_previous_start: prevStart, p_previous_end: prevEnd },
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_current_start: fromISO, p_current_end: toISO, p_previous_start: prevStartISO, p_previous_end: prevEndISO },
     { select: (rows: PeriodCompare[]) => rows }
   )
   const cmp = compare?.[0] ?? { current_total: 0, previous_total: 0, change_pct: 0 }
 
   const { data: amountTrend } = useRpc<TrendRow[]>(
-    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, '30'],
+    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, String(days)],
     'nf_daily_trend',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: days }
   )
 
   const { data: categoryBreakdown } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'category'],
+    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'category', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'category' }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'category', p_date: toISO }
   )
 
   const { data: countTrend } = useRpc<TrendRow[]>(
-    ['daily-trend', METRIC_KEYS.TXN_COUNT, '30'],
+    ['daily-trend', METRIC_KEYS.TXN_COUNT, String(days)],
     'nf_daily_trend',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: days }
   )
 
   const trendData = (amountTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))

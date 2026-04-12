@@ -92,4 +92,30 @@ export const api = {
             id: number; user_name: string; amount: number
             currency: string; category: string; created_at: string
         }>>('nf_pending_transactions', { p_limit: limit }),
+
+    // ── CRUD interactions ──────────────────────────────────────
+    reviewFailedTransaction: (txId: number, note = '') =>
+        invokeRpc<Array<{ ok?: boolean; error?: string }>>('nf_review_failed_transaction', {
+            p_tx_id: txId, p_note: note,
+        }).then(r => r[0] ?? { error: 'empty_response' }),
+
+    acknowledgeAnomaly: (metricKey: string, dimension = 'total', dimValue = '_all', note = '') =>
+        invokeRpc<Array<{ ok?: boolean; error?: string }>>('nf_acknowledge_anomaly', {
+            p_metric_key: metricKey, p_dimension: dimension, p_dim_value: dimValue, p_note: note,
+        }).then(r => r[0] ?? { error: 'empty_response' }),
+
+    anomalyAcksToday: () =>
+        invokeRpc<Array<{ metric_key: string; dimension: string; dim_value: string }>>('nf_anomaly_acks_today'),
+
+    updateUserTier: (userId: number, newTier: string, reason = '') =>
+        invokeRpc<Array<{ ok?: boolean; error?: string; old_tier?: string; new_tier?: string }>>('nf_update_user_tier', {
+            p_user_id: userId, p_new_tier: newTier, p_reason: reason,
+        }).then(r => r[0] ?? { error: 'empty_response' }),
+
+    userDetail: (userId: number) =>
+        invokeRpc<Array<{
+            id: number; name: string; email: string; tier: string
+            branch: string; rm_name: string; created_at: string
+            tx_count: number; tx_total: number
+        }>>('nf_user_detail', { p_user_id: userId }).then(r => r[0] ?? null),
 }

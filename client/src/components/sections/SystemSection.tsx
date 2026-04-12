@@ -11,6 +11,7 @@ import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
+import { useDateRange } from '@/hooks/useDateRange'
 import { CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface BreakdownRow { dimension_value: string; metric_value: number }
@@ -25,6 +26,8 @@ const PIE_COLORS = [
 
 export default function SystemSection() {
   const { locale } = useI18n()
+  const { toISO } = useDateRange()
+
   const { data: healthData } = useRpc<HealthRow[]>(
     ['api-health'],
     'nf_stats_api_health',
@@ -33,15 +36,15 @@ export default function SystemSection() {
   )
 
   const { data: branchBreakdown } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'branch'],
+    ['breakdown', METRIC_KEYS.TXN_AMOUNT, 'branch', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'branch' }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_dimension: 'branch', p_date: toISO }
   )
 
   const { data: channelBreakdown } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_COUNT, 'channel'],
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'channel', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'channel' }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'channel', p_date: toISO }
   )
 
   const health = healthData ?? []

@@ -9,6 +9,7 @@ import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
 import { useI18n } from '@/lib/i18n/context'
+import { useDateRange } from '@/hooks/useDateRange'
 import { CATEGORY_LABELS, CHANNEL_LABELS, getLabel } from '@/lib/i18n/labels'
 
 interface TrendRow { date: string; metric_value: number }
@@ -26,34 +27,36 @@ function formatDate(iso: string) {
 
 export default function TransactionSection() {
   const { locale, t } = useI18n()
+  const { toISO, days } = useDateRange()
+
   const { data: countTrend } = useRpc<TrendRow[]>(
-    ['daily-trend', METRIC_KEYS.TXN_COUNT, '30'],
+    ['daily-trend', METRIC_KEYS.TXN_COUNT, String(days)],
     'nf_daily_trend',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_days: days }
   )
 
   const { data: amountTrend } = useRpc<TrendRow[]>(
-    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, '30'],
+    ['daily-trend', METRIC_KEYS.TXN_AMOUNT, String(days)],
     'nf_daily_trend',
-    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.TXN_AMOUNT, p_days: days }
   )
 
   const { data: categoryBreakdown } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_COUNT, 'category'],
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'category', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'category' }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'category', p_date: toISO }
   )
 
   const { data: channelBreakdown } = useRpc<BreakdownRow[]>(
-    ['breakdown', METRIC_KEYS.TXN_COUNT, 'channel'],
+    ['breakdown', METRIC_KEYS.TXN_COUNT, 'channel', toISO],
     'nf_current_breakdown',
-    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'channel' }
+    { p_metric_key: METRIC_KEYS.TXN_COUNT, p_dimension: 'channel', p_date: toISO }
   )
 
   const { data: successTrend } = useRpc<TrendRow[]>(
-    ['daily-trend', METRIC_KEYS.SUCCESS_RATE, '30'],
+    ['daily-trend', METRIC_KEYS.SUCCESS_RATE, String(days)],
     'nf_daily_trend',
-    { p_metric_key: METRIC_KEYS.SUCCESS_RATE, p_days: 30 }
+    { p_metric_key: METRIC_KEYS.SUCCESS_RATE, p_days: days }
   )
 
   const countData = (countTrend ?? []).map(d => ({ date: formatDate(d.date), value: Number(d.metric_value) }))

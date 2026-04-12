@@ -8,6 +8,8 @@ import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/Them
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 import AiAssistantButton from '@/components/AiAssistantButton'
 import AiSettingsPanel from '@/components/ai-settings/AiSettingsPanel'
+import DateRangePicker from '@/components/DateRangePicker'
+import { DateRangeProvider } from '@/hooks/useDateRange'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useI18n } from '@/lib/i18n/context'
 
@@ -38,8 +40,6 @@ function LogoutButton() {
 
 function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const { mounted } = useThemeCustomizer()
-  const { locale } = useI18n()
-  const today = new Date().toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div
@@ -55,7 +55,7 @@ function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
         <span className="hidden sm:inline text-sm font-semibold">Nexus Finance</span>
         <div className="ml-auto flex items-center gap-2">
           <AiAssistantButton />
-          <div className="rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs tracking-wide">{today}</div>
+          <DateRangePicker />
           <AiSettingsPanel />
           <LogoutButton />
         </div>
@@ -88,9 +88,11 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
   return (
     <Suspense>
       <ThemeCustomizerProvider>
-        <TooltipProvider>
-          <DashboardShell>{children}</DashboardShell>
-        </TooltipProvider>
+        <DateRangeProvider>
+          <TooltipProvider>
+            <DashboardShell>{children}</DashboardShell>
+          </TooltipProvider>
+        </DateRangeProvider>
       </ThemeCustomizerProvider>
     </Suspense>
   )
