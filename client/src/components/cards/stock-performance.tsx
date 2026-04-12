@@ -46,7 +46,7 @@ export function StockPerformance() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.stockPerformance.title')}</CardTitle>
-        <CardDescription>{t('cards.stockPerformance.description')}</CardDescription>
+        <CardDescription>{t('cards.stockPerformance.description').replace('{{days}}', String(days))}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <FieldGroup>

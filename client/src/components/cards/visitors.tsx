@@ -20,7 +20,7 @@ const areaChartConfig = {
 
 export function Visitors() {
   const { t } = useI18n()
-  const { fromISO, toISO } = useDateRange()
+  const { fromISO, toISO, days } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { date: string; total: number; success_count: number; success_rate: number }[]
@@ -44,7 +44,7 @@ export function Visitors() {
     <Card className="pb-0">
       <CardHeader>
         <CardTitle>{t('cards.visitors.title')}</CardTitle>
-        <CardDescription>{t('cards.visitors.description')}</CardDescription>
+        <CardDescription>{t('cards.visitors.description').replace('{{days}}', String(days))}</CardDescription>
         <CardAction>
           {isLoading ? <Skeleton className="h-5 w-24" /> : (
             <Badge variant={Number(trendDelta) >= 0 ? "secondary" : "destructive"}>

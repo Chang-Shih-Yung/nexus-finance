@@ -58,7 +58,7 @@ export function BarChartCard() {
       <CardHeader>
         <CardTitle className="text-lg">{t('cards.barChartCard.title')}</CardTitle>
         <CardDescription className="line-clamp-2 text-sm leading-snug">
-          {t('cards.barChartCard.description')}
+          {t('cards.barChartCard.description').replace('{{days}}', String(days))}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 pt-0">

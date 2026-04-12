@@ -31,7 +31,7 @@ export function WeeklyFitnessSummary() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.weeklyFitnessSummary.title')}</CardTitle>
-        <CardDescription>{t('cards.weeklyFitnessSummary.description')}</CardDescription>
+        <CardDescription>{t('cards.weeklyFitnessSummary.description').replace('{{days}}', String(days))}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isLoading ? (

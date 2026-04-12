@@ -117,7 +117,7 @@
     },
     "stockPerformance": {
       "title": "Metric Trend",
-      "description": "30-day daily trend.",
+      "description": "Last {{days}} days daily trend",
       "metricLabel": "Metric",
       "searchMetric": "Search metric...",
       "noMetrics": "No metrics found.",
@@ -138,7 +138,7 @@
     },
     "barChartCard": {
       "title": "Transaction Volume",
-      "description": "Daily successful vs failed transactions for the last 30 days -- compare volume and error rates at a glance.",
+      "description": "Daily successful vs failed transactions for the last {{days}} days.",
       "success": "Success",
       "failed": "Failed",
       "ratio": "Ratio",
@@ -179,12 +179,12 @@
     },
     "weeklyFitnessSummary": {
       "title": "7-Day Activity",
-      "description": "Daily transaction volume this week",
+      "description": "Daily transaction volume (last {{days}} days)",
       "viewDetails": "View details"
     },
     "invoice": {
       "title": "Failed Transactions",
-      "description": "Last 30 days",
+      "description": "Last {{days}} days",
       "failures": "failures",
       "lost": "lost",
       "user": "User",
@@ -204,7 +204,7 @@
     },
     "sleepReport": {
       "title": "Conversion Funnel",
-      "description": "Last 30 days -- Login to Transfer",
+      "description": "Last {{days}} days -- Login to Transfer",
       "login": "Login",
       "initiate": "Initiate",
       "complete": "Complete",
@@ -216,12 +216,12 @@
     },
     "visitors": {
       "title": "Transfer Success Rate",
-      "description": "Last 6 months",
+      "description": "Last {{days}} days",
       "vsLastDay": "vs last day"
     },
     "bookAppointment": {
       "title": "Dormant Users",
-      "description": "Inactive for 7+ days",
+      "description": "Inactive for {{days}}+ days",
       "users": "users",
       "lastSeen": "Last seen",
       "highValueAtRisk": "High-value users at risk",
@@ -270,7 +270,7 @@
     },
     "contributionHistory": {
       "title": "Contribution History",
-      "description": "Last 30 days of transaction activity",
+      "description": "Last {{days}} days of transaction activity",
       "vsPriorPeriod": "vs prior period",
       "total30d": "Total (30d)",
       "transactions": "transactions",
@@ -297,7 +297,7 @@
     },
     "dividendIncome": {
       "title": "Top Transfer Users",
-      "description": "Highest volume transfer users (30 days).",
+      "description": "Highest volume transfer users ({{days}} days)",
       "txns": "txns",
       "ofTotal": "of total"
     },
@@ -318,7 +318,7 @@
     },
     "liveWaveform": {
       "title": "Revenue Trend",
-      "description": "Last 30 days",
+      "description": "Last {{days}} days",
       "revenue": "Revenue",
       "interestIncome": "Interest Income",
       "feeIncome": "Fee Income"
@@ -429,7 +429,7 @@
     },
     "barVisualizer": {
       "title": "Channel Activity Distribution",
-      "description": "Channel usage breakdown over the last 7 days",
+      "description": "Channel usage breakdown over the last {{days}} days",
       "web": "Online Banking",
       "mobile": "Mobile Banking",
       "atm": "ATM",

@@ -21,7 +21,7 @@ const funnelChartConfig = {
 
 export function SleepReport() {
   const { t } = useI18n()
-  const { fromISO, toISO } = useDateRange()
+  const { fromISO, toISO, days } = useDateRange()
 
   const { data, isLoading } = useRpc<
     { step: string; users: number; conversion_rate: number; drop_off_rate: number }[]
@@ -48,7 +48,7 @@ export function SleepReport() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.sleepReport.title')}</CardTitle>
-        <CardDescription>{t('cards.sleepReport.description')}</CardDescription>
+        <CardDescription>{t('cards.sleepReport.description').replace('{{days}}', String(days))}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {isLoading ? (

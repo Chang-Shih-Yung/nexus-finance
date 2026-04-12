@@ -36,7 +36,7 @@ function formatCurrency(value: number, currency = "TWD", loc = "en-US") {
 
 export function Invoice() {
   const { t, locale } = useI18n()
-  const { fromISO, toISO } = useDateRange()
+  const { fromISO, toISO, days } = useDateRange()
   const errorLabels = ERROR_CODE_LABELS[locale] ?? {}
 
   function formatDate(iso: string) {
@@ -55,7 +55,7 @@ export function Invoice() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.invoice.title')}</CardTitle>
-        <CardDescription>{t('cards.invoice.description')} · {items.length} {t('cards.invoice.failures')}</CardDescription>
+        <CardDescription>{t('cards.invoice.description').replace('{{days}}', String(days))} · {items.length} {t('cards.invoice.failures')}</CardDescription>
         <CardAction>
           <Badge variant="destructive">{isLoading ? "..." : formatCurrency(totalLost, "TWD", locale)} {t('cards.invoice.lost')}</Badge>
         </CardAction>

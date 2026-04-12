@@ -80,7 +80,7 @@ export function ContributionHistory() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.contributionHistory.title')}</CardTitle>
-        <CardDescription>{t('cards.contributionHistory.description')}</CardDescription>
+        <CardDescription>{t('cards.contributionHistory.description').replace('{{days}}', String(days))}</CardDescription>
         <CardAction>
           <Badge variant="secondary">{isLoading ? "..." : `${changeLabel} ${t('cards.contributionHistory.vsPriorPeriod')}`}</Badge>
         </CardAction>
@@ -102,7 +102,7 @@ export function ContributionHistory() {
         <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
           <Item variant="muted" className="flex-col items-stretch">
             <ItemContent className="gap-1">
-              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.contributionHistory.total30d')}</ItemDescription>
+              <ItemDescription className="text-xs font-medium tracking-wider text-muted-foreground uppercase">{t('cards.contributionHistory.total30d').replace('30', String(days))}</ItemDescription>
               <span className="text-lg font-semibold">{isLoading ? "..." : total.toLocaleString()}</span>
               <span className="text-sm text-muted-foreground">{t('cards.contributionHistory.transactions')}</span>
             </ItemContent>

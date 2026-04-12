@@ -63,7 +63,7 @@ export function LiveWaveformCard() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.liveWaveform.title')}</CardTitle>
-        <CardDescription>{t('cards.liveWaveform.description')}</CardDescription>
+        <CardDescription>{t('cards.liveWaveform.description').replace('{{days}}', String(days))}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {loadingSummary ? (

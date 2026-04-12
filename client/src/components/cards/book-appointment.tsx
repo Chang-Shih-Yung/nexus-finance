@@ -38,7 +38,7 @@ export function BookAppointment() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.bookAppointment.title')}</CardTitle>
-        <CardDescription>{t('cards.bookAppointment.description')} · {isLoading ? "..." : users.length} {t('common.accounts')}</CardDescription>
+        <CardDescription>{t('cards.bookAppointment.description').replace('{{days}}', String(days))} · {isLoading ? "..." : users.length} {t('common.accounts')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isLoading ? (

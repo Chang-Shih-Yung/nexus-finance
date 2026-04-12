@@ -60,7 +60,7 @@ export function DividendIncome() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.dividendIncome.title')}</CardTitle>
-        <CardDescription>{t('cards.dividendIncome.description')}</CardDescription>
+        <CardDescription>{t('cards.dividendIncome.description').replace('{{days}}', String(days))}</CardDescription>
         <CardAction>
           <Button variant="ghost" size="icon-sm" className="bg-muted">
             <X className="size-4" />

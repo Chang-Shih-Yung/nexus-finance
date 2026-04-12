@@ -117,7 +117,7 @@
     },
     "stockPerformance": {
       "title": "指標趨勢",
-      "description": "30 天每日趨勢。",
+      "description": "近 {{days}} 天每日趨勢",
       "metricLabel": "指標",
       "searchMetric": "搜尋指標...",
       "noMetrics": "找不到指標。",
@@ -138,7 +138,7 @@
     },
     "barChartCard": {
       "title": "交易量",
-      "description": "過去 30 天每日成功與失敗交易 — 一覽交易量與錯誤率。",
+      "description": "近 {{days}} 天每日成功與失敗交易 — 一覽交易量與錯誤率。",
       "success": "成功",
       "failed": "失敗",
       "ratio": "比率",
@@ -179,12 +179,12 @@
     },
     "weeklyFitnessSummary": {
       "title": "7 日活動",
-      "description": "本週每日交易量",
+      "description": "近 {{days}} 天每日交易量",
       "viewDetails": "查看詳情"
     },
     "invoice": {
       "title": "失敗交易",
-      "description": "過去 30 天",
+      "description": "近 {{days}} 天",
       "failures": "次失敗",
       "lost": "損失",
       "user": "用戶",
@@ -204,7 +204,7 @@
     },
     "sleepReport": {
       "title": "轉換漏斗",
-      "description": "過去 30 天 · 登入 → 轉帳",
+      "description": "近 {{days}} 天 · 登入 → 轉帳",
       "login": "登入",
       "initiate": "發起",
       "complete": "完成",
@@ -216,12 +216,12 @@
     },
     "visitors": {
       "title": "轉帳成功率",
-      "description": "近 6 個月",
+      "description": "近 {{days}} 天",
       "vsLastDay": "較前一日"
     },
     "bookAppointment": {
       "title": "休眠用戶",
-      "description": "7 天以上未活動",
+      "description": "{{days}} 天以上未活動",
       "users": "位用戶",
       "lastSeen": "最後登入",
       "highValueAtRisk": "高價值客戶流失風險",
@@ -270,7 +270,7 @@
     },
     "contributionHistory": {
       "title": "交易歷程",
-      "description": "過去 30 天交易活動",
+      "description": "近 {{days}} 天交易活動",
       "vsPriorPeriod": "較前期",
       "total30d": "合計 (30天)",
       "transactions": "筆交易",
@@ -297,7 +297,7 @@
     },
     "dividendIncome": {
       "title": "轉帳大戶排行",
-      "description": "近 30 天轉帳量最大的用戶。",
+      "description": "近 {{days}} 天轉帳量最大的用戶",
       "txns": "筆交易",
       "ofTotal": "佔總量"
     },
@@ -318,7 +318,7 @@
     },
     "liveWaveform": {
       "title": "營收趨勢",
-      "description": "近 30 天",
+      "description": "近 {{days}} 天",
       "revenue": "營收",
       "interestIncome": "利息收入",
       "feeIncome": "手續費收入"
@@ -429,7 +429,7 @@
     },
     "barVisualizer": {
       "title": "通路活動分布",
-      "description": "近 7 日各通路使用比例",
+      "description": "近 {{days}} 天各通路使用比例",
       "web": "網銀",
       "mobile": "行動銀行",
       "atm": "ATM",

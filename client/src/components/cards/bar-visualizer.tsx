@@ -40,7 +40,7 @@ export function BarVisualizer() {
     <Card>
       <CardHeader>
         <CardTitle>{t('cards.barVisualizer.title')}</CardTitle>
-        <CardDescription>{t('cards.barVisualizer.description')}</CardDescription>
+        <CardDescription>{t('cards.barVisualizer.description').replace('{{days}}', String(days))}</CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
