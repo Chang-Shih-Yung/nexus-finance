@@ -324,6 +324,7 @@ import {
 // ── Mapping ───────────────────────────────────────────────────────────────────
 
 type Lib = 'lucide' | 'tabler' | 'phosphor' | 'remixicon' | 'hugeicons'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Entry = Partial<Record<Lib, ComponentType<any>>>
 
 const m: Record<string, Entry> = {
@@ -407,6 +408,7 @@ const m: Record<string, Entry> = {
 
 function proxy(name: string) {
   const entry = m[name]!
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function IconProxy(props: Record<string, any>) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { config } = useThemeCustomizer()

@@ -27,6 +27,7 @@ export function FeedbackForm() {
     ["customer-nps"],
     "nf_customer_nps",
     {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { select: (rows: any) => (Array.isArray(rows) ? rows[0] : rows) ?? null },
   )
 

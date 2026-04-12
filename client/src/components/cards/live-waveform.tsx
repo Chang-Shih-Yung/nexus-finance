@@ -42,6 +42,7 @@ export function LiveWaveformCard() {
     ["revenue-summary"],
     "nf_revenue_summary",
     { p_days: 30 },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { select: (rows: any) => (Array.isArray(rows) ? rows[0] : rows) ?? null },
   )
 

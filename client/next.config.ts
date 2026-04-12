@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
+import { resolve } from "path";
 
 const nextConfig: NextConfig = {
   turbopack: {
-    root: "/Users/itts/Desktop/Nexus_Finance",
+    root: resolve(__dirname, ".."),
   },
 };
 

@@ -25,6 +25,7 @@ export function TransferFunds() {
     total_balance: number; account_count: number; primary_currency: string; avg_balance: number
   }>(
     ["account-summary-transfer"], "nf_account_summary", {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { select: (rows: any) => rows[0] ?? { total_balance: 0, account_count: 0, primary_currency: "TWD", avg_balance: 0 } },
   )
 

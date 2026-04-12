@@ -44,6 +44,7 @@ export function AssignIssue() {
   }
 
   function timeAgo(dateStr: string): string {
+    // eslint-disable-next-line react-hooks/purity
     const diff = Date.now() - new Date(dateStr).getTime()
     const mins = Math.floor(diff / 60000)
     if (mins < 60) return `${mins} ${t('cards.assignIssue.minutesAgo')}`

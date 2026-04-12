@@ -23,6 +23,7 @@ export function ClaimableBalance() {
   const { t } = useI18n()
   const { data, isLoading } = useRpc<StatsOverview[]>(
     ["stats-overview"], "nf_stats_overview", {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { select: (rows: any) => rows },
   )
 
