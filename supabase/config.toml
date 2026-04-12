@@ -24,7 +24,9 @@ enabled = false
 enabled = false
 
 [db.seed]
-enabled = true
+# Disabled for CI: seed.sql references types created by migrations,
+# but migrations are applied manually after extension bootstrap.
+enabled = false
 sql_paths = ["./seed.sql"]
 
 [realtime]
