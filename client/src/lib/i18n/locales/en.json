@@ -58,6 +58,20 @@
   "dashboard": {
     "title": "Nexus Finance",
     "logout": "Log Out",
+    "sections": {
+      "revenue": "Revenue & P&L",
+      "revenueDesc": "MTD transaction volume, trends, and category breakdown",
+      "transactions": "Transaction Analytics",
+      "transactionsDesc": "Volume, amount, channel distribution, and success rates",
+      "customers": "Customer Insights",
+      "customersDesc": "Tier distribution, VIP rankings, and transfer funnel",
+      "risk": "Risk & Compliance",
+      "riskDesc": "Anomaly detection, error rates, and failed transaction review",
+      "system": "System Health",
+      "systemDesc": "API latency, error rates, and channel distribution",
+      "ai": "AI Data Query",
+      "aiDesc": "Explore data with natural language — auto-generates charts and deep analysis"
+    },
     "loggingOut": "Logging out...",
     "aiAssistant": {
       "open": "Open AI assistant",
