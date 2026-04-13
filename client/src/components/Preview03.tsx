@@ -20,7 +20,7 @@ interface SectionWrapperProps {
 
 function SectionWrapper({ icon: Icon, title, description, children }: SectionWrapperProps) {
   return (
-    <section className="col-span-1 lg:col-span-3 space-y-3">
+    <section className="space-y-3">
       {/* Section header */}
       <div className="flex items-center gap-3 pt-2">
         <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10">
@@ -34,7 +34,7 @@ function SectionWrapper({ icon: Icon, title, description, children }: SectionWra
       </div>
 
       {/* Section cards in the bento grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {children}
       </div>
     </section>

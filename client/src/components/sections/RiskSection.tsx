@@ -179,7 +179,7 @@ export default function RiskSection() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto max-h-64 overflow-y-auto">
-            <Table>
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('sections.risk.time')}</TableHead>

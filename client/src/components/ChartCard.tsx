@@ -1,3 +1,4 @@
+import { Children } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export default function ChartCard({ id, title, height = 280, className, children }: Props) {
+  const hasContent = Children.toArray(children).filter(Boolean).length > 0
+
   return (
     <Card id={id} className={cn('shadow-sm', className)}>
       <CardHeader>
@@ -17,7 +20,11 @@ export default function ChartCard({ id, title, height = 280, className, children
       </CardHeader>
       <CardContent>
         <div className="relative" style={{ height, minHeight: 1 }}>
-          {children}
+          {hasContent ? children : (
+            <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+              暫無資料
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
