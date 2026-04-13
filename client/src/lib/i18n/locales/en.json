@@ -29,6 +29,7 @@
     "status": "Status",
     "user": "User",
     "error": "Error",
+    "noDataInRange": "No data in selected range",
     "success": "Success",
     "failed": "Failed",
     "ratio": "Ratio",

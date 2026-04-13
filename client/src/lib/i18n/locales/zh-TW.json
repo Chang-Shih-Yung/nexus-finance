@@ -29,6 +29,7 @@
     "status": "狀態",
     "user": "用戶",
     "error": "錯誤",
+    "noDataInRange": "選取區間內暫無資料",
     "success": "成功",
     "failed": "失敗",
     "ratio": "比率",
