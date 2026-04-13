@@ -1,5 +1,6 @@
 import { Children } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FileBarChart } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -21,8 +22,9 @@ export default function ChartCard({ id, title, height = 280, className, children
       <CardContent>
         <div className="relative" style={{ height, minHeight: 1 }}>
           {hasContent ? children : (
-            <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-              暫無資料
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground/50">
+              <FileBarChart className="size-8" />
+              <span className="text-xs">選取區間內暫無資料</span>
             </div>
           )}
         </div>
