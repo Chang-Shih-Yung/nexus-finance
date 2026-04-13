@@ -1,7 +1,6 @@
 'use client'
 
-import { DollarSign, ArrowLeftRight, User, AlertTriangle, Activity, Bot } from '@/lib/icons'
-import { Card, CardContent } from '@/components/ui/card'
+import { DollarSign, ArrowLeftRight, User, AlertTriangle, Activity } from '@/lib/icons'
 import { useI18n } from '@/lib/i18n/context'
 
 import RevenueSection from '@/components/sections/RevenueSection'
@@ -9,7 +8,6 @@ import TransactionSection from '@/components/sections/TransactionSection'
 import CustomerSection from '@/components/sections/CustomerSection'
 import RiskSection from '@/components/sections/RiskSection'
 import SystemSection from '@/components/sections/SystemSection'
-import AiQuerySection from '@/components/sections/AiQuerySection'
 
 interface SectionWrapperProps {
   icon: React.ComponentType<{ className?: string }>
@@ -91,24 +89,6 @@ export default function Preview03() {
         <SystemSection />
       </SectionWrapper>
 
-      {/* ─── AI Query — full width ─── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-3 pt-3">
-          <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10">
-            <Bot className="size-[18px] text-primary" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold tracking-tight text-foreground">{t('dashboard.sections.ai')}</h2>
-            <p className="text-xs text-muted-foreground">{t('dashboard.sections.aiDesc')}</p>
-          </div>
-          <div className="flex-1 h-px bg-border/60 ml-3" />
-        </div>
-        <Card className="shadow-sm overflow-hidden">
-          <CardContent className="p-0 [&>section]:border-t-0 [&>section]:px-6 [&>section]:pt-5 [&>section]:pb-6">
-            <AiQuerySection />
-          </CardContent>
-        </Card>
-      </section>
     </div>
   )
 }
