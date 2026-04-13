@@ -71,7 +71,7 @@ export default function SystemSection() {
   return (
     <>
       {/* API Health KPI */}
-      <Card id="system" className="shadow-sm">
+      <Card id="system" className="shadow-sm flex flex-col justify-center">
         <CardHeader className="pb-3">
           <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
             <Activity className="h-3.5 w-3.5" />

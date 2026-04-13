@@ -226,7 +226,7 @@ export default function RiskSection() {
       </Card>
 
       {/* Anomaly Detection — with acknowledge */}
-      <Card className="shadow-sm">
+      <Card className="shadow-sm flex flex-col justify-center">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <AlertTriangle className="h-3.5 w-3.5" />

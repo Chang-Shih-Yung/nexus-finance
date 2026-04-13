@@ -67,7 +67,7 @@ export default function RevenueSection() {
   return (
     <>
       {/* MTD Revenue KPI */}
-      <Card id="revenue" className="shadow-sm">
+      <Card id="revenue" className="shadow-sm flex flex-col justify-center">
         <CardContent className="pt-5 pb-5">
           <div className="flex items-center gap-2 mb-2">
             <span className="p-1.5 rounded-md bg-primary/10">

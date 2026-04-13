@@ -28,7 +28,6 @@ function SectionWrapper({ icon: Icon, title, description, children }: SectionWra
           <h2 className="text-base font-bold tracking-tight text-foreground">{title}</h2>
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
-        <div className="flex-1 h-px bg-border/60 ml-3" />
       </div>
 
       {/* Section cards in the bento grid */}
@@ -43,7 +42,7 @@ export default function Preview03() {
   const { t } = useI18n()
 
   return (
-    <div className="flex flex-col gap-6 -mx-4 md:-mx-8 -mt-6 -mb-6 px-4 md:px-8 pt-6 pb-6 bg-muted min-h-full">
+    <div className="flex flex-col gap-6 -mx-4 md:-mx-8 -mt-6 -mb-6 px-6 md:px-12 pt-6 pb-8 bg-muted min-h-full">
       {/* ─── Revenue & P&L ─── */}
       <SectionWrapper
         icon={DollarSign}
