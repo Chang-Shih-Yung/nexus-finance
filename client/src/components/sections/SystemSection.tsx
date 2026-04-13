@@ -148,7 +148,7 @@ export default function SystemSection() {
       </ChartCard>
 
       {/* API Latency Trend */}
-      <ChartCard title={t('sections.system.apiLatencyTrend')} height={200} className="lg:col-span-2">
+      <ChartCard title={t('sections.system.apiLatencyTrend')} height={200} className="md:col-span-2 lg:col-span-3">
         {latencyData.length > 0 && (
           <ChartContainer
             config={{

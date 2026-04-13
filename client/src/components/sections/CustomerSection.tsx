@@ -148,7 +148,7 @@ export default function CustomerSection() {
       </Card>
 
       {/* VIP Top N Table */}
-      <Card className="shadow-sm lg:col-span-2">
+      <Card className="shadow-sm md:col-span-2 lg:col-span-3">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.customers.topUsers')}</CardTitle>
         </CardHeader>

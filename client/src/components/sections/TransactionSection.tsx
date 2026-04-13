@@ -142,7 +142,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Success Rate Trend (Area) */}
-      <ChartCard title={t('sections.transactions.successTrend')} height={180} className="lg:col-span-2">
+      <ChartCard title={t('sections.transactions.successTrend')} height={180} className="md:col-span-2 lg:col-span-2">
         {successData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.successRate'), color: 'var(--chart-2)' } }}

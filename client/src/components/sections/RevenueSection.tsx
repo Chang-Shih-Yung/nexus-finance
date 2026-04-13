@@ -87,7 +87,7 @@ export default function RevenueSection() {
       </Card>
 
       {/* Daily Revenue Trend */}
-      <ChartCard title={t('sections.revenue.dailyTrend')} height={240} className="lg:col-span-2">
+      <ChartCard title={t('sections.revenue.dailyTrend')} height={240} className="md:col-span-2 lg:col-span-2">
         {trendData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-1)' } }}
@@ -135,7 +135,7 @@ export default function RevenueSection() {
       </ChartCard>
 
       {/* Daily Transaction Count KPI + Sparkline */}
-      <Card className="shadow-sm">
+      <Card className="shadow-sm lg:col-span-2">
         <CardContent className="pt-5 pb-5">
           <div className="flex items-center gap-2 mb-2">
             <span className="p-1.5 rounded-md bg-chart-3/10">
