@@ -19,12 +19,12 @@ import { toBreakdownData } from '@/lib/format'
 
 export default function SystemSection() {
   const { locale, t } = useI18n()
-  const { toISO } = useDateRange()
+  const { fromISO, toISO } = useDateRange()
 
   const { data: healthData } = useRpc<HealthRow[]>(
-    ['api-health'],
+    ['api-health', fromISO, toISO],
     'nf_stats_api_health',
-    { p_minutes: 60 },
+    { p_from: `${fromISO}T00:00:00`, p_to: `${toISO}T23:59:59` },
     { refetchInterval: 15_000 }
   )
 
@@ -55,14 +55,36 @@ export default function SystemSection() {
   const latencyOk = avgLatency <= 500
   const errorRateOk = errorRate <= 5
 
-  const latencyData = health.map(d => {
-    const dt = new Date(d.minute)
-    return {
-      time: `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`,
-      avg_latency: Number(d.avg_latency),
-      threshold: 500,
+  // Aggregate to hourly when data spans more than 2 hours (>120 points)
+  const latencyData = (() => {
+    if (health.length <= 120) {
+      return health.map(d => {
+        const dt = new Date(d.minute)
+        return {
+          time: `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`,
+          avg_latency: Number(d.avg_latency),
+          threshold: 500,
+        }
+      })
     }
-  })
+    // Group by hour
+    const hourMap = new Map<string, { sum: number; count: number }>()
+    health.forEach(d => {
+      const dt = new Date(d.minute)
+      const key = `${dt.toISOString().slice(0, 10)} ${String(dt.getHours()).padStart(2, '0')}:00`
+      const prev = hourMap.get(key) ?? { sum: 0, count: 0 }
+      prev.sum += Number(d.avg_latency)
+      prev.count += 1
+      hourMap.set(key, prev)
+    })
+    return Array.from(hourMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => ({
+        time: key.slice(5), // "MM-DD HH:00"
+        avg_latency: Math.round(v.sum / v.count),
+        threshold: 500,
+      }))
+  })()
 
   const branchData = toBreakdownData(branchBreakdown ?? [])
 
@@ -71,14 +93,13 @@ export default function SystemSection() {
   return (
     <>
       {/* API Health KPI */}
-      <Card id="system" className="shadow-sm flex flex-col justify-center">
+      <Card id="system" className="shadow-sm flex flex-col">
         <CardHeader className="pb-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-            <Activity className="h-3.5 w-3.5" />
+          <CardTitle className="text-sm font-medium text-muted-foreground">
             {t('sections.system.apiHealth')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 flex-1 flex flex-col justify-center">
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
               <div className={`mx-auto mb-1.5 w-9 h-9 rounded-full flex items-center justify-center ${latencyOk ? 'bg-chart-2/10' : 'bg-destructive/10'}`}>
@@ -134,7 +155,7 @@ export default function SystemSection() {
             <PieChart>
               <Pie
                 data={channelPie} cx="50%" cy="50%"
-                innerRadius="50%" outerRadius="80%"
+                innerRadius="55%" outerRadius="90%"
                 dataKey="value" strokeWidth={0}
               >
                 {channelPie.map((_, i) => (
@@ -142,7 +163,7 @@ export default function SystemSection() {
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-              <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              <ChartLegend content={<ChartLegendContent nameKey="name" />} verticalAlign="bottom" />
             </PieChart>
           </ChartContainer>
         )}

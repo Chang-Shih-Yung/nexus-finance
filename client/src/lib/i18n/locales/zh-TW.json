@@ -797,9 +797,9 @@
     "revenue": {
       "mtdAmount": "本月交易金額 (MTD)",
       "lastMonth": "上月",
-      "dailyTrend": "日交易金額趨勢 (30天)",
+      "dailyTrend": "日交易金額趨勢",
       "categoryBreakdown": "交易類型佔比",
-      "dailyAvgCount": "日均交易筆數 (30天)"
+      "dailyAvgCount": "日均交易筆數"
     },
     "transactions": {
       "dailyVolume": "每日交易量",
@@ -828,14 +828,16 @@
       "reviewed": "已處理",
       "markReview": "標記處理",
       "anomalyDetection": "異常偵測",
-      "noAnomalies": "今日未偵測到異常指標",
+      "noAnomalies": "選取區間內未偵測到異常指標",
       "errorRateTrend": "每日錯誤率趨勢",
       "dialogTitle": "標記失敗交易為已處理",
       "dialogNotes": "備註（選填）",
       "dialogSaving": "處理中...",
       "dialogConfirm": "確認處理",
-      "today": "今日",
+      "today": "當期",
       "avg": "均值",
+      "severityHigh": "嚴重偏離",
+      "severityMedium": "輕微偏離",
       "time": "時間",
       "customer": "客戶",
       "tier": "等級",
@@ -856,13 +858,13 @@
       "csvChannel": "通路"
     },
     "system": {
-      "apiHealth": "API 健康 · 過去 60 分鐘",
+      "apiHealth": "API 健康",
       "msLatency": "ms 延遲",
       "errorRate": "錯誤率",
       "totalRequests": "請求總數",
       "branchRanking": "分行交易金額排名",
       "digitalVsBranch": "數位 vs 臨櫃佔比",
-      "apiLatencyTrend": "API 平均延遲 (每分鐘)",
+      "apiLatencyTrend": "API 平均延遲 (分鐘)",
       "chartLatency": "延遲 (ms)",
       "chartThreshold": "閾值 500ms"
     },

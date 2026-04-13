@@ -6,7 +6,7 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { LogIn, ArrowLeftRight, CheckCircle2 } from '@/lib/icons'
+import { ArrowLeftRight, CheckCircle2 } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useI18n } from '@/lib/i18n/context'
 import { useRpc } from '@/hooks/useRpc'
@@ -78,7 +78,7 @@ export default function CustomerSection() {
             <PieChart>
               <Pie
                 data={amountPie} cx="50%" cy="50%"
-                innerRadius="50%" outerRadius="80%"
+                innerRadius="55%" outerRadius="90%"
                 dataKey="value" strokeWidth={0}
               >
                 {amountPie.map((_, i) => (
@@ -86,7 +86,7 @@ export default function CustomerSection() {
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-              <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              <ChartLegend content={<ChartLegendContent nameKey="name" />} verticalAlign="bottom" />
             </PieChart>
           </ChartContainer>
         )}
@@ -110,13 +110,13 @@ export default function CustomerSection() {
       </ChartCard>
 
       {/* Funnel */}
-      <Card className="shadow-sm flex flex-col justify-center">
+      <Card className="shadow-sm flex flex-col">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <LogIn className="h-3.5 w-3.5" /> {t('sections.customers.funnelTitle')}
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {t('sections.customers.funnelTitle')}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           {funnelChartData.length > 0 && (
             <div style={{ height: 160 }}>
               <ChartContainer

@@ -797,9 +797,9 @@
     "revenue": {
       "mtdAmount": "MTD Transaction Amount",
       "lastMonth": "last month",
-      "dailyTrend": "Daily Transaction Amount (30d)",
+      "dailyTrend": "Daily Transaction Amount",
       "categoryBreakdown": "Category Breakdown",
-      "dailyAvgCount": "Avg Daily Transactions (30d)"
+      "dailyAvgCount": "Avg Daily Transactions"
     },
     "transactions": {
       "dailyVolume": "Daily Volume",
@@ -834,8 +834,10 @@
       "dialogNotes": "Notes (optional)",
       "dialogSaving": "Saving...",
       "dialogConfirm": "Confirm",
-      "today": "Today",
+      "today": "Current",
       "avg": "avg",
+      "severityHigh": "Critical",
+      "severityMedium": "Warning",
       "time": "Time",
       "customer": "Customer",
       "tier": "Tier",
@@ -856,13 +858,13 @@
       "csvChannel": "Channel"
     },
     "system": {
-      "apiHealth": "API Health · Last 60 min",
+      "apiHealth": "API Health",
       "msLatency": "ms latency",
       "errorRate": "Error rate",
       "totalRequests": "Total requests",
       "branchRanking": "Branch Transaction Ranking",
       "digitalVsBranch": "Digital vs Branch Split",
-      "apiLatencyTrend": "API Avg Latency (per min)",
+      "apiLatencyTrend": "API Avg Latency (min)",
       "chartLatency": "Latency (ms)",
       "chartThreshold": "Threshold 500ms"
     },

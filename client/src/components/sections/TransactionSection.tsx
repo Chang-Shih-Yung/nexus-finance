@@ -128,7 +128,7 @@ export default function TransactionSection() {
             <PieChart>
               <Pie
                 data={channelData} cx="50%" cy="50%"
-                innerRadius="50%" outerRadius="80%"
+                innerRadius="55%" outerRadius="90%"
                 dataKey="value" strokeWidth={0}
               >
                 {channelData.map((_, i) => (
@@ -136,7 +136,7 @@ export default function TransactionSection() {
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-              <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              <ChartLegend content={<ChartLegendContent nameKey="name" />} verticalAlign="bottom" />
             </PieChart>
           </ChartContainer>
         )}

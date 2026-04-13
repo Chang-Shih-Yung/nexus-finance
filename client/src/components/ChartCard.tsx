@@ -19,10 +19,10 @@ export default function ChartCard({ id, title, height = 280, className, children
   return (
     <Card id={id} className={cn('shadow-sm', className)}>
       <CardHeader>
-        <CardTitle className="text-sm tracking-wide text-muted-foreground">{title}</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative" style={{ height, minHeight: 1 }}>
+        <div className="relative" style={{ minHeight: height }}>
           {hasContent ? children : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground/50">
               <FileBarChart className="size-8" />

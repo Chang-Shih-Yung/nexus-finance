@@ -16,6 +16,7 @@ export const ERROR_CODE_LABELS: Record<Locale, Record<string, string>> = {
     E_NETWORK: "網路錯誤",
     E_DUPLICATE: "重複交易",
     E_INVALID: "資料無效",
+    E_SYSTEM: "系統錯誤",
     E_MAINTENANCE: "系統維護",
   },
   en: {
@@ -28,6 +29,7 @@ export const ERROR_CODE_LABELS: Record<Locale, Record<string, string>> = {
     E_NETWORK: "Network Error",
     E_DUPLICATE: "Duplicate",
     E_INVALID: "Invalid Data",
+    E_SYSTEM: "System Error",
     E_MAINTENANCE: "Maintenance",
   },
 }
@@ -47,6 +49,7 @@ export const CATEGORY_LABELS: Record<Locale, Record<string, string>> = {
     loan: "貸款",
     deposit: "存款",
     withdrawal: "提款",
+    investment: "投資",
     refund: "退款",
     fee: "手續費",
     interest: "利息",
@@ -65,6 +68,7 @@ export const CATEGORY_LABELS: Record<Locale, Record<string, string>> = {
     loan: "Loan",
     deposit: "Deposit",
     withdrawal: "Withdrawal",
+    investment: "Investment",
     refund: "Refund",
     fee: "Fee",
     interest: "Interest",

@@ -2,9 +2,9 @@
 
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TrendingUp, TrendingDown, DollarSign, Activity } from '@/lib/icons'
+import { TrendingUp, TrendingDown } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { METRIC_KEYS } from '@/lib/metric-keys'
@@ -67,14 +67,11 @@ export default function RevenueSection() {
   return (
     <>
       {/* MTD Revenue KPI */}
-      <Card id="revenue" className="shadow-sm flex flex-col justify-center">
-        <CardContent className="pt-5 pb-5">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="p-1.5 rounded-md bg-primary/10">
-              <DollarSign className="h-3.5 w-3.5 text-primary" />
-            </span>
-            <p className="text-xs text-muted-foreground">{t('sections.revenue.mtdAmount')}</p>
-          </div>
+      <Card id="revenue" className="shadow-sm flex flex-col">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.revenue.mtdAmount')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1">
           <p className="text-2xl font-bold text-foreground">{formatAmount(cmp.current_total)}</p>
           <div className="mt-2 flex items-center gap-2">
             <Badge variant={isUp ? 'default' : 'destructive'} className="text-xs gap-1">
@@ -121,7 +118,7 @@ export default function RevenueSection() {
             <PieChart>
               <Pie
                 data={pieData} cx="50%" cy="50%"
-                innerRadius="50%" outerRadius="80%"
+                innerRadius="55%" outerRadius="90%"
                 dataKey="value" strokeWidth={0}
               >
                 {pieData.map((_, i) => (
@@ -129,21 +126,18 @@ export default function RevenueSection() {
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-              <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              <ChartLegend content={<ChartLegendContent nameKey="name" />} verticalAlign="bottom" />
             </PieChart>
           </ChartContainer>
         )}
       </ChartCard>
 
       {/* Daily Transaction Count KPI + Sparkline */}
-      <Card className="shadow-sm lg:col-span-2">
-        <CardContent className="pt-5 pb-5">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="p-1.5 rounded-md bg-chart-3/10">
-              <Activity className="h-3.5 w-3.5 text-chart-3" />
-            </span>
-            <p className="text-xs text-muted-foreground">{t('sections.revenue.dailyAvgCount')}</p>
-          </div>
+      <Card className="shadow-sm lg:col-span-2 flex flex-col">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.revenue.dailyAvgCount')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1">
           <p className="text-2xl font-bold text-foreground">{avgDailyCount.toLocaleString()}</p>
           {countData.length > 0 && (
             <div className="mt-3 h-10">

@@ -11,12 +11,13 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { AlertTriangle, Download, CheckCircle2 } from '@/lib/icons'
+import { Download, CheckCircle2 } from '@/lib/icons'
 import ChartCard from '@/components/ChartCard'
 import { useRpc } from '@/hooks/useRpc'
 import { useDateRange } from '@/hooks/useDateRange'
 import { useI18n } from '@/lib/i18n/context'
 import { METRIC_KEYS } from '@/lib/metric-keys'
+import { ERROR_CODE_LABELS, getLabel } from '@/lib/i18n/labels'
 import { api } from '@/lib/api'
 import { downloadCsv } from '@/lib/csv-export'
 import { useQueryClient } from '@tanstack/react-query'
@@ -25,7 +26,7 @@ import { PIE_COLORS_ALT, TIER_VARIANT } from '@/lib/chart-constants'
 import { formatTime, toChartData } from '@/lib/format'
 
 export default function RiskSection() {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   const { fromISO, toISO, days } = useDateRange()
   const qc = useQueryClient()
 
@@ -86,7 +87,7 @@ export default function RiskSection() {
   ), [acks])
 
   const pieData = (errorBreakdown ?? []).map(d => ({
-    name: d.dimension_value,
+    name: getLabel(ERROR_CODE_LABELS, locale, d.dimension_value),
     value: Number(d.metric_value),
   }))
 
@@ -114,6 +115,8 @@ export default function RiskSection() {
     try {
       await api.acknowledgeAnomaly(a.metric_key, a.dimension, a.dimension_value)
       qc.invalidateQueries({ queryKey: ['anomaly-acks-today'] })
+    } catch (err) {
+      console.error('Failed to acknowledge anomaly:', err)
     } finally {
       setAckBusy(null)
     }
@@ -148,7 +151,7 @@ export default function RiskSection() {
             <PieChart>
               <Pie
                 data={pieData} cx="50%" cy="50%"
-                innerRadius="50%" outerRadius="80%"
+                innerRadius="55%" outerRadius="90%"
                 dataKey="value" strokeWidth={0}
               >
                 {pieData.map((_, i) => (
@@ -156,7 +159,7 @@ export default function RiskSection() {
                 ))}
               </Pie>
               <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-              <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              <ChartLegend content={<ChartLegendContent nameKey="name" />} verticalAlign="bottom" />
             </PieChart>
           </ChartContainer>
         )}
@@ -200,7 +203,7 @@ export default function RiskSection() {
                       <Badge variant={TIER_VARIANT[tx.tier] ?? 'outline'}>{tx.tier}</Badge>
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs">{Number(tx.amount).toLocaleString()}</TableCell>
-                    <TableCell><span className="text-destructive font-mono text-xs">{tx.error_code}</span></TableCell>
+                    <TableCell><span className="text-destructive text-xs">{getLabel(ERROR_CODE_LABELS, locale, tx.error_code)}</span></TableCell>
                     <TableCell className="text-center">
                       {tx.reviewed_at ? (
                         <Badge variant="outline" className="text-[10px] gap-1">
@@ -227,16 +230,15 @@ export default function RiskSection() {
       </Card>
 
       {/* Anomaly Detection — with acknowledge */}
-      <Card className="shadow-sm flex flex-col justify-center">
+      <Card className="shadow-sm flex flex-col">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <AlertTriangle className="h-3.5 w-3.5" />
+          <CardTitle className="text-sm font-medium text-muted-foreground">
             {t('sections.risk.anomalyDetection')}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 flex flex-col justify-center">
           {anomalyList.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
+            <p className="text-sm text-muted-foreground text-center">
               {t('sections.risk.noAnomalies')}
             </p>
           ) : (
@@ -253,7 +255,9 @@ export default function RiskSection() {
                     <div className="flex items-center gap-2">
                       <div className="text-right">
                         <Badge variant="destructive" className="text-xs">
-                          z={a.z_score}
+                          {Math.abs(Number(a.z_score)) >= 3
+                            ? t('sections.risk.severityHigh')
+                            : t('sections.risk.severityMedium')}
                         </Badge>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           {t('sections.risk.today')} {Number(a.today_value).toLocaleString()} / {t('sections.risk.avg')} {Number(a.avg_7d).toLocaleString()}
@@ -280,7 +284,7 @@ export default function RiskSection() {
       </Card>
 
       {/* Error Rate Trend */}
-      <ChartCard title={`${t('sections.risk.errorRateTrend')} (${days}d)`} height={180} className="md:col-span-2 lg:col-span-2">
+      <ChartCard title={t('sections.risk.errorRateTrend')} height={180} className="md:col-span-2 lg:col-span-2">
         {errorData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.errorRate'), color: 'var(--chart-4)' } }}
