@@ -20,17 +20,17 @@ interface SectionWrapperProps {
 
 function SectionWrapper({ icon: Icon, title, description, children }: SectionWrapperProps) {
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       {/* Section header */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10">
-          <Icon className="size-4 text-primary" />
+      <div className="flex items-center gap-3 pt-3">
+        <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10">
+          <Icon className="size-[18px] text-primary" />
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <h2 className="text-base font-bold tracking-tight text-foreground">{title}</h2>
           <p className="text-xs text-muted-foreground">{description}</p>
         </div>
-        <div className="flex-1 h-px bg-border ml-2" />
+        <div className="flex-1 h-px bg-border/60 ml-3" />
       </div>
 
       {/* Section cards in the bento grid */}
@@ -92,16 +92,16 @@ export default function Preview03() {
       </SectionWrapper>
 
       {/* ─── AI Query — full width ─── */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-3 pt-2">
-          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10">
-            <Bot className="size-4 text-primary" />
+      <section className="space-y-4">
+        <div className="flex items-center gap-3 pt-3">
+          <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10">
+            <Bot className="size-[18px] text-primary" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{t('dashboard.sections.ai')}</h2>
+            <h2 className="text-base font-bold tracking-tight text-foreground">{t('dashboard.sections.ai')}</h2>
             <p className="text-xs text-muted-foreground">{t('dashboard.sections.aiDesc')}</p>
           </div>
-          <div className="flex-1 h-px bg-border ml-2" />
+          <div className="flex-1 h-px bg-border/60 ml-3" />
         </div>
         <Card className="shadow-sm overflow-hidden">
           <CardContent className="p-0 [&>section]:border-t-0 [&>section]:px-6 [&>section]:pt-5 [&>section]:pb-6">
