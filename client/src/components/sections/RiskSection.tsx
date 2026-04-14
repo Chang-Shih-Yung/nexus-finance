@@ -140,7 +140,7 @@ export default function RiskSection() {
   return (
     <>
       {/* Error Type Pie */}
-      <ChartCard id="risk" title={t('sections.risk.errorTypeDist')} height={200}>
+      <ChartCard id="risk" title={t('sections.risk.errorTypeDist')} height={160}>
         {pieData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(pieData.map((d, i) => [
@@ -166,7 +166,7 @@ export default function RiskSection() {
       </ChartCard>
 
       {/* Failed Transactions Table — with review + CSV export */}
-      <Card className="shadow-sm md:col-span-2 lg:col-span-2">
+      <Card className="shadow-sm md:col-span-2">
         <CardHeader className="pb-2 flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {t('sections.risk.failedTransactions')}
@@ -284,7 +284,7 @@ export default function RiskSection() {
       </Card>
 
       {/* Error Rate Trend */}
-      <ChartCard title={t('sections.risk.errorRateTrend')} height={180} className="md:col-span-2 lg:col-span-2">
+      <ChartCard title={t('sections.risk.errorRateTrend')} height={120} className="md:col-span-2">
         {errorData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.errorRate'), color: 'var(--chart-4)' } }}

@@ -67,7 +67,7 @@ export default function CustomerSection() {
   return (
     <>
       {/* Tier Amount Pie */}
-      <ChartCard id="customers" title={t('sections.customers.tierAmountDist')} height={200}>
+      <ChartCard id="customers" title={t('sections.customers.tierAmountDist')} height={160}>
         {amountPie.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(amountPie.map((d, i) => [
@@ -93,7 +93,7 @@ export default function CustomerSection() {
       </ChartCard>
 
       {/* Tier Count Bar */}
-      <ChartCard title={t('sections.customers.tierCountDist')} height={180}>
+      <ChartCard title={t('sections.customers.tierCountDist')} height={150}>
         {countBar.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.count'), color: 'var(--chart-5)' } }}
@@ -118,7 +118,7 @@ export default function CustomerSection() {
         </CardHeader>
         <CardContent className="flex-1">
           {funnelChartData.length > 0 && (
-            <div style={{ height: 160 }}>
+            <div style={{ height: 140 }}>
               <ChartContainer
                 config={{ users: { label: t('sections.chartLabels.users'), color: 'var(--chart-1)' } }}
                 className="h-full w-full"
@@ -149,7 +149,7 @@ export default function CustomerSection() {
       </Card>
 
       {/* VIP Top N Table */}
-      <Card className="shadow-sm md:col-span-2 lg:col-span-3">
+      <Card className="shadow-sm md:col-span-3">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.customers.topUsers')}</CardTitle>
         </CardHeader>

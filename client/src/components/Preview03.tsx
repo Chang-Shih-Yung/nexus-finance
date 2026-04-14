@@ -31,7 +31,7 @@ function SectionWrapper({ icon: Icon, title, description, children }: SectionWra
       </div>
 
       {/* Section cards in the bento grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {children}
       </div>
     </section>

@@ -60,7 +60,7 @@ export default function TransactionSection() {
   return (
     <>
       {/* Daily Transaction Volume (Bar) */}
-      <ChartCard id="transactions" title={t('sections.transactions.dailyVolume')} height={200}>
+      <ChartCard id="transactions" title={t('sections.transactions.dailyVolume')} height={140}>
         {countData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.txnCount'), color: 'var(--chart-1)' } }}
@@ -77,7 +77,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Daily Amount Trend (Area) */}
-      <ChartCard title={t('sections.transactions.dailyAmount')} height={200}>
+      <ChartCard title={t('sections.transactions.dailyAmount')} height={140}>
         {amountData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-2)' } }}
@@ -100,7 +100,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Category Distribution (Horizontal Bar) */}
-      <ChartCard title={t('sections.transactions.categoryDist')} height={180}>
+      <ChartCard title={t('sections.transactions.categoryDist')} height={150}>
         {catData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.count'), color: 'var(--chart-3)' } }}
@@ -117,7 +117,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Channel Distribution (Pie) */}
-      <ChartCard title={t('sections.transactions.channelDist')} height={200}>
+      <ChartCard title={t('sections.transactions.channelDist')} height={140}>
         {channelData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(channelData.map((d, i) => [
@@ -143,7 +143,7 @@ export default function TransactionSection() {
       </ChartCard>
 
       {/* Success Rate Trend (Area) */}
-      <ChartCard title={t('sections.transactions.successTrend')} height={180} className="md:col-span-2 lg:col-span-2">
+      <ChartCard title={t('sections.transactions.successTrend')} height={120} className="md:col-span-2">
         {successData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.successRate'), color: 'var(--chart-2)' } }}

@@ -84,7 +84,7 @@ export default function RevenueSection() {
       </Card>
 
       {/* Daily Revenue Trend */}
-      <ChartCard title={t('sections.revenue.dailyTrend')} height={240} className="md:col-span-2 lg:col-span-2">
+      <ChartCard title={t('sections.revenue.dailyTrend')} height={140} className="md:col-span-2">
         {trendData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-1)' } }}
@@ -107,7 +107,7 @@ export default function RevenueSection() {
       </ChartCard>
 
       {/* Category Breakdown Pie */}
-      <ChartCard title={t('sections.revenue.categoryBreakdown')} height={200}>
+      <ChartCard title={t('sections.revenue.categoryBreakdown')} height={160}>
         {pieData.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(pieData.map((d, i) => [
@@ -133,7 +133,7 @@ export default function RevenueSection() {
       </ChartCard>
 
       {/* Daily Transaction Count KPI + Sparkline */}
-      <Card className="shadow-sm lg:col-span-2 flex flex-col">
+      <Card className="shadow-sm md:col-span-2 flex flex-col">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-muted-foreground">{t('sections.revenue.dailyAvgCount')}</CardTitle>
         </CardHeader>

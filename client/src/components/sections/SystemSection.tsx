@@ -127,7 +127,7 @@ export default function SystemSection() {
       </Card>
 
       {/* Branch Performance Ranking */}
-      <ChartCard title={t('sections.system.branchRanking')} height={200}>
+      <ChartCard title={t('sections.system.branchRanking')} height={160}>
         {branchData.length > 0 && (
           <ChartContainer
             config={{ value: { label: t('sections.chartLabels.txnAmount'), color: 'var(--chart-1)' } }}
@@ -144,7 +144,7 @@ export default function SystemSection() {
       </ChartCard>
 
       {/* Digital vs Branch Pie */}
-      <ChartCard title={t('sections.system.digitalVsBranch')} height={200}>
+      <ChartCard title={t('sections.system.digitalVsBranch')} height={160}>
         {channelPie.length > 0 && (
           <ChartContainer
             config={Object.fromEntries(channelPie.map((d, i) => [
@@ -170,7 +170,7 @@ export default function SystemSection() {
       </ChartCard>
 
       {/* API Latency Trend */}
-      <ChartCard title={t('sections.system.apiLatencyTrend')} height={200} className="md:col-span-2 lg:col-span-3">
+      <ChartCard title={t('sections.system.apiLatencyTrend')} height={140} className="md:col-span-3">
         {latencyData.length > 0 && (
           <ChartContainer
             config={{

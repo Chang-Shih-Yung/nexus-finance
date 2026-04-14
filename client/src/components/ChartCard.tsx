@@ -12,7 +12,7 @@ interface Props {
   children: React.ReactNode
 }
 
-export default function ChartCard({ id, title, height = 280, className, children }: Props) {
+export default function ChartCard({ id, title, height = 200, className, children }: Props) {
   const { t } = useI18n()
   const hasContent = Children.toArray(children).filter(Boolean).length > 0
 
@@ -22,7 +22,7 @@ export default function ChartCard({ id, title, height = 280, className, children
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative" style={{ minHeight: height }}>
+        <div className="relative" style={{ height }}>
           {hasContent ? children : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground/50">
               <FileBarChart className="size-8" />
