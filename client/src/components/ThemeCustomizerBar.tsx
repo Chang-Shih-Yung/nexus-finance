@@ -106,6 +106,7 @@ function Tile({
         align="start"
         sideOffset={10}
         className="p-1 bg-neutral-900/90 backdrop-blur-xl ring-1 ring-neutral-800/50 border-0 min-w-[200px] w-auto shadow-2xl rounded-xl"
+        style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
       >
         {children}
       </PopoverContent>
@@ -173,7 +174,10 @@ export default function ThemeCustomizerBar() {
       )}
 
       {/* Bar — mobile only (sidebar handles desktop) */}
-      <div className="relative z-[30] lg:hidden bg-neutral-950/90 backdrop-blur-xl ring-1 ring-neutral-800/50 rounded-2xl shrink-0 overflow-hidden shadow-xl">
+      <div
+        className="relative z-[30] lg:hidden bg-neutral-950/90 backdrop-blur-xl ring-1 ring-neutral-800/50 rounded-2xl shrink-0 overflow-hidden shadow-xl"
+        style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
+      >
 
         {/* Row 1: Scrollable tiles */}
         <div className="flex gap-2 overflow-x-auto scrollbar-none px-3 py-2.5">

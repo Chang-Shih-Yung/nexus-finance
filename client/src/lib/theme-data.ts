@@ -52,6 +52,18 @@ export const radiusPresets = [
   { label: 'Full',    value: '1rem' },
 ]
 
+// ── 5 Spacing presets (matches shadcn/ui official customizer) ─────────
+// Tailwind v4 uses --spacing as the base unit for p-*, m-*, gap-*, etc.
+// Default is 0.25rem; shuffle picks a nearby value to feel different.
+
+export const spacingPresets = [
+  { label: 'Compact', value: '0.2rem' },
+  { label: 'Tight',   value: '0.222rem' },
+  { label: 'Default', value: '0.25rem' },
+  { label: 'Cozy',    value: '0.285rem' },
+  { label: 'Relaxed', value: '0.32rem' },
+]
+
 // ── 24 Fonts ──────────────────────────────────────────────────────────
 
 export const fontOptions: FontDef[] = [

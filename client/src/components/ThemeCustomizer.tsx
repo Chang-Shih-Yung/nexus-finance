@@ -21,6 +21,7 @@ export default function ThemeCustomizer({ open, onOpenChange }: Props) {
         side="bottom"
         className="max-h-[85vh] overflow-y-auto rounded-t-2xl"
         showCloseButton={true}
+        style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
       >
         <SheetHeader className="px-4 pt-2 pb-0">
           <SheetTitle>自訂主題</SheetTitle>

@@ -11,6 +11,7 @@ import {
   stylePresets,
   fontOptions,
   radiusPresets,
+  spacingPresets,
   iconLibraries,
   type ThemeConfigKey,
 } from '@/components/ThemeCustomizerProvider'
@@ -96,6 +97,7 @@ function OptionRow({
           align="start"
           sideOffset={20}
           className="p-1.5 min-w-[200px] w-auto shadow-2xl bg-neutral-900/90 backdrop-blur-xl ring-1 ring-neutral-800/50 border-0 rounded-xl"
+          style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
         >
           {children}
         </PopoverContent>
@@ -168,6 +170,7 @@ export default function ThemeCustomizerContent() {
   const currentChartColor = colorThemes.find(c => c.name === config.chartColor) ?? colorThemes[0]
   const currentIconLib = iconLibraries.find(i => i.name === config.iconLibrary) ?? iconLibraries[0]
   const currentRadius = radiusPresets[config.radius] ?? radiusPresets[2]
+  const currentSpacing = spacingPresets[config.spacing] ?? spacingPresets[2]
 
   const lockable = (key: ThemeConfigKey) => ({
     locked: locks[key],
@@ -175,7 +178,10 @@ export default function ThemeCustomizerContent() {
   })
 
   return (
-    <div className="flex flex-col gap-3 px-2 py-3">
+    <div
+      className="flex flex-col gap-3 px-2 py-3"
+      style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
+    >
 
       {/* Style */}
       <OptionRow
@@ -298,6 +304,27 @@ export default function ThemeCustomizerContent() {
       >
         {radiusPresets.map((r, idx) => (
           <OptionItem key={r.label} label={r.label} active={config.radius === idx} onClick={() => updateConfig({ radius: idx })} />
+        ))}
+      </OptionRow>
+
+      {/* Spacing */}
+      <OptionRow
+        label="Spacing"
+        displayValue={currentSpacing.label}
+        preview={(() => {
+          // Map spacing index to gap width (0=compact, 4=relaxed)
+          const g = [1, 1.5, 2, 2.5, 3][config.spacing] ?? 2
+          return (
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white">
+              <rect x={6 - g - 1.5} y="3" width="1.5" height="6" fill="currentColor" rx="0.3" />
+              <rect x={6 + g} y="3" width="1.5" height="6" fill="currentColor" rx="0.3" />
+            </svg>
+          )
+        })()}
+        {...lockable('spacing')}
+      >
+        {spacingPresets.map((s, idx) => (
+          <OptionItem key={s.label} label={s.label} active={config.spacing === idx} onClick={() => updateConfig({ spacing: idx })} />
         ))}
       </OptionRow>
 

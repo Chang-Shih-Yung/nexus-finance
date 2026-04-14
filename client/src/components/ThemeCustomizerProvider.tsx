@@ -4,13 +4,13 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef, ty
 import { useTheme } from 'next-themes'
 import { useSearchParams, usePathname } from 'next/navigation'
 import {
-  baseThemes, colorThemes, fontOptions, stylePresets, radiusPresets,
+  baseThemes, colorThemes, fontOptions, stylePresets, radiusPresets, spacingPresets,
   loadGoogleFont,
   type BaseTheme, type ColorTheme, type FontDef, type StyleDef,
 } from '@/lib/theme-data'
 
 // Re-export for consumers
-export { baseThemes, colorThemes, fontOptions, stylePresets, radiusPresets }
+export { baseThemes, colorThemes, fontOptions, stylePresets, radiusPresets, spacingPresets }
 export type { BaseTheme, ColorTheme, FontDef, StyleDef }
 
 // Clipboard helper — always use textarea fallback (navigator.clipboard fails without HTTPS)
@@ -47,6 +47,7 @@ export interface ThemeConfig {
   themeColor: string
   chartColor: string
   radius: number
+  spacing: number
   font: string
   headingFont: string
   iconLibrary: string
@@ -61,6 +62,7 @@ const DEFAULTS: ThemeConfig = {
   themeColor: 'neutral',
   chartColor: 'neutral',
   radius: 2,
+  spacing: 2,
   font: 'geist',
   headingFont: 'inherit',
   iconLibrary: 'lucide',
@@ -68,8 +70,8 @@ const DEFAULTS: ThemeConfig = {
 
 const DEFAULT_LOCKS: Locks = {
   style: false, baseColor: false, themeColor: false,
-  chartColor: false, radius: false, font: false, headingFont: false,
-  iconLibrary: false,
+  chartColor: false, radius: false, spacing: false,
+  font: false, headingFont: false, iconLibrary: false,
 }
 
 const LOCKS_KEY = 'nexus-theme-locks'
@@ -100,6 +102,7 @@ function shuffleConfig(current: ThemeConfig, locks: Locks): ThemeConfig {
   if (!locks.themeColor) next.themeColor = pickRandom(colorThemes).name
   if (!locks.chartColor) next.chartColor = pickRandom(colorThemes).name
   if (!locks.radius) next.radius = Math.floor(Math.random() * radiusPresets.length)
+  if (!locks.spacing) next.spacing = Math.floor(Math.random() * spacingPresets.length)
   if (!locks.font) next.font = pickRandom(fontOptions).name
   if (!locks.headingFont) {
     next.headingFont = Math.random() < 0.3 ? 'inherit' : pickRandom(fontOptions).name
@@ -135,12 +138,13 @@ export function encodePreset(config: ThemeConfig, isDark: boolean): string {
     indexOf(colorThemes, config.themeColor),  // max 17 → 5 bits
     indexOf(colorThemes, config.chartColor),  // max 17 → 5 bits
     config.radius,                            // max 5  → 3 bits
+    config.spacing,                           // max 5  → 3 bits
     indexOf(fontOptions, config.font),        // max 24 → 5 bits
     headingIdx,                               // max 25 → 5 bits
     iconIdx < 0 ? 0 : iconIdx,               // max 5  → 3 bits
     isDark ? 1 : 0,                           // 1 bit
   ]
-  const sizes = [3, 3, 5, 5, 3, 5, 5, 3, 1]
+  const sizes = [3, 3, 5, 5, 3, 3, 5, 5, 3, 1]
 
   let packed = BigInt(0)
   for (let i = 0; i < fields.length; i++) {
@@ -160,7 +164,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
       return acc * BigInt(36) + BigInt(v)
     }, BigInt(0))
 
-    const sizes = [3, 3, 5, 5, 3, 5, 5, 3, 1]
+    const sizes = [3, 3, 5, 5, 3, 3, 5, 5, 3, 1]
     const values: number[] = []
     for (let i = sizes.length - 1; i >= 0; i--) {
       const mask = (BigInt(1) << BigInt(sizes[i])) - BigInt(1)
@@ -168,7 +172,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
       packed >>= BigInt(sizes[i])
     }
 
-    const [styleIdx, baseIdx, themeIdx, chartIdx, radius, fontIdx, headingIdx, iconIdx, modeVal] = values
+    const [styleIdx, baseIdx, themeIdx, chartIdx, radius, spacing, fontIdx, headingIdx, iconIdx, modeVal] = values
 
     const config: ThemeConfig = { ...DEFAULTS }
     if (styleIdx < stylePresets.length) config.style = stylePresets[styleIdx].name
@@ -176,6 +180,7 @@ function decodePreset(preset: string): { config: ThemeConfig; mode?: string } | 
     if (themeIdx < colorThemes.length) config.themeColor = colorThemes[themeIdx].name
     if (chartIdx < colorThemes.length) config.chartColor = colorThemes[chartIdx].name
     if (radius >= 0 && radius < radiusPresets.length) config.radius = radius
+    if (spacing >= 0 && spacing < spacingPresets.length) config.spacing = spacing
     if (fontIdx < fontOptions.length) config.font = fontOptions[fontIdx].name
     if (headingIdx === 0) {
       config.headingFont = 'inherit'
@@ -257,10 +262,12 @@ function applyThemeVars(config: ThemeConfig, isDark: boolean) {
   }
 
   const merged = { ...baseVars, ...colorVars, ...chartVars }
-  const rp = radiusPresets[config.radius] ?? radiusPresets[2]
-  merged.radius = rp.value
+  // NOTE: --spacing and --radius are NOT written to :root — they're applied
+  // only inside <ThemedContentWrapper> so the customizer panel and page
+  // chrome stay at defaults. See ThemedContentWrapper below.
 
   for (const key of ALL_VARS) {
+    if (key === 'radius') continue
     const val = merged[key]
     if (val) root.style.setProperty(`--${key}`, val)
   }
@@ -364,6 +371,7 @@ export function ThemeCustomizerProvider({ children }: { children: ReactNode }) {
     saveLocks(DEFAULT_LOCKS)
     const root = document.documentElement
     ALL_VARS.forEach(v => root.style.removeProperty(`--${v}`))
+    root.style.removeProperty('--spacing')
     root.style.removeProperty('--font-sans')
     root.style.removeProperty('--font-heading')
     // Reset URL
@@ -378,5 +386,28 @@ export function ThemeCustomizerProvider({ children }: { children: ReactNode }) {
     }}>
       {children}
     </ThemeCustomizerContext.Provider>
+  )
+}
+
+// Wrapper that applies shuffle-controlled --spacing and --radius only to its
+// subtree. Use this around the dashboard main content so the page chrome
+// (header, sidebar, customizer panel) stays at defaults.
+export function ThemedContentWrapper({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
+  const { config } = useThemeCustomizer()
+  const spacing = spacingPresets[config.spacing]?.value ?? '0.25rem'
+  const radius = radiusPresets[config.radius]?.value ?? '0.625rem'
+  return (
+    <div
+      className={className}
+      style={{ '--spacing': spacing, '--radius': radius } as React.CSSProperties}
+    >
+      {children}
+    </div>
   )
 }

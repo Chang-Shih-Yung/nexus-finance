@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Menu } from '@/lib/icons'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from '@/components/ui/popover'
-import { ThemeCustomizerProvider } from '@/components/ThemeCustomizerProvider'
+import { ThemeCustomizerProvider, ThemedContentWrapper } from '@/components/ThemeCustomizerProvider'
 import ThemeCustomizerContent, { ThemeCustomizerFooter } from '@/components/ThemeCustomizerContent'
 import ThemeCustomizerBar from '@/components/ThemeCustomizerBar'
 
@@ -175,7 +175,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
 
           {/* Desktop sidebar — dark card with customizer options */}
-          <aside className="hidden lg:flex w-56 shrink-0 self-start flex-col overflow-auto scrollbar-none bg-neutral-950/90 backdrop-blur-xl rounded-2xl ring-1 ring-neutral-800/50 shadow-xl">
+          <aside
+            className="hidden lg:flex w-56 shrink-0 self-start flex-col overflow-auto scrollbar-none bg-neutral-950/90 backdrop-blur-xl rounded-2xl ring-1 ring-neutral-800/50 shadow-xl"
+            style={{ '--spacing': '0.25rem', '--radius': '0.625rem' } as React.CSSProperties}
+          >
             <ThemeCustomizerContent />
             <ThemeCustomizerFooter />
           </aside>
@@ -183,9 +186,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {/* Content card — white, no border */}
           <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-background rounded-2xl shadow-sm">
             <main className="flex-1 overflow-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <div className="px-4 md:px-8 py-6">
+              <ThemedContentWrapper className="px-4 md:px-8 py-6">
                 {children}
-              </div>
+              </ThemedContentWrapper>
             </main>
           </div>
         </div>
