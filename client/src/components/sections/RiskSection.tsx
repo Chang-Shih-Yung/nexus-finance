@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,7 +21,7 @@ import { ERROR_CODE_LABELS, getLabel } from '@/lib/i18n/labels'
 import { api } from '@/lib/api'
 import { downloadCsv } from '@/lib/csv-export'
 import { useQueryClient } from '@tanstack/react-query'
-import type { BreakdownRow, TrendRow, AnomalyRow, FailedTxRow, AckRow } from '@/types/rpc'
+import type { BreakdownRow, TrendRow, AnomalyRow, FailedTxRow } from '@/types/rpc'
 import { PIE_COLORS_ALT, TIER_VARIANT } from '@/lib/chart-constants'
 import { formatTime, toChartData } from '@/lib/format'
 
@@ -35,8 +35,6 @@ export default function RiskSection() {
   const [reviewNote, setReviewNote] = useState('')
   const [reviewBusy, setReviewBusy] = useState(false)
 
-  // ── Anomaly ack state ──
-  const [ackBusy, setAckBusy] = useState<string | null>(null)
 
   const metricLabel = (k: string) => {
     const map: Record<string, string> = {
@@ -77,14 +75,6 @@ export default function RiskSection() {
     { p_limit: 50, p_from: fromISO, p_to: toISO }
   )
 
-  const { data: acks } = useRpc<AckRow[]>(
-    ['anomaly-acks-today'],
-    'nf_anomaly_acks_today'
-  )
-
-  const ackedSet = useMemo(() => new Set(
-    (acks ?? []).map(a => `${a.metric_key}|${a.dimension}|${a.dim_value}`)
-  ), [acks])
 
   const pieData = (errorBreakdown ?? []).map(d => ({
     name: getLabel(ERROR_CODE_LABELS, locale, d.dimension_value),
@@ -109,18 +99,6 @@ export default function RiskSection() {
     }
   }
 
-  async function handleAck(a: AnomalyRow) {
-    const key = `${a.metric_key}|${a.dimension}|${a.dimension_value}`
-    setAckBusy(key)
-    try {
-      await api.acknowledgeAnomaly(a.metric_key, a.dimension, a.dimension_value)
-      qc.invalidateQueries({ queryKey: ['anomaly-acks-today'] })
-    } catch (err) {
-      console.error('Failed to acknowledge anomaly:', err)
-    } finally {
-      setAckBusy(null)
-    }
-  }
 
   function handleExportCsv() {
     const rows = failedTx ?? []
@@ -243,41 +221,24 @@ export default function RiskSection() {
             </p>
           ) : (
             <div className="space-y-2">
-              {anomalyList.slice(0, 5).map((a, i) => {
-                const ackKey = `${a.metric_key}|${a.dimension}|${a.dimension_value}`
-                const isAcked = ackedSet.has(ackKey)
-                return (
-                  <div key={i} className={`flex items-center justify-between py-1.5 border-b border-border/50 last:border-0 ${isAcked ? 'opacity-40' : ''}`}>
+              {anomalyList.slice(0, 5).map((a, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
                     <div>
                       <p className="text-xs font-medium">{metricLabel(a.metric_key)}</p>
                       <p className="text-[10px] text-muted-foreground">{a.dimension}: {a.dimension_value}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <Badge variant="destructive" className="text-xs">
-                          {Math.abs(Number(a.z_score)) >= 3
-                            ? t('sections.risk.severityHigh')
-                            : t('sections.risk.severityMedium')}
-                        </Badge>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {t('sections.risk.today')} {Number(a.today_value).toLocaleString()} / {t('sections.risk.avg')} {Number(a.avg_7d).toLocaleString()}
-                        </p>
-                      </div>
-                      {!isAcked && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 px-1.5"
-                          disabled={ackBusy === ackKey}
-                          onClick={() => handleAck(a)}
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
+                    <div className="text-right">
+                      <Badge variant="destructive" className="text-xs">
+                        {Math.abs(Number(a.z_score)) >= 3
+                          ? t('sections.risk.severityHigh')
+                          : t('sections.risk.severityMedium')}
+                      </Badge>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {t('sections.risk.today')} {Number(a.today_value).toLocaleString()} / {t('sections.risk.avg')} {Number(a.avg_7d).toLocaleString()}
+                      </p>
                     </div>
                   </div>
-                )
-              })}
+                ))}
             </div>
           )}
         </CardContent>
